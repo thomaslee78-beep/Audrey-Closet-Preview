@@ -91,6 +91,7 @@ jobs:
               '  <script src="board-focus-v13.22-dev8.js?v=13.22-board-focus-dev8"></script>\n',
               '  <script src="board-focus-v13.22-dev9.js?v=13.22-board-focus-dev9"></script>\n',
               '  <script src="board-focus-v13.22-dev10.js?v=13.22-board-focus-dev10"></script>\n',
+              '  <script src="board-focus-v13.22-dev10.js?v=13.22-board-focus-dev10-fix2"></script>\n',
           ]
           for tag in remove_tags:
               html = html.replace(tag, '')
@@ -106,21 +107,20 @@ jobs:
               '  <script src="board-focus-v13.22-dev1.js?v=13.22-board-focus-dev1"></script>\n',
               '  <script src="board-focus-v13.22-dev2.js?v=13.22-board-focus-dev2"></script>\n',
               '  <script src="board-focus-v13.22-dev7.js?v=13.22-board-focus-dev7"></script>\n',
-              '  <script src="board-focus-v13.22-dev9.js?v=13.22-board-focus-dev9"></script>\n',
-              '  <script src="board-focus-v13.22-dev10.js?v=13.22-board-focus-dev10-fix2"></script>\n',
+              '  <script src="board-focus-v13.22-dev10.js?v=13.22-board-focus-dev10-fix3"></script>\n',
           ]
           anchor = '  <script src="shape-studio-v13.22-dev26.js?v=13.22-dev26"></script>\n'
           if anchor not in html: raise SystemExit('Expected Shape Studio script anchor not found')
           html = html.replace(anchor, anchor + ''.join(tags), 1)
 
-          html = html.replace('app.js?v=13.22-dev26','app.js?v=13.22-dev26-preview-board-focus-dev10-fix2')
+          html = html.replace('app.js?v=13.22-dev26','app.js?v=13.22-dev26-preview-board-focus-dev10-fix3')
 
           sw_pattern = re.compile(r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*',re.S)
           html, removed = sw_pattern.subn('\n', html, count=1)
           if removed != 1: raise SystemExit('Expected service-worker registration block not found')
 
-          cleanup = '''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function (registrations) {\n        var previewRegs = registrations.filter(function (registration) { return registration.scope.indexOf('/Audrey-Closet-Preview/') !== -1; });\n        if (!previewRegs.length) return;\n        return Promise.all(previewRegs.map(function (registration) { return registration.unregister(); })).then(function () {\n          if (!sessionStorage.getItem('audreyPreviewSwCleanedBoardFocusDev10Fix2')) {\n            sessionStorage.setItem('audreyPreviewSwCleanedBoardFocusDev10Fix2', '1');\n            location.reload();\n          }\n        });\n      }).catch(function (error) { console.warn('Preview service-worker cleanup failed', error); });\n    }\n  </script>\n'''
-          app_tag = '  <script src="app.js?v=13.22-dev26-preview-board-focus-dev10-fix2"></script>\n'
+          cleanup = '''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function (registrations) {\n        var previewRegs = registrations.filter(function (registration) { return registration.scope.indexOf('/Audrey-Closet-Preview/') !== -1; });\n        if (!previewRegs.length) return;\n        return Promise.all(previewRegs.map(function (registration) { return registration.unregister(); })).then(function () {\n          if (!sessionStorage.getItem('audreyPreviewSwCleanedBoardFocusDev10Fix3')) {\n            sessionStorage.setItem('audreyPreviewSwCleanedBoardFocusDev10Fix3', '1');\n            location.reload();\n          }\n        });\n      }).catch(function (error) { console.warn('Preview service-worker cleanup failed', error); });\n    }\n  </script>\n'''
+          app_tag = '  <script src="app.js?v=13.22-dev26-preview-board-focus-dev10-fix3"></script>\n'
           if 'id="previewServiceWorkerCleanup"' not in html:
               if app_tag not in html: raise SystemExit('Expected Preview app.js script tag not found')
               html = html.replace(app_tag, cleanup + app_tag, 1)
@@ -143,7 +143,7 @@ jobs:
           versioned, manifest_count = re.subn(r'(<link\s+[^>]*rel=["\']manifest["\'][^>]*href=["\'])[^"\']+(["\'][^>]*>)',r'\1' + preview_manifest_name + r'\2',versioned,count=1,flags=re.I)
           if manifest_count != 1: raise SystemExit('Expected manifest link not found in index.html')
 
-          marker = '<meta name="audrey-preview-build" content="board-focus-dev10-fix2-runtime-baked">\n'
+          marker = '<meta name="audrey-preview-build" content="board-focus-dev10-fix3-runtime-baked">\n'
           versioned = versioned.replace('</head>', '  ' + marker + '</head>', 1)
           Path('site/board-focus-dev10.html').write_text(versioned, encoding='utf-8')
           PY
