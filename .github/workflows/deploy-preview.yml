@@ -29,11 +29,49 @@ jobs:
           ref: v13.22-draw-clean-dev1
           path: site
 
-      - name: Prepare cache-free preview runtime
+      - name: Pre-bake stable runtime patch into preview app
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const sw = fs.readFileSync('site/sw.js', 'utf8');
+          const app = fs.readFileSync('site/app.js', 'utf8');
+
+          const tierStart = sw.indexOf('const TIER_PATCH=String.raw`');
+          const withStart = sw.indexOf('function withTierPatch(resp){', tierStart);
+          const installStart = sw.indexOf("self.addEventListener('install'", withStart);
+          if (tierStart < 0 || withStart < 0 || installStart < 0) {
+            throw new Error('Could not locate stable service-worker runtime patch');
+          }
+
+          const tierBlock = sw.slice(tierStart, withStart);
+          const withBlock = sw.slice(withStart, installStart);
+          const makePatch = new Function(`${tierBlock}\n${withBlock}\nreturn { withTierPatch };`);
+          const { withTierPatch } = makePatch();
+
+          (async () => {
+            const patchedResponse = await withTierPatch(new Response(app, {
+              status: 200,
+              headers: { 'content-type': 'application/javascript; charset=utf-8' }
+            }));
+            const patched = await patchedResponse.text();
+            if (!patched.includes('v13.21 baseline — dev12 feature set, fresh delivery')) {
+              throw new Error('Stable runtime patch marker missing after pre-bake');
+            }
+            fs.writeFileSync('site/app.js', patched, 'utf8');
+            console.log('Stable runtime patch pre-baked into Preview app.js');
+          })().catch(error => {
+            console.error(error);
+            process.exit(1);
+          });
+          NODE
+
+      - name: Prepare deterministic Draw dev3 preview
         shell: bash
         run: |
           python - <<'PY'
           from pathlib import Path
+          import json
           import re
 
           p = Path('site/index.html')
@@ -54,6 +92,12 @@ jobs:
                   raise SystemExit('Expected Shape Studio script anchor not found')
               html = html.replace(anchor, anchor + draw_tag, 1)
 
+          # Use a Preview-only app.js URL so Safari cannot reuse a prior raw app.js response.
+          html = html.replace(
+              'app.js?v=13.22-dev26',
+              'app.js?v=13.22-dev26-preview-draw-dev3'
+          )
+
           # Preview must never register the production-style PWA service worker.
           sw_pattern = re.compile(
               r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*',
@@ -64,18 +108,48 @@ jobs:
               raise SystemExit('Expected service-worker registration block not found')
 
           # One-time transition cleanup: unregister only this Preview repo scope.
-          cleanup = '''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function (registrations) {\n        var previewRegs = registrations.filter(function (registration) {\n          return registration.scope.indexOf('/Audrey-Closet-Preview/') !== -1;\n        });\n        if (!previewRegs.length) return;\n        return Promise.all(previewRegs.map(function (registration) { return registration.unregister(); }))\n          .then(function () {\n            if (!sessionStorage.getItem('audreyPreviewSwCleaned')) {\n              sessionStorage.setItem('audreyPreviewSwCleaned', '1');\n              location.reload();\n            }\n          });\n      }).catch(function (error) { console.warn('Preview service-worker cleanup failed', error); });\n    }\n  </script>\n'''
+          cleanup = '''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function (registrations) {\n        var previewRegs = registrations.filter(function (registration) {\n          return registration.scope.indexOf('/Audrey-Closet-Preview/') !== -1;\n        });\n        if (!previewRegs.length) return;\n        return Promise.all(previewRegs.map(function (registration) { return registration.unregister(); }))\n          .then(function () {\n            if (!sessionStorage.getItem('audreyPreviewSwCleanedDev3')) {\n              sessionStorage.setItem('audreyPreviewSwCleanedDev3', '1');\n              location.reload();\n            }\n          });\n      }).catch(function (error) { console.warn('Preview service-worker cleanup failed', error); });\n    }\n  </script>\n'''
+          app_tag = '  <script src="app.js?v=13.22-dev26-preview-draw-dev3"></script>\n'
           if 'id="previewServiceWorkerCleanup"' not in html:
-              html = html.replace('  <script src="app.js?v=13.22-dev26"></script>\n', cleanup + '  <script src="app.js?v=13.22-dev26"></script>\n', 1)
+              if app_tag not in html:
+                  raise SystemExit('Expected Preview app.js script tag not found')
+              html = html.replace(app_tag, cleanup + app_tag, 1)
 
-          # Add a build-specific iPhone/Safari entry page to defeat restored page snapshots.
+          # Root Preview is also current, but the versioned page is the canonical iPhone test target.
+          p.write_text(html, encoding='utf-8')
+
           no_cache_meta = '  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">\n  <meta http-equiv="Pragma" content="no-cache">\n  <meta http-equiv="Expires" content="0">\n'
           versioned = html
           if no_cache_meta not in versioned:
               versioned = versioned.replace('  <meta name="viewport"', no_cache_meta + '  <meta name="viewport"', 1)
-          Path('site/draw-dev3.html').write_text(versioned, encoding='utf-8')
 
-          p.write_text(html, encoding='utf-8')
+          # Give Add-to-Home-Screen its own manifest/start URL so iOS reopens dev3, not Preview root.
+          manifest_path = Path('site/manifest.webmanifest')
+          manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+          manifest['name'] = "Audrey Closet — Draw Dev3"
+          manifest['short_name'] = "Audrey Draw Dev3"
+          manifest['id'] = './draw-dev3.html'
+          manifest['start_url'] = './draw-dev3.html'
+          manifest['scope'] = './'
+          preview_manifest_name = 'manifest-preview-draw-dev3.webmanifest'
+          Path('site/' + preview_manifest_name).write_text(
+              json.dumps(manifest, ensure_ascii=False, indent=2) + '\n',
+              encoding='utf-8'
+          )
+          versioned, manifest_count = re.subn(
+              r'(<link\s+[^>]*rel=["\']manifest["\'][^>]*href=["\'])[^"\']+(["\'][^>]*>)',
+              r'\1' + preview_manifest_name + r'\2',
+              versioned,
+              count=1,
+              flags=re.I,
+          )
+          if manifest_count != 1:
+              raise SystemExit('Expected manifest link not found in index.html')
+
+          # Visible build marker makes it obvious which iPhone build is running.
+          marker = '<meta name="audrey-preview-build" content="draw-dev3-runtime-baked">\n'
+          versioned = versioned.replace('</head>', '  ' + marker + '</head>', 1)
+          Path('site/draw-dev3.html').write_text(versioned, encoding='utf-8')
           PY
 
       - name: Configure Pages
