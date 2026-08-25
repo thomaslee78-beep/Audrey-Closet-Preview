@@ -29,25 +29,43 @@ jobs:
           ref: v13.22-draw-clean-dev1
           path: site
 
-      - name: Inject Draw dev module into preview copy
+      - name: Prepare cache-free preview runtime
         shell: bash
         run: |
           python - <<'PY'
           from pathlib import Path
+          import re
+
           p = Path('site/index.html')
           html = p.read_text(encoding='utf-8')
+
+          # Keep Draw development isolated and cache-busted per build.
           old_tags = [
               '  <script src="draw-studio-v13.22-dev1.js?v=13.22-draw-clean-dev1"></script>\n',
               '  <script src="draw-studio-v13.22-dev2.js?v=13.22-draw-clean-dev2"></script>\n',
           ]
-          tag = '  <script src="draw-studio-v13.22-dev2-fix1.js?v=13.22-draw-dev2-fix1"></script>\n'
+          draw_tag = '  <script src="draw-studio-v13.22-dev2-fix1.js?v=13.22-draw-dev2-fix1"></script>\n'
           anchor = '  <script src="shape-studio-v13.22-dev26.js?v=13.22-dev26"></script>\n'
           for old in old_tags:
               html = html.replace(old, '')
-          if tag not in html:
+          if draw_tag not in html:
               if anchor not in html:
                   raise SystemExit('Expected Shape Studio script anchor not found')
-              html = html.replace(anchor, anchor + tag, 1)
+              html = html.replace(anchor, anchor + draw_tag, 1)
+
+          # Preview must never register the production-style PWA service worker.
+          sw_pattern = re.compile(
+              r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*',
+              re.S,
+          )
+          html, removed = sw_pattern.subn('\n', html, count=1)
+          if removed != 1:
+              raise SystemExit('Expected service-worker registration block not found')
+
+          # One-time transition cleanup: unregister only this Preview repo scope.
+          cleanup = '''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function (registrations) {\n        var previewRegs = registrations.filter(function (registration) {\n          return registration.scope.indexOf('/Audrey-Closet-Preview/') !== -1;\n        });\n        if (!previewRegs.length) return;\n        return Promise.all(previewRegs.map(function (registration) { return registration.unregister(); }))\n          .then(function () {\n            if (!sessionStorage.getItem('audreyPreviewSwCleaned')) {\n              sessionStorage.setItem('audreyPreviewSwCleaned', '1');\n              location.reload();\n            }\n          });\n      }).catch(function (error) { console.warn('Preview service-worker cleanup failed', error); });\n    }\n  </script>\n'''
+          html = html.replace('  <script src="app.js?v=13.22-dev26"></script>\n', cleanup + '  <script src="app.js?v=13.22-dev26"></script>\n', 1)
+
           p.write_text(html, encoding='utf-8')
           PY
 
@@ -62,5 +80,3 @@ jobs:
       - name: Deploy preview
         id: deployment
         uses: actions/deploy-pages@v4
-
-# redeploy marker: draw dev2 fix1 no observer
