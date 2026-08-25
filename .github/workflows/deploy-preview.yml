@@ -52,7 +52,7 @@ jobs:
           })().catch(error => { console.error(error); process.exit(1); });
           NODE
 
-      - name: Prepare deterministic Draw dev15 preview
+      - name: Prepare deterministic Decorate dev16 preview
         shell: bash
         run: |
           python - <<'PY'
@@ -84,25 +84,29 @@ jobs:
           arrow_tag = '  <script src="draw-studio-v13.22-dev13.js?v=13.22-draw-dev13"></script>\n'
           refine_tag = '  <script src="draw-studio-v13.22-dev14.js?v=13.22-draw-dev14"></script>\n'
           compact_tag = '  <script src="draw-studio-v13.22-dev15.js?v=13.22-draw-dev15"></script>\n'
+          consistency_tag = '  <script src="draw-studio-v13.22-dev16.js?v=13.22-decorate-dev16"></script>\n'
           anchor = '  <script src="shape-studio-v13.22-dev26.js?v=13.22-dev26"></script>\n'
+
+          chain = engine_tag + guard_tag + line_tag + arrow_tag + refine_tag + compact_tag + consistency_tag
           if engine_tag not in html:
               if anchor not in html: raise SystemExit('Expected Shape Studio script anchor not found')
-              html = html.replace(anchor, anchor + engine_tag + guard_tag + line_tag + arrow_tag + refine_tag + compact_tag, 1)
+              html = html.replace(anchor, anchor + chain, 1)
           else:
               if guard_tag not in html: html = html.replace(engine_tag, engine_tag + guard_tag, 1)
               if line_tag not in html: html = html.replace(guard_tag, guard_tag + line_tag, 1)
               if arrow_tag not in html: html = html.replace(line_tag, line_tag + arrow_tag, 1)
               if refine_tag not in html: html = html.replace(arrow_tag, arrow_tag + refine_tag, 1)
               if compact_tag not in html: html = html.replace(refine_tag, refine_tag + compact_tag, 1)
+              if consistency_tag not in html: html = html.replace(compact_tag, compact_tag + consistency_tag, 1)
 
-          html = html.replace('app.js?v=13.22-dev26','app.js?v=13.22-dev26-preview-draw-dev15')
+          html = html.replace('app.js?v=13.22-dev26','app.js?v=13.22-dev26-preview-decorate-dev16')
 
           sw_pattern = re.compile(r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*',re.S)
           html, removed = sw_pattern.subn('\n', html, count=1)
           if removed != 1: raise SystemExit('Expected service-worker registration block not found')
 
-          cleanup = '''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function (registrations) {\n        var previewRegs = registrations.filter(function (registration) { return registration.scope.indexOf('/Audrey-Closet-Preview/') !== -1; });\n        if (!previewRegs.length) return;\n        return Promise.all(previewRegs.map(function (registration) { return registration.unregister(); })).then(function () {\n          if (!sessionStorage.getItem('audreyPreviewSwCleanedDev15')) {\n            sessionStorage.setItem('audreyPreviewSwCleanedDev15', '1');\n            location.reload();\n          }\n        });\n      }).catch(function (error) { console.warn('Preview service-worker cleanup failed', error); });\n    }\n  </script>\n'''
-          app_tag = '  <script src="app.js?v=13.22-dev26-preview-draw-dev15"></script>\n'
+          cleanup = '''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function (registrations) {\n        var previewRegs = registrations.filter(function (registration) { return registration.scope.indexOf('/Audrey-Closet-Preview/') !== -1; });\n        if (!previewRegs.length) return;\n        return Promise.all(previewRegs.map(function (registration) { return registration.unregister(); })).then(function () {\n          if (!sessionStorage.getItem('audreyPreviewSwCleanedDev16')) {\n            sessionStorage.setItem('audreyPreviewSwCleanedDev16', '1');\n            location.reload();\n          }\n        });\n      }).catch(function (error) { console.warn('Preview service-worker cleanup failed', error); });\n    }\n  </script>\n'''
+          app_tag = '  <script src="app.js?v=13.22-dev26-preview-decorate-dev16"></script>\n'
           if 'id="previewServiceWorkerCleanup"' not in html:
               if app_tag not in html: raise SystemExit('Expected Preview app.js script tag not found')
               html = html.replace(app_tag, cleanup + app_tag, 1)
@@ -116,19 +120,19 @@ jobs:
 
           manifest_path = Path('site/manifest.webmanifest')
           manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
-          manifest['name'] = "Audrey Closet — Draw Dev15"
-          manifest['short_name'] = "Audrey Draw Dev15"
-          manifest['id'] = './draw-dev15.html'
-          manifest['start_url'] = './draw-dev15.html'
+          manifest['name'] = "Audrey Closet — Decorate Dev16"
+          manifest['short_name'] = "Audrey Decorate Dev16"
+          manifest['id'] = './decorate-dev16.html'
+          manifest['start_url'] = './decorate-dev16.html'
           manifest['scope'] = './'
-          preview_manifest_name = 'manifest-preview-draw-dev15.webmanifest'
+          preview_manifest_name = 'manifest-preview-decorate-dev16.webmanifest'
           Path('site/' + preview_manifest_name).write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
           versioned, manifest_count = re.subn(r'(<link\s+[^>]*rel=["\']manifest["\'][^>]*href=["\'])[^"\']+(["\'][^>]*>)',r'\1' + preview_manifest_name + r'\2',versioned,count=1,flags=re.I)
           if manifest_count != 1: raise SystemExit('Expected manifest link not found in index.html')
 
-          marker = '<meta name="audrey-preview-build" content="draw-dev15-runtime-baked">\n'
+          marker = '<meta name="audrey-preview-build" content="decorate-dev16-runtime-baked">\n'
           versioned = versioned.replace('</head>', '  ' + marker + '</head>', 1)
-          Path('site/draw-dev15.html').write_text(versioned, encoding='utf-8')
+          Path('site/decorate-dev16.html').write_text(versioned, encoding='utf-8')
           PY
 
       - name: Configure Pages
