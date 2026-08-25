@@ -29,6 +29,22 @@ jobs:
           ref: v13.22-draw-clean-dev1
           path: site
 
+      - name: Inject Draw dev module into preview copy
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('site/index.html')
+          html = p.read_text(encoding='utf-8')
+          tag = '  <script src="draw-studio-v13.22-dev1.js?v=13.22-draw-clean-dev1"></script>\n'
+          anchor = '  <script src="shape-studio-v13.22-dev26.js?v=13.22-dev26"></script>\n'
+          if tag not in html:
+              if anchor not in html:
+                  raise SystemExit('Expected Shape Studio script anchor not found')
+              html = html.replace(anchor, anchor + tag, 1)
+              p.write_text(html, encoding='utf-8')
+          PY
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
