@@ -66,7 +66,7 @@ jobs:
           });
           NODE
 
-      - name: Prepare deterministic Draw dev4 preview
+      - name: Prepare deterministic Draw dev5 preview
         shell: bash
         run: |
           python - <<'PY'
@@ -83,8 +83,9 @@ jobs:
               '  <script src="draw-studio-v13.22-dev2.js?v=13.22-draw-clean-dev2"></script>\n',
               '  <script src="draw-studio-v13.22-dev2-fix1.js?v=13.22-draw-dev2-fix1"></script>\n',
               '  <script src="draw-studio-v13.22-dev3.js?v=13.22-draw-dev3"></script>\n',
+              '  <script src="draw-studio-v13.22-dev4.js?v=13.22-draw-dev4"></script>\n',
           ]
-          draw_tag = '  <script src="draw-studio-v13.22-dev4.js?v=13.22-draw-dev4"></script>\n'
+          draw_tag = '  <script src="draw-studio-v13.22-dev5.js?v=13.22-draw-dev5"></script>\n'
           anchor = '  <script src="shape-studio-v13.22-dev26.js?v=13.22-dev26"></script>\n'
           for old in old_tags:
               html = html.replace(old, '')
@@ -96,7 +97,7 @@ jobs:
           # Use a Preview-only app.js URL so Safari cannot reuse a prior raw app.js response.
           html = html.replace(
               'app.js?v=13.22-dev26',
-              'app.js?v=13.22-dev26-preview-draw-dev4'
+              'app.js?v=13.22-dev26-preview-draw-dev5'
           )
 
           # Preview must never register the production-style PWA service worker.
@@ -109,8 +110,8 @@ jobs:
               raise SystemExit('Expected service-worker registration block not found')
 
           # One-time transition cleanup: unregister only this Preview repo scope.
-          cleanup = '''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function (registrations) {\n        var previewRegs = registrations.filter(function (registration) {\n          return registration.scope.indexOf('/Audrey-Closet-Preview/') !== -1;\n        });\n        if (!previewRegs.length) return;\n        return Promise.all(previewRegs.map(function (registration) { return registration.unregister(); }))\n          .then(function () {\n            if (!sessionStorage.getItem('audreyPreviewSwCleanedDev4')) {\n              sessionStorage.setItem('audreyPreviewSwCleanedDev4', '1');\n              location.reload();\n            }\n          });\n      }).catch(function (error) { console.warn('Preview service-worker cleanup failed', error); });\n    }\n  </script>\n'''
-          app_tag = '  <script src="app.js?v=13.22-dev26-preview-draw-dev4"></script>\n'
+          cleanup = '''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function (registrations) {\n        var previewRegs = registrations.filter(function (registration) {\n          return registration.scope.indexOf('/Audrey-Closet-Preview/') !== -1;\n        });\n        if (!previewRegs.length) return;\n        return Promise.all(previewRegs.map(function (registration) { return registration.unregister(); }))\n          .then(function () {\n            if (!sessionStorage.getItem('audreyPreviewSwCleanedDev5')) {\n              sessionStorage.setItem('audreyPreviewSwCleanedDev5', '1');\n              location.reload();\n            }\n          });\n      }).catch(function (error) { console.warn('Preview service-worker cleanup failed', error); });\n    }\n  </script>\n'''
+          app_tag = '  <script src="app.js?v=13.22-dev26-preview-draw-dev5"></script>\n'
           if 'id="previewServiceWorkerCleanup"' not in html:
               if app_tag not in html:
                   raise SystemExit('Expected Preview app.js script tag not found')
@@ -124,15 +125,15 @@ jobs:
           if no_cache_meta not in versioned:
               versioned = versioned.replace('  <meta name="viewport"', no_cache_meta + '  <meta name="viewport"', 1)
 
-          # Give Add-to-Home-Screen its own manifest/start URL so iOS reopens dev4, not Preview root.
+          # Give Add-to-Home-Screen its own manifest/start URL so iOS reopens dev5, not Preview root.
           manifest_path = Path('site/manifest.webmanifest')
           manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
-          manifest['name'] = "Audrey Closet — Draw Dev4"
-          manifest['short_name'] = "Audrey Draw Dev4"
-          manifest['id'] = './draw-dev4.html'
-          manifest['start_url'] = './draw-dev4.html'
+          manifest['name'] = "Audrey Closet — Draw Dev5"
+          manifest['short_name'] = "Audrey Draw Dev5"
+          manifest['id'] = './draw-dev5.html'
+          manifest['start_url'] = './draw-dev5.html'
           manifest['scope'] = './'
-          preview_manifest_name = 'manifest-preview-draw-dev4.webmanifest'
+          preview_manifest_name = 'manifest-preview-draw-dev5.webmanifest'
           Path('site/' + preview_manifest_name).write_text(
               json.dumps(manifest, ensure_ascii=False, indent=2) + '\n',
               encoding='utf-8'
@@ -147,9 +148,9 @@ jobs:
           if manifest_count != 1:
               raise SystemExit('Expected manifest link not found in index.html')
 
-          marker = '<meta name="audrey-preview-build" content="draw-dev4-runtime-baked">\n'
+          marker = '<meta name="audrey-preview-build" content="draw-dev5-runtime-baked">\n'
           versioned = versioned.replace('</head>', '  ' + marker + '</head>', 1)
-          Path('site/draw-dev4.html').write_text(versioned, encoding='utf-8')
+          Path('site/draw-dev5.html').write_text(versioned, encoding='utf-8')
           PY
 
       - name: Configure Pages
