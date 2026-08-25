@@ -52,7 +52,7 @@ jobs:
           })().catch(error => { console.error(error); process.exit(1); });
           NODE
 
-      - name: Prepare deterministic Board Focus dev5 preview
+      - name: Prepare deterministic Board Focus dev6 preview
         shell: bash
         run: |
           python - <<'PY'
@@ -91,6 +91,7 @@ jobs:
               '  <script src="board-focus-v13.22-dev3.js?v=13.22-board-focus-dev3"></script>\n',
               '  <script src="board-focus-v13.22-dev4.js?v=13.22-board-focus-dev4"></script>\n',
               '  <script src="board-focus-v13.22-dev5.js?v=13.22-board-focus-dev5"></script>\n',
+              '  <script src="board-focus-v13.22-dev6.js?v=13.22-board-focus-dev6"></script>\n',
           ]
           anchor = '  <script src="shape-studio-v13.22-dev26.js?v=13.22-dev26"></script>\n'
           if anchor not in html: raise SystemExit('Expected Shape Studio script anchor not found')
@@ -98,14 +99,14 @@ jobs:
               html = html.replace(tag, '')
           html = html.replace(anchor, anchor + ''.join(tags), 1)
 
-          html = html.replace('app.js?v=13.22-dev26','app.js?v=13.22-dev26-preview-board-focus-dev5')
+          html = html.replace('app.js?v=13.22-dev26','app.js?v=13.22-dev26-preview-board-focus-dev6')
 
           sw_pattern = re.compile(r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*',re.S)
           html, removed = sw_pattern.subn('\n', html, count=1)
           if removed != 1: raise SystemExit('Expected service-worker registration block not found')
 
-          cleanup = '''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function (registrations) {\n        var previewRegs = registrations.filter(function (registration) { return registration.scope.indexOf('/Audrey-Closet-Preview/') !== -1; });\n        if (!previewRegs.length) return;\n        return Promise.all(previewRegs.map(function (registration) { return registration.unregister(); })).then(function () {\n          if (!sessionStorage.getItem('audreyPreviewSwCleanedBoardFocusDev5')) {\n            sessionStorage.setItem('audreyPreviewSwCleanedBoardFocusDev5', '1');\n            location.reload();\n          }\n        });\n      }).catch(function (error) { console.warn('Preview service-worker cleanup failed', error); });\n    }\n  </script>\n'''
-          app_tag = '  <script src="app.js?v=13.22-dev26-preview-board-focus-dev5"></script>\n'
+          cleanup = '''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function (registrations) {\n        var previewRegs = registrations.filter(function (registration) { return registration.scope.indexOf('/Audrey-Closet-Preview/') !== -1; });\n        if (!previewRegs.length) return;\n        return Promise.all(previewRegs.map(function (registration) { return registration.unregister(); })).then(function () {\n          if (!sessionStorage.getItem('audreyPreviewSwCleanedBoardFocusDev6')) {\n            sessionStorage.setItem('audreyPreviewSwCleanedBoardFocusDev6', '1');\n            location.reload();\n          }\n        });\n      }).catch(function (error) { console.warn('Preview service-worker cleanup failed', error); });\n    }\n  </script>\n'''
+          app_tag = '  <script src="app.js?v=13.22-dev26-preview-board-focus-dev6"></script>\n'
           if 'id="previewServiceWorkerCleanup"' not in html:
               if app_tag not in html: raise SystemExit('Expected Preview app.js script tag not found')
               html = html.replace(app_tag, cleanup + app_tag, 1)
@@ -118,19 +119,19 @@ jobs:
               versioned = versioned.replace('  <meta name="viewport"', no_cache_meta + '  <meta name="viewport"', 1)
 
           manifest = json.loads(Path('site/manifest.webmanifest').read_text(encoding='utf-8'))
-          manifest['name'] = 'Audrey Closet — Board Focus Dev5'
+          manifest['name'] = 'Audrey Closet — Board Focus Dev6'
           manifest['short_name'] = 'Audrey Board Focus'
-          manifest['id'] = './board-focus-dev5.html'
-          manifest['start_url'] = './board-focus-dev5.html'
+          manifest['id'] = './board-focus-dev6.html'
+          manifest['start_url'] = './board-focus-dev6.html'
           manifest['scope'] = './'
-          preview_manifest_name = 'manifest-preview-board-focus-dev5.webmanifest'
+          preview_manifest_name = 'manifest-preview-board-focus-dev6.webmanifest'
           Path('site/' + preview_manifest_name).write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
           versioned, manifest_count = re.subn(r'(<link\s+[^>]*rel=["\']manifest["\'][^>]*href=["\'])[^"\']+(["\'][^>]*>)',r'\1' + preview_manifest_name + r'\2',versioned,count=1,flags=re.I)
           if manifest_count != 1: raise SystemExit('Expected manifest link not found in index.html')
 
-          marker = '<meta name="audrey-preview-build" content="board-focus-dev5-runtime-baked">\n'
+          marker = '<meta name="audrey-preview-build" content="board-focus-dev6-runtime-baked">\n'
           versioned = versioned.replace('</head>', '  ' + marker + '</head>', 1)
-          Path('site/board-focus-dev5.html').write_text(versioned, encoding='utf-8')
+          Path('site/board-focus-dev6.html').write_text(versioned, encoding='utf-8')
           PY
 
       - name: Configure Pages
