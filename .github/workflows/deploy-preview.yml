@@ -36,10 +36,14 @@ jobs:
           from pathlib import Path
           p = Path('site/index.html')
           html = p.read_text(encoding='utf-8')
-          old = '  <script src="draw-studio-v13.22-dev1.js?v=13.22-draw-clean-dev1"></script>\n'
-          tag = '  <script src="draw-studio-v13.22-dev2.js?v=13.22-draw-clean-dev2"></script>\n'
+          old_tags = [
+              '  <script src="draw-studio-v13.22-dev1.js?v=13.22-draw-clean-dev1"></script>\n',
+              '  <script src="draw-studio-v13.22-dev2.js?v=13.22-draw-clean-dev2"></script>\n',
+          ]
+          tag = '  <script src="draw-studio-v13.22-dev2-fix1.js?v=13.22-draw-dev2-fix1"></script>\n'
           anchor = '  <script src="shape-studio-v13.22-dev26.js?v=13.22-dev26"></script>\n'
-          html = html.replace(old, '')
+          for old in old_tags:
+              html = html.replace(old, '')
           if tag not in html:
               if anchor not in html:
                   raise SystemExit('Expected Shape Studio script anchor not found')
@@ -59,4 +63,4 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-# redeploy marker: draw dev2 cache-safe
+# redeploy marker: draw dev2 fix1 no observer
