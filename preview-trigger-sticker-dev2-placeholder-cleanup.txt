@@ -1,0 +1,2 @@
+Trigger rebuild for Sticker Studio dev2 placeholder cleanup.
+Source commit: 4d2da2bab39932494b99345b69a9188da58630cf
