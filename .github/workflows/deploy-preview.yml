@@ -52,7 +52,7 @@ jobs:
           })().catch(error => { console.error(error); process.exit(1); });
           NODE
 
-      - name: Prepare deterministic Sticker Studio dev7c preview
+      - name: Prepare deterministic Sticker Studio PNG proof preview
         shell: bash
         run: |
           python - <<'PY'
@@ -65,7 +65,7 @@ jobs:
 
           html = re.sub(r'\s*<script src="draw-studio-v13\.22-dev(?:1|2|2-fix1|3|4|5|6|7|8|9|10|11|12|13|14|15|16)\.js[^>]*></script>\s*', '\n', html)
           html = re.sub(r'\s*<script src="board-focus-v13\.22-dev(?:1|2|3|4|5|6|7|8|9|10|11)\.js[^>]*></script>\s*', '\n', html)
-          html = re.sub(r'\s*<script src="sticker-studio-v13\.22-dev(?:\d+|7a|7b|7c)\.js[^>]*></script>\s*', '\n', html)
+          html = re.sub(r'\s*<script src="sticker-studio-v13\.22-dev(?:\d+|7a|7b|7c|7c-png-test)\.js[^>]*></script>\s*', '\n', html)
 
           tags = [
               '  <script src="draw-studio-v13.22-dev10.js?v=13.22-draw-dev10-engine"></script>\n',
@@ -87,20 +87,20 @@ jobs:
               '  <script src="sticker-studio-v13.22-dev6.js?v=13.22-sticker-dev6-fix1"></script>\n',
               '  <script src="sticker-studio-v13.22-dev7a.js?v=13.22-sticker-dev7a"></script>\n',
               '  <script src="sticker-studio-v13.22-dev7b.js?v=13.22-sticker-dev7b"></script>\n',
-              '  <script src="sticker-studio-v13.22-dev7c.js?v=13.22-sticker-dev7c-fix1"></script>\n',
+              '  <script src="sticker-studio-v13.22-dev7c-png-test.js?v=13.22-sticker-dev7c-png-test1"></script>\n',
           ]
           anchor = '  <script src="shape-studio-v13.22-dev26.js?v=13.22-dev26"></script>\n'
           if anchor not in html: raise SystemExit('Expected Shape Studio script anchor not found')
           html = html.replace(anchor, anchor + ''.join(tags), 1)
 
-          html = html.replace('app.js?v=13.22-dev26','app.js?v=13.22-dev26-preview-sticker-dev7c-fix1')
+          html = html.replace('app.js?v=13.22-dev26','app.js?v=13.22-dev26-preview-sticker-dev7c-png-test1')
 
           sw_pattern = re.compile(r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*',re.S)
           html, removed = sw_pattern.subn('\n', html, count=1)
           if removed != 1: raise SystemExit('Expected service-worker registration block not found')
 
-          cleanup = '''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function (registrations) {\n        var previewRegs = registrations.filter(function (registration) { return registration.scope.indexOf('/Audrey-Closet-Preview/') !== -1; });\n        if (!previewRegs.length) return;\n        return Promise.all(previewRegs.map(function (registration) { return registration.unregister(); })).then(function () {\n          if (!sessionStorage.getItem('audreyPreviewSwCleanedStickerDev7cFix1')) {\n            sessionStorage.setItem('audreyPreviewSwCleanedStickerDev7cFix1', '1');\n            location.reload();\n          }\n        });\n      }).catch(function (error) { console.warn('Preview service-worker cleanup failed', error); });\n    }\n  </script>\n'''
-          app_tag = '  <script src="app.js?v=13.22-dev26-preview-sticker-dev7c-fix1"></script>\n'
+          cleanup = '''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function (registrations) {\n        var previewRegs = registrations.filter(function (registration) { return registration.scope.indexOf('/Audrey-Closet-Preview/') !== -1; });\n        if (!previewRegs.length) return;\n        return Promise.all(previewRegs.map(function (registration) { return registration.unregister(); })).then(function () {\n          if (!sessionStorage.getItem('audreyPreviewSwCleanedStickerDev7cPngTest1')) {\n            sessionStorage.setItem('audreyPreviewSwCleanedStickerDev7cPngTest1', '1');\n            location.reload();\n          }\n        });\n      }).catch(function (error) { console.warn('Preview service-worker cleanup failed', error); });\n    }\n  </script>\n'''
+          app_tag = '  <script src="app.js?v=13.22-dev26-preview-sticker-dev7c-png-test1"></script>\n'
           if 'id="previewServiceWorkerCleanup"' not in html:
               if app_tag not in html: raise SystemExit('Expected Preview app.js script tag not found')
               html = html.replace(app_tag, cleanup + app_tag, 1)
@@ -113,35 +113,36 @@ jobs:
               versioned = versioned.replace('  <meta name="viewport"', no_cache_meta + '  <meta name="viewport"', 1)
 
           manifest = json.loads(Path('site/manifest.webmanifest').read_text(encoding='utf-8'))
-          manifest['name'] = 'Audrey Closet — Sticker Studio Dev7c Fix1'
+          manifest['name'] = 'Audrey Closet — Sticker PNG Proof'
           manifest['short_name'] = 'Audrey Stickers'
-          manifest['id'] = './sticker-dev7c.html'
-          manifest['start_url'] = './sticker-dev7c.html'
+          manifest['id'] = './sticker-dev7c-png-test.html'
+          manifest['start_url'] = './sticker-dev7c-png-test.html'
           manifest['scope'] = './'
-          preview_manifest_name = 'manifest-preview-sticker-dev7c.webmanifest'
+          preview_manifest_name = 'manifest-preview-sticker-dev7c-png-test.webmanifest'
           Path('site/' + preview_manifest_name).write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
           versioned, manifest_count = re.subn(r'(<link\s+[^>]*rel=["\']manifest["\'][^>]*href=["\'])[^"\']+(["\'][^>]*>)',r'\1' + preview_manifest_name + r'\2',versioned,count=1,flags=re.I)
           if manifest_count != 1: raise SystemExit('Expected manifest link not found in index.html')
 
-          marker = '<meta name="audrey-preview-build" content="sticker-dev7c-fix1-runtime-baked">\n'
+          marker = '<meta name="audrey-preview-build" content="sticker-dev7c-png-test1-runtime-baked">\n'
           versioned = versioned.replace('</head>', '  ' + marker + '</head>', 1)
-          Path('site/sticker-dev7c.html').write_text(versioned, encoding='utf-8')
+          Path('site/sticker-dev7c-png-test.html').write_text(versioned, encoding='utf-8')
           PY
 
-      - name: Verify Sticker Studio preview composition
+      - name: Verify Sticker Studio PNG proof composition
         shell: bash
         run: |
-          grep -q 'sticker-dev7c-fix1-runtime-baked' site/sticker-dev7c.html
-          grep -q 'sticker-studio-v13.22-dev7a.js?v=13.22-sticker-dev7a' site/sticker-dev7c.html
-          grep -q 'sticker-studio-v13.22-dev7b.js?v=13.22-sticker-dev7b' site/sticker-dev7c.html
-          grep -q 'sticker-studio-v13.22-dev7c.js?v=13.22-sticker-dev7c-fix1' site/sticker-dev7c.html
-          test -f site/sticker-studio-v13.22-dev7c.js
-          test -f site/assets/stickers/music/music-sketch-sprite-dev7c.png
+          grep -q 'sticker-dev7c-png-test1-runtime-baked' site/sticker-dev7c-png-test.html
+          grep -q 'sticker-studio-v13.22-dev7a.js?v=13.22-sticker-dev7a' site/sticker-dev7c-png-test.html
+          grep -q 'sticker-studio-v13.22-dev7b.js?v=13.22-sticker-dev7b' site/sticker-dev7c-png-test.html
+          grep -q 'sticker-studio-v13.22-dev7c-png-test.js?v=13.22-sticker-dev7c-png-test1' site/sticker-dev7c-png-test.html
+          ! grep -q 'sticker-studio-v13.22-dev7c.js' site/sticker-dev7c-png-test.html
+          test -f site/sticker-studio-v13.22-dev7c-png-test.js
+          test -f site/assets/stickers/music/guitar-sketch-dev7c-test.png
           test -f site/assets/stickers/standard/heart-pop.svg
-          ! grep -q 'board-focus-v13.22-dev3.js' site/sticker-dev7c.html
-          ! grep -q 'board-focus-v13.22-dev4.js' site/sticker-dev7c.html
-          ! grep -q 'board-focus-v13.22-dev5.js' site/sticker-dev7c.html
-          ! grep -q 'board-focus-v13.22-dev6.js' site/sticker-dev7c.html
+          ! grep -q 'board-focus-v13.22-dev3.js' site/sticker-dev7c-png-test.html
+          ! grep -q 'board-focus-v13.22-dev4.js' site/sticker-dev7c-png-test.html
+          ! grep -q 'board-focus-v13.22-dev5.js' site/sticker-dev7c-png-test.html
+          ! grep -q 'board-focus-v13.22-dev6.js' site/sticker-dev7c-png-test.html
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
