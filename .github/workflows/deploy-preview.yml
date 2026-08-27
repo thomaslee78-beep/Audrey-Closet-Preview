@@ -52,7 +52,7 @@ jobs:
           })().catch(error => { console.error(error); process.exit(1); });
           NODE
 
-      - name: Prepare Sticker Studio release candidate with Music polish
+      - name: Prepare Sticker Studio release candidate with Draw polish
         shell: bash
         run: |
           python - <<'PY'
@@ -62,7 +62,7 @@ jobs:
           p = Path('site/index.html')
           html = p.read_text(encoding='utf-8')
 
-          html = re.sub(r'\s*<script src="draw-studio-v13\.22-dev(?:1|2|2-fix1|3|4|5|6|7|8|9|10|11|12|13|14|15|16)\.js[^>]*></script>\s*', '\n', html)
+          html = re.sub(r'\s*<script src="draw-studio-v13\.22-dev(?:1|2|2-fix1|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17)\.js[^>]*></script>\s*', '\n', html)
           html = re.sub(r'\s*<script src="board-focus-v13\.22-dev(?:1|2|3|4|5|6|7|8|9|10|11)\.js[^>]*></script>\s*', '\n', html)
           html = re.sub(r'\s*<script src="sticker-studio-v13\.22-dev(?:\d+|7a|7b|7c|7c-png-test|7c-image-core)\.js[^>]*></script>\s*', '\n', html)
           html = re.sub(r'\s*<script src="share-export-compat-v13\.22-dev1\.js[^>]*></script>\s*', '\n', html)
@@ -75,6 +75,7 @@ jobs:
               '  <script src="draw-studio-v13.22-dev14.js?v=13.22-draw-dev14"></script>\n',
               '  <script src="draw-studio-v13.22-dev15.js?v=13.22-draw-dev15"></script>\n',
               '  <script src="draw-studio-v13.22-dev16.js?v=13.22-decorate-dev16"></script>\n',
+              '  <script src="draw-studio-v13.22-dev17.js?v=13.22-draw-dev17-release-polish"></script>\n',
               '  <script src="board-focus-v13.22-dev1.js?v=13.22-board-focus-dev1"></script>\n',
               '  <script src="board-focus-v13.22-dev2.js?v=13.22-board-focus-dev2"></script>\n',
               '  <script src="board-focus-v13.22-dev7.js?v=13.22-board-focus-dev7"></script>\n',
@@ -87,19 +88,19 @@ jobs:
               '  <script src="sticker-studio-v13.22-dev6.js?v=13.22-sticker-dev6-music-polish"></script>\n',
               '  <script src="sticker-studio-v13.22-dev7a.js?v=13.22-sticker-dev7a"></script>\n',
               '  <script src="sticker-studio-v13.22-dev7b.js?v=13.22-sticker-dev7b"></script>\n',
-              '  <script src="share-export-compat-v13.22-dev1.js?v=13.22-share-export-dev4"></script>\n',
+              '  <script src="share-export-compat-v13.22-dev1.js?v=13.22-share-export-dev5"></script>\n',
           ]
           anchor = '  <script src="shape-studio-v13.22-dev26.js?v=13.22-dev26"></script>\n'
           if anchor not in html: raise SystemExit('Expected Shape Studio script anchor not found')
           html = html.replace(anchor, anchor + ''.join(tags), 1)
-          html = html.replace('app.js?v=13.22-dev26','app.js?v=13.22-dev26-preview-sticker-release6')
+          html = html.replace('app.js?v=13.22-dev26','app.js?v=13.22-dev26-preview-sticker-release7')
 
           sw_pattern = re.compile(r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*',re.S)
           html, removed = sw_pattern.subn('\n', html, count=1)
           if removed != 1: raise SystemExit('Expected service-worker registration block not found')
 
-          cleanup = '''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function (registrations) {\n        var previewRegs = registrations.filter(function (registration) { return registration.scope.indexOf('/Audrey-Closet-Preview/') !== -1; });\n        if (!previewRegs.length) return;\n        return Promise.all(previewRegs.map(function (registration) { return registration.unregister(); })).then(function () {\n          if (!sessionStorage.getItem('audreyPreviewSwCleanedStickerRelease6')) {\n            sessionStorage.setItem('audreyPreviewSwCleanedStickerRelease6', '1');\n            location.reload();\n          }\n        });\n      }).catch(function (error) { console.warn('Preview service-worker cleanup failed', error); });\n    }\n  </script>\n'''
-          app_tag = '  <script src="app.js?v=13.22-dev26-preview-sticker-release6"></script>\n'
+          cleanup = '''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function (registrations) {\n        var previewRegs = registrations.filter(function (registration) { return registration.scope.indexOf('/Audrey-Closet-Preview/') !== -1; });\n        if (!previewRegs.length) return;\n        return Promise.all(previewRegs.map(function (registration) { return registration.unregister(); })).then(function () {\n          if (!sessionStorage.getItem('audreyPreviewSwCleanedStickerRelease7')) {\n            sessionStorage.setItem('audreyPreviewSwCleanedStickerRelease7', '1');\n            location.reload();\n          }\n        });\n      }).catch(function (error) { console.warn('Preview service-worker cleanup failed', error); });\n    }\n  </script>\n'''
+          app_tag = '  <script src="app.js?v=13.22-dev26-preview-sticker-release7"></script>\n'
           if app_tag not in html: raise SystemExit('Expected Preview app.js script tag not found')
           html = html.replace(app_tag, cleanup + app_tag, 1)
           p.write_text(html, encoding='utf-8')
@@ -119,23 +120,24 @@ jobs:
           Path('site/' + preview_manifest_name).write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
           versioned, count = re.subn(r'(<link\s+[^>]*rel=["\']manifest["\'][^>]*href=["\'])[^"\']+(["\'][^>]*>)', r'\1'+preview_manifest_name+r'\2', versioned, count=1, flags=re.I)
           if count != 1: raise SystemExit('Expected manifest link not found')
-          marker = '<meta name="audrey-preview-build" content="sticker-release-candidate-music-polish-runtime-baked">\n'
+          marker = '<meta name="audrey-preview-build" content="sticker-release-candidate-draw-polish-runtime-baked">\n'
           versioned = versioned.replace('</head>', '  ' + marker + '</head>', 1)
           Path('site/sticker-release-candidate.html').write_text(versioned, encoding='utf-8')
           PY
 
-      - name: Verify Music polish composition
+      - name: Verify Draw/share polish composition
         shell: bash
         run: |
-          grep -q 'sticker-release-candidate-music-polish-runtime-baked' site/sticker-release-candidate.html
+          grep -q 'sticker-release-candidate-draw-polish-runtime-baked' site/sticker-release-candidate.html
+          grep -q 'draw-studio-v13.22-dev17.js?v=13.22-draw-dev17-release-polish' site/sticker-release-candidate.html
+          grep -q 'share-export-compat-v13.22-dev1.js?v=13.22-share-export-dev5' site/sticker-release-candidate.html
           grep -q 'sticker-studio-v13.22-dev1.js?v=13.22-sticker-dev1-music-polish' site/sticker-release-candidate.html
           grep -q 'sticker-studio-v13.22-dev6.js?v=13.22-sticker-dev6-music-polish' site/sticker-release-candidate.html
-          grep -q 'share-export-compat-v13.22-dev1.js?v=13.22-share-export-dev4' site/sticker-release-candidate.html
+          test -f site/draw-studio-v13.22-dev17.js
+          test -f site/share-export-compat-v13.22-dev1.js
           test -f site/assets/stickers/music/guitar-electric.svg
           test -f site/assets/stickers/music/amp-stack.svg
           test -f site/assets/stickers/music/sheet-music.svg
-          grep -q 'Eighth Note' site/sticker-studio-v13.22-dev1.js
-          grep -q 'Music Notes' site/sticker-studio-v13.22-dev1.js
           ! grep -q 'sticker-studio-v13.22-dev7c.js' site/sticker-release-candidate.html
           ! grep -q 'sticker-studio-v13.22-dev7c-png-test.js' site/sticker-release-candidate.html
           ! grep -q 'sticker-studio-v13.22-dev7c-image-core.js' site/sticker-release-candidate.html
