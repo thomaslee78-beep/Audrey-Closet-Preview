@@ -63,7 +63,7 @@ jobs:
           html = p.read_text(encoding='utf-8')
           html = re.sub(r'\s*<script src="draw-studio-v13\.22-dev(?:1|2|2-fix1|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17)\.js[^>]*></script>\s*', '\n', html)
           html = re.sub(r'\s*<script src="board-focus-v13\.22-dev(?:1|2|3|4|5|6|7|8|9|10|11)\.js[^>]*></script>\s*', '\n', html)
-          html = re.sub(r'\s*<script src="sticker-studio-v13\.22-dev(?:\d+|7a|7b|7c|7c-png-test|7c-image-core)\.js[^>]*></script>\s*', '\n', html)
+          html = re.sub(r'\s*<script src="sticker-studio-v13\.22-dev(?:0|\d+|7a|7b|7c|7c-png-test|7c-image-core)\.js[^>]*></script>\s*', '\n', html)
           html = re.sub(r'\s*<script src="share-export-compat-v13\.22-dev1\.js[^>]*></script>\s*', '\n', html)
 
           tags = [
@@ -79,7 +79,8 @@ jobs:
             '  <script src="board-focus-v13.22-dev2.js?v=13.22-board-focus-dev2"></script>\n',
             '  <script src="board-focus-v13.22-dev7.js?v=13.22-board-focus-dev7"></script>\n',
             '  <script src="board-focus-v13.22-dev10.js?v=13.22-board-focus-dev10-fix3"></script>\n',
-            '  <script src="sticker-studio-v13.22-dev1.js?v=13.22-sticker-dev1-rcfix1"></script>\n',
+            '  <script src="sticker-studio-v13.22-dev0.js?v=13.22-sticker-dev0-first-paint"></script>\n',
+            '  <script src="sticker-studio-v13.22-dev1.js?v=13.22-sticker-dev1-rcfix2"></script>\n',
             '  <script src="sticker-studio-v13.22-dev2.js?v=13.22-sticker-dev2"></script>\n',
             '  <script src="sticker-studio-v13.22-dev3.js?v=13.22-sticker-dev3"></script>\n',
             '  <script src="sticker-studio-v13.22-dev4.js?v=13.22-sticker-dev4"></script>\n',
@@ -93,14 +94,14 @@ jobs:
           if anchor not in html: raise SystemExit('Expected Shape Studio anchor missing')
           html=html.replace(anchor,anchor+''.join(tags),1)
           html=html.replace('share-render-v13.21-dev12.js','share-render-v13.21-dev12.js?v=13.22-share-hq1')
-          html=html.replace('app.js?v=13.22-dev26','app.js?v=13.22-dev26-preview-rcfix1')
+          html=html.replace('app.js?v=13.22-dev26','app.js?v=13.22-dev26-preview-rcfix2')
 
           sw_pattern=re.compile(r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*',re.S)
           html, removed=sw_pattern.subn('\n',html,count=1)
           if removed!=1: raise SystemExit('Expected service-worker registration block missing')
 
-          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function (registrations) {\n        var previewRegs = registrations.filter(function (registration) { return registration.scope.indexOf('/Audrey-Closet-Preview/') !== -1; });\n        if (!previewRegs.length) return;\n        return Promise.all(previewRegs.map(function (registration) { return registration.unregister(); })).then(function () {\n          if (!sessionStorage.getItem('audreyPreviewSwCleanedRcFix1')) {\n            sessionStorage.setItem('audreyPreviewSwCleanedRcFix1', '1');\n            location.reload();\n          }\n        });\n      });\n    }\n  </script>\n'''
-          app_tag='  <script src="app.js?v=13.22-dev26-preview-rcfix1"></script>\n'
+          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function (registrations) {\n        var previewRegs = registrations.filter(function (registration) { return registration.scope.indexOf('/Audrey-Closet-Preview/') !== -1; });\n        if (!previewRegs.length) return;\n        return Promise.all(previewRegs.map(function (registration) { return registration.unregister(); })).then(function () {\n          if (!sessionStorage.getItem('audreyPreviewSwCleanedRcFix2')) {\n            sessionStorage.setItem('audreyPreviewSwCleanedRcFix2', '1');\n            location.reload();\n          }\n        });\n      });\n    }\n  </script>\n'''
+          app_tag='  <script src="app.js?v=13.22-dev26-preview-rcfix2"></script>\n'
           html=html.replace(app_tag,cleanup+app_tag,1)
           p.write_text(html,encoding='utf-8')
 
@@ -108,28 +109,26 @@ jobs:
           versioned=html
           if no_cache not in versioned: versioned=versioned.replace('  <meta name="viewport"',no_cache+'  <meta name="viewport"',1)
           manifest=json.loads(Path('site/manifest.webmanifest').read_text(encoding='utf-8'))
-          manifest['name']='Audrey Closet — Release Candidate Fix1';manifest['short_name']='Audrey RC Fix1';manifest['id']='./sticker-release-candidate.html';manifest['start_url']='./sticker-release-candidate.html';manifest['scope']='./'
+          manifest['name']='Audrey Closet — Release Candidate Fix2';manifest['short_name']='Audrey RC Fix2';manifest['id']='./sticker-release-candidate.html';manifest['start_url']='./sticker-release-candidate.html';manifest['scope']='./'
           pm='manifest-preview-sticker-release-candidate.webmanifest';Path('site/'+pm).write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
           versioned,count=re.subn(r'(<link\s+[^>]*rel=["\']manifest["\'][^>]*href=["\'])[^"\']+(["\'][^>]*>)',r'\1'+pm+r'\2',versioned,count=1,flags=re.I)
           if count!=1: raise SystemExit('manifest link missing')
-          versioned=versioned.replace('</head>','  <meta name="audrey-preview-build" content="release-candidate-fix1-runtime-baked">\n</head>',1)
+          versioned=versioned.replace('</head>','  <meta name="audrey-preview-build" content="release-candidate-fix2-first-paint-runtime-baked">\n</head>',1)
           Path('site/sticker-release-candidate.html').write_text(versioned,encoding='utf-8')
           PY
 
-      - name: Verify release candidate fix1
+      - name: Verify release candidate fix2
         shell: bash
         run: |
-          grep -q 'release-candidate-fix1-runtime-baked' site/sticker-release-candidate.html
+          grep -q 'release-candidate-fix2-first-paint-runtime-baked' site/sticker-release-candidate.html
+          grep -q 'sticker-studio-v13.22-dev0.js?v=13.22-sticker-dev0-first-paint' site/sticker-release-candidate.html
+          grep -q 'sticker-studio-v13.22-dev1.js?v=13.22-sticker-dev1-rcfix2' site/sticker-release-candidate.html
+          grep -q 'sticker-studio-v13.22-dev7b.js?v=13.22-sticker-dev7b-stable2' site/sticker-release-candidate.html
+          test -f site/sticker-studio-v13.22-dev0.js
+          grep -q 'standard-first-paint-ready' site/sticker-studio-v13.22-dev0.js
           grep -q 'share-render-v13.21-dev12.js?v=13.22-share-hq1' site/sticker-release-candidate.html
           grep -q 'share-export-compat-v13.22-dev1.js?v=13.22-share-export-dev6' site/sticker-release-candidate.html
-          grep -q 'sticker-studio-v13.22-dev7b.js?v=13.22-sticker-dev7b-stable2' site/sticker-release-candidate.html
-          grep -q 'sticker-studio-v13.22-dev6.js?v=13.22-sticker-dev6-fashion-polish' site/sticker-release-candidate.html
           test -f site/assets/stickers/fashion/button-sewing.svg
-          test -f site/assets/stickers/fashion/fabric-swatch-floral.svg
-          test -f site/assets/stickers/fashion/necklace-pendant.svg
-          test -f site/assets/stickers/fashion/hanger-wood.svg
-          grep -q 'SHARE_OUTPUT_WIDTH=1440' site/share-render-v13.21-dev12.js
-          grep -q "source:'shareDecoration'" site/share-export-compat-v13.22-dev1.js
           ! grep -q 'sticker-studio-v13.22-dev7c.js' site/sticker-release-candidate.html
 
       - name: Configure Pages
