@@ -77,19 +77,19 @@ jobs:
             '  <script src="board-focus-v13.22-dev7.js?v=13.22-board-focus-dev7"></script>\n',
             '  <script src="board-focus-v13.22-dev10.js?v=13.22-board-focus-dev10-fix3"></script>\n',
             '  <script src="sticker-studio-v13.22-release.js?v=13.22-sticker-four-pack-polish1"></script>\n',
-            '  <script src="decorate-rail-v13.22-proto1.js?v=13.22-decorate-rail-proto2"></script>\n',
+            '  <script src="decorate-rail-v13.22-proto1.js?v=13.22-decorate-rail-proto3"></script>\n',
             '  <script src="share-export-compat-v13.22-dev1.js?v=13.22-share-export-dev6"></script>\n'
           ]
           anchor='  <script src="shape-studio-v13.22-dev26.js?v=13.22-dev26"></script>\n'
           if anchor not in html: raise SystemExit('Shape anchor missing')
           html=html.replace(anchor,anchor+''.join(tags),1)
           html=html.replace('share-render-v13.21-dev12.js','share-render-v13.21-dev12.js?v=13.22-share-hq1')
-          html=html.replace('app.js?v=13.22-dev26','app.js?v=13.22-dev26-preview-decorate-rail-proto2')
+          html=html.replace('app.js?v=13.22-dev26','app.js?v=13.22-dev26-preview-decorate-rail-proto3')
           swpat=re.compile(r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*',re.S)
           html,n=swpat.subn('\n',html,count=1)
           if n!=1: raise SystemExit('Service worker block missing')
-          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreyPreviewDecorateRailProto2')){\n            sessionStorage.setItem('audreyPreviewDecorateRailProto2','1');location.reload();\n          }\n        });\n      });\n    }\n  </script>\n'''
-          app_tag='  <script src="app.js?v=13.22-dev26-preview-decorate-rail-proto2"></script>\n'
+          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreyPreviewDecorateRailProto3')){\n            sessionStorage.setItem('audreyPreviewDecorateRailProto3','1');location.reload();\n          }\n        });\n      });\n    }\n  </script>\n'''
+          app_tag='  <script src="app.js?v=13.22-dev26-preview-decorate-rail-proto3"></script>\n'
           html=html.replace(app_tag,cleanup+app_tag,1)
           p.write_text(html,encoding='utf-8')
           no_cache='  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">\n  <meta http-equiv="Pragma" content="no-cache">\n  <meta http-equiv="Expires" content="0">\n'
@@ -100,21 +100,24 @@ jobs:
           pm='manifest-preview-sticker-release-candidate.webmanifest';Path('site/'+pm).write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
           versioned,count=re.subn(r'(<link\s+[^>]*rel=["\']manifest["\'][^>]*href=["\'])[^"\']+(["\'][^>]*>)',r'\1'+pm+r'\2',versioned,count=1,flags=re.I)
           if count!=1: raise SystemExit('Manifest link missing')
-          versioned=versioned.replace('</head>','  <meta name="audrey-preview-build" content="decorate-rail-proto2-runtime-baked">\n</head>',1)
+          versioned=versioned.replace('</head>','  <meta name="audrey-preview-build" content="decorate-rail-proto3-runtime-baked">\n</head>',1)
           Path('site/sticker-release-candidate.html').write_text(versioned,encoding='utf-8')
           PY
 
       - name: Verify Decorate rail polish composition
         shell: bash
         run: |
-          grep -q 'decorate-rail-proto2-runtime-baked' site/sticker-release-candidate.html
-          grep -q 'decorate-rail-v13.22-proto1.js?v=13.22-decorate-rail-proto2' site/sticker-release-candidate.html
+          grep -q 'decorate-rail-proto3-runtime-baked' site/sticker-release-candidate.html
+          grep -q 'decorate-rail-v13.22-proto1.js?v=13.22-decorate-rail-proto3' site/sticker-release-candidate.html
           test -f site/decorate-rail-v13.22-proto1.js
-          grep -q 'grid-template-columns:54px minmax(0,1fr)' site/decorate-rail-v13.22-proto1.js
-          grep -q 'border:0!important' site/decorate-rail-v13.22-proto1.js
-          grep -q 'gap:2px!important' site/decorate-rail-v13.22-proto1.js
-          grep -q 'background:rgba(238,240,232,.96)!important' site/decorate-rail-v13.22-proto1.js
-          grep -q 'panel.scrollTop=0' site/decorate-rail-v13.22-proto1.js
+          grep -q 'padding-top:2px!important' site/decorate-rail-v13.22-proto1.js
+          grep -q 'grid-template-columns:52px minmax(0,1fr)' site/decorate-rail-v13.22-proto1.js
+          grep -q -- '--decorate-folder-bg:#f6f0e5' site/decorate-rail-v13.22-proto1.js
+          grep -q 'border:1px solid var(--decorate-selected-border)' site/decorate-rail-v13.22-proto1.js
+          grep -q 'border-radius:0!important' site/decorate-rail-v13.22-proto1.js
+          grep -q 'max-height:var(--decorate-rail-visible-h,180px)' site/decorate-rail-v13.22-proto1.js
+          grep -q 'overflow-y:auto!important' site/decorate-rail-v13.22-proto1.js
+          grep -q 'syncRailHeight' site/decorate-rail-v13.22-proto1.js
           grep -q "REGISTRY_VERSION=3" site/sticker-studio-v13.22-release.js
           ! grep -q "id:'emoji'" site/sticker-studio-v13.22-release.js
           ! find site -maxdepth 1 -type f -name 'sticker-studio-v13.22-dev*.js' | grep -q .
