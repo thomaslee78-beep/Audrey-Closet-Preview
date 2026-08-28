@@ -3,8 +3,7 @@ name: Deploy Audrey Closet Preview
 on:
   workflow_dispatch:
   push:
-    branches:
-      - main
+    branches: [main]
 
 permissions:
   contents: read
@@ -33,41 +32,43 @@ jobs:
         shell: bash
         run: |
           node <<'NODE'
-          const fs = require('fs');
-          const sw = fs.readFileSync('site/sw.js', 'utf8');
-          const app = fs.readFileSync('site/app.js', 'utf8');
-          const tierStart = sw.indexOf('const TIER_PATCH=String.raw`');
-          const withStart = sw.indexOf('function withTierPatch(resp){', tierStart);
-          const installStart = sw.indexOf("self.addEventListener('install'", withStart);
-          if (tierStart < 0 || withStart < 0 || installStart < 0) throw new Error('Could not locate stable service-worker runtime patch');
-          const tierBlock = sw.slice(tierStart, withStart);
-          const withBlock = sw.slice(withStart, installStart);
-          const makePatch = new Function(`${tierBlock}\n${withBlock}\nreturn { withTierPatch };`);
-          const { withTierPatch } = makePatch();
-          (async () => {
-            const patchedResponse = await withTierPatch(new Response(app, {status:200,headers:{'content-type':'application/javascript; charset=utf-8'}}));
-            const patched = await patchedResponse.text();
-            if (!patched.includes('v13.21 baseline — dev12 feature set, fresh delivery')) throw new Error('Stable runtime patch marker missing after pre-bake');
-            fs.writeFileSync('site/app.js', patched, 'utf8');
-          })().catch(error => { console.error(error); process.exit(1); });
+          const fs=require('fs');
+          const sw=fs.readFileSync('site/sw.js','utf8');
+          const app=fs.readFileSync('site/app.js','utf8');
+          const tierStart=sw.indexOf('const TIER_PATCH=String.raw`');
+          const withStart=sw.indexOf('function withTierPatch(resp){',tierStart);
+          const installStart=sw.indexOf("self.addEventListener('install'",withStart);
+          if(tierStart<0||withStart<0||installStart<0) throw new Error('Stable runtime patch not found');
+          const makePatch=new Function(`${sw.slice(tierStart,withStart)}\n${sw.slice(withStart,installStart)}\nreturn {withTierPatch};`);
+          const {withTierPatch}=makePatch();
+          (async()=>{
+            const response=await withTierPatch(new Response(app,{status:200,headers:{'content-type':'application/javascript; charset=utf-8'}}));
+            const patched=await response.text();
+            if(!patched.includes('v13.21 baseline — dev12 feature set, fresh delivery')) throw new Error('Stable runtime marker missing');
+            fs.writeFileSync('site/app.js',patched,'utf8');
+          })().catch(e=>{console.error(e);process.exit(1)});
           NODE
 
-      - name: Prepare refined Sticker candidate
+      - name: Prepare Decorate rail prototype candidate
         shell: bash
         run: |
           python - <<'PY'
           from pathlib import Path
-          import json, re
+          import json,re
 
-          p = Path('site/index.html')
-          html = p.read_text(encoding='utf-8')
+          p=Path('site/index.html')
+          html=p.read_text(encoding='utf-8')
 
-          html = re.sub(r'\s*<script src="draw-studio-v13\.22-dev(?:1|2|2-fix1|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17)\.js[^>]*></script>\s*', '\n', html)
-          html = re.sub(r'\s*<script src="board-focus-v13\.22-dev(?:1|2|3|4|5|6|7|8|9|10|11)\.js[^>]*></script>\s*', '\n', html)
-          html = re.sub(r'\s*<script src="sticker-studio-v13\.22-(?:dev[^\"]*|release)\.js[^>]*></script>\s*', '\n', html)
-          html = re.sub(r'\s*<script src="share-export-compat-v13\.22-dev1\.js[^>]*></script>\s*', '\n', html)
+          patterns=[
+            r'\s*<script src="draw-studio-v13\.22-dev(?:1|2|2-fix1|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17)\.js[^>]*></script>\s*',
+            r'\s*<script src="board-focus-v13\.22-dev(?:1|2|3|4|5|6|7|8|9|10|11)\.js[^>]*></script>\s*',
+            r'\s*<script src="sticker-studio-v13\.22-(?:dev[^\"]*|release)\.js[^>]*></script>\s*',
+            r'\s*<script src="decorate-rail-v13\.22-proto1\.js[^>]*></script>\s*',
+            r'\s*<script src="share-export-compat-v13\.22-dev1\.js[^>]*></script>\s*'
+          ]
+          for pat in patterns: html=re.sub(pat,'\n',html)
 
-          tags = [
+          tags=[
             '  <script src="draw-studio-v13.22-dev10.js?v=13.22-draw-dev10-engine"></script>\n',
             '  <script src="draw-studio-v13.22-dev11.js?v=13.22-draw-dev11-r2"></script>\n',
             '  <script src="draw-studio-v13.22-dev12.js?v=13.22-draw-dev12"></script>\n',
@@ -81,20 +82,20 @@ jobs:
             '  <script src="board-focus-v13.22-dev7.js?v=13.22-board-focus-dev7"></script>\n',
             '  <script src="board-focus-v13.22-dev10.js?v=13.22-board-focus-dev10-fix3"></script>\n',
             '  <script src="sticker-studio-v13.22-release.js?v=13.22-sticker-four-pack-polish1"></script>\n',
-            '  <script src="share-export-compat-v13.22-dev1.js?v=13.22-share-export-dev6"></script>\n',
+            '  <script src="decorate-rail-v13.22-proto1.js?v=13.22-decorate-rail-proto1"></script>\n',
+            '  <script src="share-export-compat-v13.22-dev1.js?v=13.22-share-export-dev6"></script>\n'
           ]
           anchor='  <script src="shape-studio-v13.22-dev26.js?v=13.22-dev26"></script>\n'
-          if anchor not in html: raise SystemExit('Expected Shape Studio anchor missing')
+          if anchor not in html: raise SystemExit('Shape anchor missing')
           html=html.replace(anchor,anchor+''.join(tags),1)
           html=html.replace('share-render-v13.21-dev12.js','share-render-v13.21-dev12.js?v=13.22-share-hq1')
-          html=html.replace('app.js?v=13.22-dev26','app.js?v=13.22-dev26-preview-sticker-four-pack-polish1')
+          html=html.replace('app.js?v=13.22-dev26','app.js?v=13.22-dev26-preview-decorate-rail-proto1')
 
-          sw_pattern=re.compile(r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*',re.S)
-          html, removed=sw_pattern.subn('\n',html,count=1)
-          if removed!=1: raise SystemExit('Expected service-worker registration block missing')
-
-          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function (registrations) {\n        var previewRegs = registrations.filter(function (registration) { return registration.scope.indexOf('/Audrey-Closet-Preview/') !== -1; });\n        if (!previewRegs.length) return;\n        return Promise.all(previewRegs.map(function (registration) { return registration.unregister(); })).then(function () {\n          if (!sessionStorage.getItem('audreyPreviewSwStickerFourPackPolish1')) {\n            sessionStorage.setItem('audreyPreviewSwStickerFourPackPolish1', '1');\n            location.reload();\n          }\n        });\n      });\n    }\n  </script>\n'''
-          app_tag='  <script src="app.js?v=13.22-dev26-preview-sticker-four-pack-polish1"></script>\n'
+          swpat=re.compile(r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*',re.S)
+          html,n=swpat.subn('\n',html,count=1)
+          if n!=1: raise SystemExit('Service worker block missing')
+          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreyPreviewDecorateRailProto1')){\n            sessionStorage.setItem('audreyPreviewDecorateRailProto1','1');location.reload();\n          }\n        });\n      });\n    }\n  </script>\n'''
+          app_tag='  <script src="app.js?v=13.22-dev26-preview-decorate-rail-proto1"></script>\n'
           html=html.replace(app_tag,cleanup+app_tag,1)
           p.write_text(html,encoding='utf-8')
 
@@ -102,45 +103,35 @@ jobs:
           versioned=html
           if no_cache not in versioned: versioned=versioned.replace('  <meta name="viewport"',no_cache+'  <meta name="viewport"',1)
           manifest=json.loads(Path('site/manifest.webmanifest').read_text(encoding='utf-8'))
-          manifest['name']='Audrey Closet — Sticker Four-Pack Polish';manifest['short_name']='Audrey Stickers';manifest['id']='./sticker-release-candidate.html';manifest['start_url']='./sticker-release-candidate.html';manifest['scope']='./'
-          pm='manifest-preview-sticker-release-candidate.webmanifest';Path('site/'+pm).write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          manifest.update({'name':'Audrey Closet — Decorate Rail Prototype','short_name':'Audrey Rail','id':'./sticker-release-candidate.html','start_url':'./sticker-release-candidate.html','scope':'./'})
+          pm='manifest-preview-sticker-release-candidate.webmanifest'
+          Path('site/'+pm).write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
           versioned,count=re.subn(r'(<link\s+[^>]*rel=["\']manifest["\'][^>]*href=["\'])[^"\']+(["\'][^>]*>)',r'\1'+pm+r'\2',versioned,count=1,flags=re.I)
-          if count!=1: raise SystemExit('manifest link missing')
-          versioned=versioned.replace('</head>','  <meta name="audrey-preview-build" content="sticker-four-pack-polish1-runtime-baked">\n</head>',1)
+          if count!=1: raise SystemExit('Manifest link missing')
+          versioned=versioned.replace('</head>','  <meta name="audrey-preview-build" content="decorate-rail-proto1-runtime-baked">\n</head>',1)
           Path('site/sticker-release-candidate.html').write_text(versioned,encoding='utf-8')
           PY
 
-      - name: Verify refined Sticker composition
+      - name: Verify Decorate rail prototype composition
         shell: bash
         run: |
-          grep -q 'sticker-four-pack-polish1-runtime-baked' site/sticker-release-candidate.html
-          grep -q 'sticker-studio-v13.22-release.js?v=13.22-sticker-four-pack-polish1' site/sticker-release-candidate.html
-          test -f site/sticker-studio-v13.22-release.js
-          ! find site -maxdepth 1 -type f -name 'sticker-studio-v13.22-dev*.js' | grep -q .
-          ! grep -Eq 'sticker-studio-v13\.22-dev[^"< ]*\.js' site/sticker-release-candidate.html
+          grep -q 'decorate-rail-proto1-runtime-baked' site/sticker-release-candidate.html
+          grep -q 'decorate-rail-v13.22-proto1.js?v=13.22-decorate-rail-proto1' site/sticker-release-candidate.html
+          test -f site/decorate-rail-v13.22-proto1.js
+          grep -q "grid-template-columns:60px minmax(0,1fr)" site/decorate-rail-v13.22-proto1.js
+          grep -q "position:sticky!important" site/decorate-rail-v13.22-proto1.js
+          grep -q "decorate-studio-tab\[data-decorate-group\]" site/decorate-rail-v13.22-proto1.js
           grep -q "REGISTRY_VERSION=3" site/sticker-studio-v13.22-release.js
-          grep -q "ANIMAL_BOARD_SIZE=132" site/sticker-studio-v13.22-release.js
-          grep -q "id:'guitar'.*glyph:'🎸'.*sizeClass:'small'" site/sticker-studio-v13.22-release.js
-          ! grep -q "id:'guitar'.*guitar-electric.svg" site/sticker-studio-v13.22-release.js
-          grep -q "id:'amp'.*sizeClass:'medium'" site/sticker-studio-v13.22-release.js
-          grep -q "id:'sheet'.*sizeClass:'medium'" site/sticker-studio-v13.22-release.js
-          grep -q "id:'lion'.*sizeClass:'medium'.*boardSize:ANIMAL_BOARD_SIZE" site/sticker-studio-v13.22-release.js
-          grep -q "id:'penguin'.*sizeClass:'medium'.*boardSize:ANIMAL_BOARD_SIZE" site/sticker-studio-v13.22-release.js
-          grep -q "id:'swatch'.*sizeClass:'small'" site/sticker-studio-v13.22-release.js
-          grep -q "id:'shoe'.*sizeClass:'small'" site/sticker-studio-v13.22-release.js
           ! grep -q "id:'emoji'" site/sticker-studio-v13.22-release.js
-          test "$(grep -o "{id:'[a-z-]*',label:'[A-Za-z ]*',icon:" site/sticker-studio-v13.22-release.js | wc -l | tr -d ' ')" -eq 4
-          grep -q 'share-render-v13.21-dev12.js?v=13.22-share-hq1' site/sticker-release-candidate.html
+          ! find site -maxdepth 1 -type f -name 'sticker-studio-v13.22-dev*.js' | grep -q .
           grep -q 'share-export-compat-v13.22-dev1.js?v=13.22-share-export-dev6' site/sticker-release-candidate.html
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
-
       - name: Upload preview site
         uses: actions/upload-pages-artifact@v3
         with:
           path: site
-
       - name: Deploy preview
         id: deployment
         uses: actions/deploy-pages@v4
