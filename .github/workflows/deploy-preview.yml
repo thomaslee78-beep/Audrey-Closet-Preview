@@ -21,7 +21,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Check out v13.23 Share fidelity hotfix
+      - name: Check out v13.23 Text Layout hotfix
         uses: actions/checkout@v4
         with:
           repository: thomaslee78-beep/Audrey-Closet
@@ -49,7 +49,7 @@ jobs:
           })().catch(e=>{console.error(e);process.exit(1)});
           NODE
 
-      - name: Prepare sunglasses glyph-bounds candidate
+      - name: Prepare Text Layout v13.23.5 candidate
         shell: bash
         run: |
           python - <<'PY'
@@ -60,38 +60,43 @@ jobs:
           swpat=re.compile(r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*',re.S)
           html,n=swpat.subn('\n',html,count=1)
           if n!=1: raise SystemExit('Production service worker block missing')
-          html=html.replace('app.js?v=13.22-dev26','app.js?v=13.23.4-glyph-bounds')
-          html=html.replace('share-render-v13.21-dev12.js?v=13.21-dev12','share-render-v13.21-dev12.js?v=13.23.4-glyph-bounds')
-          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreyPreviewGlyphBoundsHotfix4')){\n            sessionStorage.setItem('audreyPreviewGlyphBoundsHotfix4','1');\n            location.reload();\n          }\n        });\n      });\n    }\n  </script>\n'''
-          app_tag='  <script src="app.js?v=13.23.4-glyph-bounds"></script>\n'
+          html=html.replace('app.js?v=13.22-dev26','app.js?v=13.23.5-text-layout')
+          html=html.replace('share-render-v13.21-dev12.js?v=13.21-dev12','share-render-v13.21-dev12.js?v=13.23.5-text-layout')
+          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreyPreviewTextLayoutV13235')){\n            sessionStorage.setItem('audreyPreviewTextLayoutV13235','1');\n            location.reload();\n          }\n        });\n      });\n    }\n  </script>\n'''
+          app_tag='  <script src="app.js?v=13.23.5-text-layout"></script>\n'
           if app_tag not in html: raise SystemExit('Versioned app tag missing')
           html=html.replace(app_tag,cleanup+app_tag,1)
           no_cache='  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">\n  <meta http-equiv="Pragma" content="no-cache">\n  <meta http-equiv="Expires" content="0">\n'
           if no_cache not in html: html=html.replace('  <meta name="viewport"',no_cache+'  <meta name="viewport"',1)
           manifest=json.loads(Path('site/manifest.webmanifest').read_text(encoding='utf-8'))
-          manifest.update({'name':'Audrey Closet — Glyph Bounds Hotfix','short_name':'Audrey Hotfix','id':'./sticker-release-candidate.html','start_url':'./sticker-release-candidate.html','scope':'./'})
-          pm='manifest-preview-v13.23.4-glyph-bounds.webmanifest'
+          manifest.update({'name':'Audrey Closet — Text Layout v13.23.5','short_name':'Audrey Text','id':'./sticker-release-candidate.html','start_url':'./sticker-release-candidate.html','scope':'./'})
+          pm='manifest-preview-v13.23.5-text-layout.webmanifest'
           Path('site/'+pm).write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
           html,count=re.subn(r'(<link\s+[^>]*rel=["\']manifest["\'][^>]*href=["\'])[^"\']+(["\'][^>]*>)',r'\1'+pm+r'\2',html,count=1,flags=re.I)
           if count!=1: raise SystemExit('Manifest link missing')
-          html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.23.4-glyph-bounds">\n</head>',1)
+          html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.23.5-text-layout">\n</head>',1)
           Path('site/sticker-release-candidate.html').write_text(html,encoding='utf-8')
           PY
 
-      - name: Verify sunglasses glyph-bounds composition
+      - name: Verify Text Layout v13.23.5 composition
         shell: bash
         run: |
-          grep -q 'v13.23.4-glyph-bounds' site/sticker-release-candidate.html
-          grep -q "HOTFIX='13.23.4-glyph-bounds'" site/share-render-v13.21-dev12.js
-          grep -q "id:'sunglasses'.*glyph:'🕶️'.*sizeClass:'small'" site/sticker-studio-v13.22-release.js
+          grep -q 'v13.23.5-text-layout' site/sticker-release-candidate.html
+          grep -q "HOTFIX='13.23.5-text-layout'" site/share-render-v13.21-dev12.js
+          test -f site/board-text-layout-v13.23.5.js
+          grep -q "modern:{label:'Modern Sans'" site/board-text-layout-v13.23.5.js
+          grep -q "small:{label:'S',px:20" site/board-text-layout-v13.23.5.js
+          grep -q "medium:{label:'M',px:28" site/board-text-layout-v13.23.5.js
+          grep -q "large:{label:'L',px:38" site/board-text-layout-v13.23.5.js
+          grep -q "xlarge:{label:'XL',px:50" site/board-text-layout-v13.23.5.js
+          grep -q "split('\\n')" site/board-text-layout-v13.23.5.js
+          grep -q 'wrapExplicitLine' site/board-text-layout-v13.23.5.js
+          grep -q 'AUDREY_BOARD_TEXT_LAYOUT_V13235' site/board-text-layout-v13.23.5.js
+          grep -q 'drawTextSharedV13235' site/share-render-v13.21-dev12-core.js
+          ! grep -q 'estimatedTextHeightV13233' site/share-render-v13.21-dev12-core.js
+          grep -q 'board-text-layout-v13.23.5.js?v=' site/share-render-v13.21-dev12.js
           grep -q 'glyphMetricsV13234' site/share-render-v13.21-dev12-core.js
-          grep -q 'actualBoundingBoxLeft' site/share-render-v13.21-dev12-core.js
-          grep -q 'actualBoundingBoxRight' site/share-render-v13.21-dev12-core.js
-          grep -q 'glyphPad=Math.max' site/share-render-v13.21-dev12-core.js
-          grep -q 'SHARE_BOARD_SCALE=4' site/share-render-v13.21-dev12-core.js
-          grep -q 'STICKER_SURFACE_SCALE=4' site/share-render-v13.21-dev12-core.js
           grep -q 'share-modal-lock-v13.23.3.js?v=' site/share-render-v13.21-dev12.js
-          grep -q 'sticker-render-compat-v13.23.1.js?v=' site/share-render-v13.21-dev12.js
           ! grep -q "navigator.serviceWorker.register" site/sticker-release-candidate.html
 
       - name: Configure Pages
