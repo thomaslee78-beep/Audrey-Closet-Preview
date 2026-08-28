@@ -81,23 +81,27 @@ jobs:
       - name: Verify Text Layout v13.23.5 composition
         shell: bash
         run: |
-          grep -q 'v13.23.5-text-layout' site/sticker-release-candidate.html
-          grep -q "HOTFIX='13.23.5-text-layout'" site/share-render-v13.21-dev12.js
-          test -f site/board-text-layout-v13.23.5.js
-          grep -q "modern:{label:'Modern Sans'" site/board-text-layout-v13.23.5.js
-          grep -q "small:{label:'S',px:20" site/board-text-layout-v13.23.5.js
-          grep -q "medium:{label:'M',px:28" site/board-text-layout-v13.23.5.js
-          grep -q "large:{label:'L',px:38" site/board-text-layout-v13.23.5.js
-          grep -q "xlarge:{label:'XL',px:50" site/board-text-layout-v13.23.5.js
-          grep -q "split('\\n')" site/board-text-layout-v13.23.5.js
-          grep -q 'wrapExplicitLine' site/board-text-layout-v13.23.5.js
-          grep -q 'AUDREY_BOARD_TEXT_LAYOUT_V13235' site/board-text-layout-v13.23.5.js
-          grep -q 'drawTextSharedV13235' site/share-render-v13.21-dev12-core.js
-          ! grep -q 'estimatedTextHeightV13233' site/share-render-v13.21-dev12-core.js
-          grep -q 'board-text-layout-v13.23.5.js?v=' site/share-render-v13.21-dev12.js
-          grep -q 'glyphMetricsV13234' site/share-render-v13.21-dev12-core.js
-          grep -q 'share-modal-lock-v13.23.3.js?v=' site/share-render-v13.21-dev12.js
-          ! grep -q "navigator.serviceWorker.register" site/sticker-release-candidate.html
+          python - <<'PY'
+          from pathlib import Path
+          html=Path('site/sticker-release-candidate.html').read_text(encoding='utf-8')
+          boot=Path('site/share-render-v13.21-dev12.js').read_text(encoding='utf-8')
+          text=Path('site/board-text-layout-v13.23.5.js').read_text(encoding='utf-8')
+          share=Path('site/share-render-v13.21-dev12-core.js').read_text(encoding='utf-8')
+          required_html=['v13.23.5-text-layout']
+          required_boot=["HOTFIX='13.23.5-text-layout'",'board-text-layout-v13.23.5.js?v=','share-modal-lock-v13.23.3.js?v=']
+          required_text=["Modern Sans","small:{label:'S',px:20","medium:{label:'M',px:28","large:{label:'L',px:38","xlarge:{label:'XL',px:50","replace(/\\r\\n?/g,'\\n').split('\\n')",'wrapExplicitLine','AUDREY_BOARD_TEXT_LAYOUT_V13235','Never truncates by box height']
+          required_share=['drawTextSharedV13235','AUDREY_BOARD_TEXT_LAYOUT_V13235','glyphMetricsV13234']
+          for needle in required_html:
+            assert needle in html, f'missing HTML marker: {needle}'
+          for needle in required_boot:
+            assert needle in boot, f'missing bootstrap marker: {needle}'
+          for needle in required_text:
+            assert needle in text, f'missing Text Layout marker: {needle}'
+          for needle in required_share:
+            assert needle in share, f'missing Share marker: {needle}'
+          assert 'estimatedTextHeightV13233' not in share, 'old Share text height heuristic still present'
+          assert 'navigator.serviceWorker.register' not in html, 'Preview service worker registration still present'
+          PY
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
