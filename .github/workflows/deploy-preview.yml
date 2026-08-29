@@ -62,7 +62,7 @@ jobs:
           if n!=1: raise SystemExit('Production service worker block missing')
           html=html.replace('app.js?v=13.22-dev26','app.js?v=13.23.6-portfolio-mini-fidelity')
           html=html.replace('share-render-v13.21-dev12.js?v=13.21-dev12','share-render-v13.21-dev12.js?v=13.23.6-portfolio-mini-fidelity')
-          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreyPreviewPortfolioMiniV13236')){\n            sessionStorage.setItem('audreyPreviewPortfolioMiniV13236','1');\n            location.reload();\n          }\n        });\n      });\n    }\n  </script>\n'''
+          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreyPreviewPortfolioMiniV13236b')){\n            sessionStorage.setItem('audreyPreviewPortfolioMiniV13236b','1');\n            location.reload();\n          }\n        });\n      });\n    }\n  </script>\n'''
           app_tag='  <script src="app.js?v=13.23.6-portfolio-mini-fidelity"></script>\n'
           if app_tag not in html: raise SystemExit('Versioned app tag missing')
           html=html.replace(app_tag,cleanup+app_tag,1)
@@ -74,7 +74,7 @@ jobs:
           Path('site/'+pm).write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
           html,count=re.subn(r'(<link\s+[^>]*rel=["\']manifest["\'][^>]*href=["\'])[^"\']+(["\'][^>]*>)',r'\1'+pm+r'\2',html,count=1,flags=re.I)
           if count!=1: raise SystemExit('Manifest link missing')
-          html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.23.6-portfolio-mini-fidelity">\n</head>',1)
+          html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.23.6-portfolio-mini-fidelity-letterbox">\n</head>',1)
           Path('site/sticker-release-candidate.html').write_text(html,encoding='utf-8')
           PY
 
@@ -87,18 +87,17 @@ jobs:
           boot=Path('site/share-render-v13.21-dev12.js').read_text(encoding='utf-8')
           mini=Path('site/portfolio-mini-fidelity-v13.23.6.js').read_text(encoding='utf-8')
           text=Path('site/board-text-layout-v13.23.5.js').read_text(encoding='utf-8')
-          sticker=Path('site/sticker-render-compat-v13.23.1.js').read_text(encoding='utf-8')
-          assert 'v13.23.6-portfolio-mini-fidelity' in html
+          assert 'v13.23.6-portfolio-mini-fidelity-letterbox' in html
           assert "HOTFIX='13.23.6-portfolio-mini-fidelity'" in boot
           assert 'portfolio-mini-fidelity-v13.23.6.js?v=' in boot
           assert boot.index('board-text-layout-v13.23.5.js?v=') < boot.index('portfolio-mini-fidelity-v13.23.6.js?v=')
           assert boot.index('sticker-render-compat-v13.23.1.js?v=') < boot.index('portfolio-mini-fidelity-v13.23.6.js?v=')
-          for needle in ['function geometry(piece,outfit)','left:${g.left}%;top:${g.top}%;width:${g.width}%;height:${g.height}%','portfolio-text-fidelity-v13236','AUDREY_BOARD_TEXT_LAYOUT_V13235','portfolio-sticker-fidelity-v13236']:
+          for needle in ['portfolio-mini-plane-v13236','Math.min(cw/sw,ch/sh)','fontCqw=(size.px/g.sw)*100','ResizeObserver','sizeMiniPlane','portfolio-text-fidelity-v13236']:
             assert needle in mini, f'missing mini fidelity marker: {needle}'
           assert 'Math.max(8' not in mini, 'legacy 8% clamp copied into Mini Fidelity module'
+          assert 'font-size:min(' not in mini, 'old dual-axis font scaling still present'
           for needle in ["small:{label:'S',px:20","medium:{label:'M',px:28","large:{label:'L',px:38","xlarge:{label:'XL',px:50"]:
             assert needle in text, f'missing shared size marker: {needle}'
-          assert 'stickerMarkup' in sticker
           assert 'navigator.serviceWorker.register' not in html
           PY
 
