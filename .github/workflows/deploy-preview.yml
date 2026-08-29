@@ -21,11 +21,11 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Check out v13.23 scaled full-size Portfolio mini hotfix
+      - name: Check out Color Expansion 2.0 dev1
         uses: actions/checkout@v4
         with:
           repository: thomaslee78-beep/Audrey-Closet
-          ref: hotfix/v13.23-share-stickers
+          ref: v13.22-color-expansion-dev1
           path: site
 
       - name: Pre-bake production runtime patch for Preview
@@ -49,7 +49,7 @@ jobs:
           })().catch(e=>{console.error(e);process.exit(1)});
           NODE
 
-      - name: Prepare v13.23.6.2 candidate
+      - name: Prepare Color Expansion preview
         shell: bash
         run: |
           python - <<'PY'
@@ -60,46 +60,41 @@ jobs:
           swpat=re.compile(r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*',re.S)
           html,n=swpat.subn('\n',html,count=1)
           if n!=1: raise SystemExit('Production service worker block missing')
-          build='13.23.6.2-scaled-fullsize-mini'
-          html=html.replace('app.js?v=13.22-dev26',f'app.js?v={build}')
-          html=html.replace('share-render-v13.21-dev12.js?v=13.21-dev12',f'share-render-v13.21-dev12.js?v={build}')
-          cleanup=f'''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {{\n      navigator.serviceWorker.getRegistrations().then(function(regs){{\n        var ours=regs.filter(function(r){{return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;}});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){{return r.unregister();}})).then(function(){{\n          if(!sessionStorage.getItem('audreyPreviewMiniBoardV132362')){{\n            sessionStorage.setItem('audreyPreviewMiniBoardV132362','1');\n            location.reload();\n          }}\n        }});\n      }});\n    }}\n  </script>\n'''
+          build='13.22-color-expansion-dev1'
+          html=html.replace('v=13.22-dev26',f'v={build}')
+          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreyColorExpansionPreviewDev1')){\n            sessionStorage.setItem('audreyColorExpansionPreviewDev1','1');\n            location.reload();\n          }\n        });\n      });\n    }\n  </script>\n'''
           app_tag=f'  <script src="app.js?v={build}"></script>\n'
           if app_tag not in html: raise SystemExit('Versioned app tag missing')
           html=html.replace(app_tag,cleanup+app_tag,1)
           no_cache='  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">\n  <meta http-equiv="Pragma" content="no-cache">\n  <meta http-equiv="Expires" content="0">\n'
           if no_cache not in html: html=html.replace('  <meta name="viewport"',no_cache+'  <meta name="viewport"',1)
           manifest=json.loads(Path('site/manifest.webmanifest').read_text(encoding='utf-8'))
-          manifest.update({'name':'Audrey Closet — Scaled Mini Board v13.23.6.2','short_name':'Audrey Mini','id':'./sticker-release-candidate.html','start_url':'./sticker-release-candidate.html','scope':'./'})
-          pm='manifest-preview-v13.23.6.2-scaled-mini-board.webmanifest'
+          manifest.update({'name':'Audrey Closet — Color Expansion 2.0','short_name':'Audrey Color','id':'./index.html','start_url':'./index.html','scope':'./'})
+          pm='manifest-preview-color-expansion-dev1.webmanifest'
           Path('site/'+pm).write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
           html,count=re.subn(r'(<link\s+[^>]*rel=["\']manifest["\'][^>]*href=["\'])[^"\']+(["\'][^>]*>)',r'\1'+pm+r'\2',html,count=1,flags=re.I)
           if count!=1: raise SystemExit('Manifest link missing')
-          html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.23.6.2-scaled-fullsize-mini">\n</head>',1)
-          Path('site/sticker-release-candidate.html').write_text(html,encoding='utf-8')
+          html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.22-color-expansion-dev1">\n</head>',1)
+          p.write_text(html,encoding='utf-8')
           PY
 
-      - name: Verify v13.23.6.2 scaled full-size mini
+      - name: Verify Color Expansion preview
         shell: bash
         run: |
           python - <<'PY'
           from pathlib import Path
-          html=Path('site/sticker-release-candidate.html').read_text(encoding='utf-8')
-          boot=Path('site/share-render-v13.21-dev12.js').read_text(encoding='utf-8')
-          mini=Path('site/portfolio-mini-fidelity-v13.23.6.2.js').read_text(encoding='utf-8')
-          assert 'v13.23.6.2-scaled-fullsize-mini' in html
-          assert "HOTFIX='13.23.6.2-scaled-fullsize-mini'" in boot
-          assert 'portfolio-mini-fidelity-v13.23.6.2.js?v=' in boot
-          assert 'portfolio-mini-fidelity-v13.23.6.1.js?v=' not in boot
-          assert boot.index('board-text-layout-v13.23.5.js?v=') < boot.index('portfolio-mini-fidelity-v13.23.6.2.js?v=')
-          assert boot.index('sticker-render-compat-v13.23.1.js?v=') < boot.index('portfolio-mini-fidelity-v13.23.6.2.js?v=')
-          for needle in ['portfolio-mini-board-v132362','width:sw+\'px\'','height:sh+\'px\'','transform:`scale(${scale})`','engine.textMarkup','installMiniPlanes();return result','-webkit-text-size-adjust:none']:
-            assert needle in mini, f'missing scaled mini Board marker: {needle}'
-          assert 'base*scale' not in mini, 'per-text scaled font math still present'
-          assert 'cqw' not in mini, 'container-query font sizing still present'
-          assert 'data-mini-font-base' not in mini, 'delayed per-text sizing metadata still present'
-          assert 'requestAnimationFrame(installMiniPlanes)' not in mini, 'mini Board wrapping is still delayed by a frame'
+          html=Path('site/index.html').read_text(encoding='utf-8')
+          color=Path('site/shape-studio-v13.22-dev26.js').read_text(encoding='utf-8')
+          original=Path('site/shape-studio-v13.22-dev26-original.js').read_text(encoding='utf-8')
+          app=Path('site/app.js').read_text(encoding='utf-8')
+          assert 'v13.22-color-expansion-dev1' in html
           assert 'navigator.serviceWorker.register' not in html
+          assert 'Color Expansion 2.0 dev1' in color
+          assert 'shape-studio-v13.22-dev26-original.js' in color
+          assert 'lifecycle-independent Text alignment icons' in original
+          assert 'v13.21 baseline — dev12 feature set, fresh delivery' in app
+          assert 'data-filter-color' in color
+          assert 'Light Blue' in color and 'Sage' in color and 'Metallic' in color
           PY
 
       - name: Configure Pages
