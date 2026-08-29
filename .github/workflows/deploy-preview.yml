@@ -21,7 +21,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Check out v13.23 deterministic Portfolio mini text hotfix
+      - name: Check out v13.23 scaled full-size Portfolio mini hotfix
         uses: actions/checkout@v4
         with:
           repository: thomaslee78-beep/Audrey-Closet
@@ -49,7 +49,7 @@ jobs:
           })().catch(e=>{console.error(e);process.exit(1)});
           NODE
 
-      - name: Prepare v13.23.6.1 candidate
+      - name: Prepare v13.23.6.2 candidate
         shell: bash
         run: |
           python - <<'PY'
@@ -60,47 +60,45 @@ jobs:
           swpat=re.compile(r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*',re.S)
           html,n=swpat.subn('\n',html,count=1)
           if n!=1: raise SystemExit('Production service worker block missing')
-          build='13.23.6.1-deterministic-mini-text'
+          build='13.23.6.2-scaled-fullsize-mini'
           html=html.replace('app.js?v=13.22-dev26',f'app.js?v={build}')
           html=html.replace('share-render-v13.21-dev12.js?v=13.21-dev12',f'share-render-v13.21-dev12.js?v={build}')
-          cleanup=f'''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {{\n      navigator.serviceWorker.getRegistrations().then(function(regs){{\n        var ours=regs.filter(function(r){{return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;}});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){{return r.unregister();}})).then(function(){{\n          if(!sessionStorage.getItem('audreyPreviewMiniTextV132361')){{\n            sessionStorage.setItem('audreyPreviewMiniTextV132361','1');\n            location.reload();\n          }}\n        }});\n      }});\n    }}\n  </script>\n'''
+          cleanup=f'''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {{\n      navigator.serviceWorker.getRegistrations().then(function(regs){{\n        var ours=regs.filter(function(r){{return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;}});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){{return r.unregister();}})).then(function(){{\n          if(!sessionStorage.getItem('audreyPreviewMiniBoardV132362')){{\n            sessionStorage.setItem('audreyPreviewMiniBoardV132362','1');\n            location.reload();\n          }}\n        }});\n      }});\n    }}\n  </script>\n'''
           app_tag=f'  <script src="app.js?v={build}"></script>\n'
           if app_tag not in html: raise SystemExit('Versioned app tag missing')
           html=html.replace(app_tag,cleanup+app_tag,1)
           no_cache='  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">\n  <meta http-equiv="Pragma" content="no-cache">\n  <meta http-equiv="Expires" content="0">\n'
           if no_cache not in html: html=html.replace('  <meta name="viewport"',no_cache+'  <meta name="viewport"',1)
           manifest=json.loads(Path('site/manifest.webmanifest').read_text(encoding='utf-8'))
-          manifest.update({'name':'Audrey Closet — Deterministic Mini Text v13.23.6.1','short_name':'Audrey Mini','id':'./sticker-release-candidate.html','start_url':'./sticker-release-candidate.html','scope':'./'})
-          pm='manifest-preview-v13.23.6.1-deterministic-mini-text.webmanifest'
+          manifest.update({'name':'Audrey Closet — Scaled Mini Board v13.23.6.2','short_name':'Audrey Mini','id':'./sticker-release-candidate.html','start_url':'./sticker-release-candidate.html','scope':'./'})
+          pm='manifest-preview-v13.23.6.2-scaled-mini-board.webmanifest'
           Path('site/'+pm).write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
           html,count=re.subn(r'(<link\s+[^>]*rel=["\']manifest["\'][^>]*href=["\'])[^"\']+(["\'][^>]*>)',r'\1'+pm+r'\2',html,count=1,flags=re.I)
           if count!=1: raise SystemExit('Manifest link missing')
-          html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.23.6.1-deterministic-mini-text">\n</head>',1)
+          html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.23.6.2-scaled-fullsize-mini">\n</head>',1)
           Path('site/sticker-release-candidate.html').write_text(html,encoding='utf-8')
           PY
 
-      - name: Verify v13.23.6.1 deterministic mini text
+      - name: Verify v13.23.6.2 scaled full-size mini
         shell: bash
         run: |
           python - <<'PY'
           from pathlib import Path
           html=Path('site/sticker-release-candidate.html').read_text(encoding='utf-8')
           boot=Path('site/share-render-v13.21-dev12.js').read_text(encoding='utf-8')
-          mini=Path('site/portfolio-mini-fidelity-v13.23.6.1.js').read_text(encoding='utf-8')
-          text=Path('site/board-text-layout-v13.23.5.js').read_text(encoding='utf-8')
-          assert 'v13.23.6.1-deterministic-mini-text' in html
-          assert "HOTFIX='13.23.6.1-deterministic-mini-text'" in boot
-          assert 'portfolio-mini-fidelity-v13.23.6.1.js?v=' in boot
-          assert 'portfolio-mini-fidelity-v13.23.6.js?v=' not in boot
-          assert boot.index('board-text-layout-v13.23.5.js?v=') < boot.index('portfolio-mini-fidelity-v13.23.6.1.js?v=')
-          assert boot.index('sticker-render-compat-v13.23.1.js?v=') < boot.index('portfolio-mini-fidelity-v13.23.6.1.js?v=')
-          for needle in ['portfolio-mini-plane-v132361','Math.min(cw/sw,ch/sh)','base*scale','data-mini-font-base','applyDeterministicTextScale','-webkit-text-size-adjust:none','text-size-adjust:none']:
-            assert needle in mini, f'missing deterministic mini text marker: {needle}'
-          assert 'cqw' not in mini, 'container-query text sizing still present'
-          assert 'container-type:size' not in mini, 'mini text still depends on size query container'
-          assert 'Math.max(8' not in mini, 'legacy 8% clamp copied into deterministic renderer'
-          for needle in ["small:{label:'S',px:20","medium:{label:'M',px:28","large:{label:'L',px:38","xlarge:{label:'XL',px:50"]:
-            assert needle in text, f'missing shared size marker: {needle}'
+          mini=Path('site/portfolio-mini-fidelity-v13.23.6.2.js').read_text(encoding='utf-8')
+          assert 'v13.23.6.2-scaled-fullsize-mini' in html
+          assert "HOTFIX='13.23.6.2-scaled-fullsize-mini'" in boot
+          assert 'portfolio-mini-fidelity-v13.23.6.2.js?v=' in boot
+          assert 'portfolio-mini-fidelity-v13.23.6.1.js?v=' not in boot
+          assert boot.index('board-text-layout-v13.23.5.js?v=') < boot.index('portfolio-mini-fidelity-v13.23.6.2.js?v=')
+          assert boot.index('sticker-render-compat-v13.23.1.js?v=') < boot.index('portfolio-mini-fidelity-v13.23.6.2.js?v=')
+          for needle in ['portfolio-mini-board-v132362','width:sw+\'px\'','height:sh+\'px\'','transform:`scale(${scale})`','engine.textMarkup','installMiniPlanes();return result','-webkit-text-size-adjust:none']:
+            assert needle in mini, f'missing scaled mini Board marker: {needle}'
+          assert 'base*scale' not in mini, 'per-text scaled font math still present'
+          assert 'cqw' not in mini, 'container-query font sizing still present'
+          assert 'data-mini-font-base' not in mini, 'delayed per-text sizing metadata still present'
+          assert 'requestAnimationFrame(installMiniPlanes)' not in mini, 'mini Board wrapping is still delayed by a frame'
           assert 'navigator.serviceWorker.register' not in html
           PY
 
