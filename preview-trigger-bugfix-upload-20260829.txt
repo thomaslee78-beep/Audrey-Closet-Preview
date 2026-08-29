@@ -1,0 +1,2 @@
+Trigger Preview deployment for latest v13.22-bugfix-dev1 source.
+Includes adaptive cutout tuning and transparent-padding upload normalization.
