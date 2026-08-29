@@ -21,11 +21,11 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Check out Color Expansion 2.0 dev1
+      - name: Check out v13.22 bugfix dev1
         uses: actions/checkout@v4
         with:
           repository: thomaslee78-beep/Audrey-Closet
-          ref: v13.22-color-expansion-dev1
+          ref: v13.22-bugfix-dev1
           path: site
 
       - name: Pre-bake production runtime patch for Preview
@@ -49,7 +49,7 @@ jobs:
           })().catch(e=>{console.error(e);process.exit(1)});
           NODE
 
-      - name: Prepare Color Expansion preview
+      - name: Prepare bugfix preview
         shell: bash
         run: |
           python - <<'PY'
@@ -60,41 +60,38 @@ jobs:
           swpat=re.compile(r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*',re.S)
           html,n=swpat.subn('\n',html,count=1)
           if n!=1: raise SystemExit('Production service worker block missing')
-          build='13.22-color-expansion-dev1'
+          build='13.22-bugfix-dev1'
           html=html.replace('v=13.22-dev26',f'v={build}')
-          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreyColorExpansionPreviewDev1')){\n            sessionStorage.setItem('audreyColorExpansionPreviewDev1','1');\n            location.reload();\n          }\n        });\n      });\n    }\n  </script>\n'''
+          html=html.replace('share-render-v13.21-dev12.js?v=13.21-dev12',f'share-render-v13.21-dev12.js?v={build}')
+          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreyBugfixPreviewDev1')){\n            sessionStorage.setItem('audreyBugfixPreviewDev1','1');\n            location.reload();\n          }\n        });\n      });\n    }\n  </script>\n'''
           app_tag=f'  <script src="app.js?v={build}"></script>\n'
           if app_tag not in html: raise SystemExit('Versioned app tag missing')
           html=html.replace(app_tag,cleanup+app_tag,1)
           no_cache='  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">\n  <meta http-equiv="Pragma" content="no-cache">\n  <meta http-equiv="Expires" content="0">\n'
           if no_cache not in html: html=html.replace('  <meta name="viewport"',no_cache+'  <meta name="viewport"',1)
           manifest=json.loads(Path('site/manifest.webmanifest').read_text(encoding='utf-8'))
-          manifest.update({'name':'Audrey Closet — Color Expansion 2.0','short_name':'Audrey Color','id':'./index.html','start_url':'./index.html','scope':'./'})
-          pm='manifest-preview-color-expansion-dev1.webmanifest'
+          manifest.update({'name':'Audrey Closet — Bugfix Preview','short_name':'Audrey Bugfix','id':'./index.html','start_url':'./index.html','scope':'./'})
+          pm='manifest-preview-v13.22-bugfix-dev1.webmanifest'
           Path('site/'+pm).write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
           html,count=re.subn(r'(<link\s+[^>]*rel=["\']manifest["\'][^>]*href=["\'])[^"\']+(["\'][^>]*>)',r'\1'+pm+r'\2',html,count=1,flags=re.I)
           if count!=1: raise SystemExit('Manifest link missing')
-          html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.22-color-expansion-dev1">\n</head>',1)
+          html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.22-bugfix-dev1">\n</head>',1)
           p.write_text(html,encoding='utf-8')
           PY
 
-      - name: Verify Color Expansion preview
+      - name: Verify bugfix preview
         shell: bash
         run: |
           python - <<'PY'
           from pathlib import Path
           html=Path('site/index.html').read_text(encoding='utf-8')
-          color=Path('site/shape-studio-v13.22-dev26.js').read_text(encoding='utf-8')
-          original=Path('site/shape-studio-v13.22-dev26-original.js').read_text(encoding='utf-8')
           app=Path('site/app.js').read_text(encoding='utf-8')
-          assert 'v13.22-color-expansion-dev1' in html
+          share=Path('site/share-render-v13.21-dev12.js').read_text(encoding='utf-8')
+          assert 'v13.22-bugfix-dev1' in html
           assert 'navigator.serviceWorker.register' not in html
-          assert 'Color Expansion 2.0 dev1' in color
-          assert 'shape-studio-v13.22-dev26-original.js' in color
-          assert 'lifecycle-independent Text alignment icons' in original
           assert 'v13.21 baseline — dev12 feature set, fresh delivery' in app
-          assert 'data-filter-color' in color
-          assert 'Light Blue' in color and 'Sage' in color and 'Metallic' in color
+          assert 'v13.22-bugfix-dev1 — allow manual Erase/Restore while Original is selected.' in share
+          assert "globalCompositeOperation='destination-out'" in share
           PY
 
       - name: Configure Pages
