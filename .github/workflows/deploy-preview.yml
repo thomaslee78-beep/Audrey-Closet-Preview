@@ -21,7 +21,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Check out Cutout Phase 3A preview
+      - name: Check out Cutout Phase 3B preview
         uses: actions/checkout@v4
         with:
           repository: thomaslee78-beep/Audrey-Closet
@@ -49,7 +49,7 @@ jobs:
           })().catch(e=>{console.error(e);process.exit(1)});
           NODE
 
-      - name: Prepare Cutout Phase 3A preview
+      - name: Prepare Cutout Phase 3B preview
         shell: bash
         run: |
           python - <<'PY'
@@ -60,9 +60,9 @@ jobs:
           swpat=re.compile(r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*',re.S)
           html,n=swpat.subn('\n',html,count=1)
           if n!=1: raise SystemExit('Production service worker block missing')
-          build='13.23-cutout-phase3a'
+          build='13.23-cutout-phase3b'
           html=html.replace('v=13.22-dev26',f'v={build}')
-          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreyCutoutPhase3A')){\n            sessionStorage.setItem('audreyCutoutPhase3A','1');\n            location.reload();\n          }\n        });\n      });\n    }\n  </script>\n'''
+          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreyCutoutPhase3B')){\n            sessionStorage.setItem('audreyCutoutPhase3B','1');\n            location.reload();\n          }\n        });\n      });\n    }\n  </script>\n'''
           app_tag=f'  <script src="app.js?v={build}"></script>\n'
           if app_tag not in html: raise SystemExit('Versioned app tag missing')
           html=html.replace(app_tag,cleanup+app_tag,1)
@@ -70,19 +70,20 @@ jobs:
           if no_cache not in html: html=html.replace('  <meta name="viewport"',no_cache+'  <meta name="viewport"',1)
           manifest=json.loads(Path('site/manifest.webmanifest').read_text(encoding='utf-8'))
           manifest.update({'name':'Audrey Closet — Cutout Preview','short_name':'Audrey Preview','id':'./index.html','start_url':'./index.html','scope':'./'})
-          pm='manifest-preview-v13.23-cutout-phase3a.webmanifest'
+          pm='manifest-preview-v13.23-cutout-phase3b.webmanifest'
           Path('site/'+pm).write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
           html,count=re.subn(r'(<link\s+[^>]*rel=["\']manifest["\'][^>]*href=["\'])[^"\']+(["\'][^>]*>)',r'\1'+pm+r'\2',html,count=1,flags=re.I)
           if count!=1: raise SystemExit('Manifest link missing')
-          html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.23-cutout-phase3a">\n</head>',1)
+          html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.23-cutout-phase3b">\n</head>',1)
           p.write_text(html,encoding='utf-8')
           PY
 
-      - name: Verify Cutout Phase 3A preview
+      - name: Verify Cutout Phase 3B preview
         shell: bash
         run: |
           node --check site/photo-cutout-methods-v13.23-preview1.js
           node --check site/photo-cutout-state-v13.23-phase3a.js
+          node --check site/photo-cutout-workflow-v13.23-phase3b.js
           node --check site/share-render-v13.21-dev12.js
           python - <<'PY'
           from pathlib import Path
@@ -91,24 +92,26 @@ jobs:
           share=Path('site/share-render-v13.21-dev12.js').read_text(encoding='utf-8')
           methods=Path('site/photo-cutout-methods-v13.23-preview1.js').read_text(encoding='utf-8')
           state=Path('site/photo-cutout-state-v13.23-phase3a.js').read_text(encoding='utf-8')
-          assert 'v13.23-cutout-phase3a' in html
+          workflow=Path('site/photo-cutout-workflow-v13.23-phase3b.js').read_text(encoding='utf-8')
+          assert 'v13.23-cutout-phase3b' in html
           assert 'navigator.serviceWorker.register' not in html
           assert 'v13.21 baseline — dev12 feature set, fresh delivery' in app
-          assert "const BG_PREVIEW='13.23-cutout-phase3a'" in share
+          assert "const BG_PREVIEW='13.23-cutout-phase3b'" in share
           assert 'photo-cutout-state-v13.23-phase3a.js' in share
+          assert 'photo-cutout-workflow-v13.23-phase3b.js' in share
           assert 'photo-garment-guide-phase2b-persist-fix-v13.23.js' not in share
           assert 'photo-garment-guide-phase2c-state-v13.23.js' not in share
           assert 'photo-cutout-method-persist-v13.23-preview2.js' not in share
           assert 'Smart Blend' not in methods and methods.count('enabled:true')==4
           assert "phase:'3A'" in state
-          assert "workflow:'easy'" in state
-          assert "algorithm:'original'" in state
-          assert "method:'standard'" in state
-          assert 'registerGuideType' in state and "id:'shirt'" in state
-          assert 'LEGACY12_TO_10' in state
+          assert "workflow:'easy'" in state and 'registerGuideType' in state
           assert 'restoreCanonicalBase' in state
-          assert 'No background-removal algorithm was rerun.' in state
-          assert 'new MutationObserver' not in state
+          assert "phase:'3B'" in workflow
+          assert "data-workflow=\"easy\"" in workflow and "data-workflow=\"guided\"" in workflow
+          assert 'Apply Shirt Guide' in workflow and 'Reset Guide' in workflow
+          assert 'g.dirty=true' in workflow and 'g.applied=true' in workflow
+          assert 'cutout-shirt-point' in workflow
+          assert 'new MutationObserver' not in state and 'new MutationObserver' not in workflow
           PY
 
       - name: Configure Pages
