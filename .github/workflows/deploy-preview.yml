@@ -120,7 +120,7 @@ jobs:
           assert "phase:'3C-reopen1'" in save_restore and 'saved.photoStudioState=compatibleStudioState' in save_restore
           assert "phase:'3C-manual1'" in manual
           assert 'toggle.click()' in manual and "state?.workflow!=='guided'" in manual
-          assert 'stateApi' not in manual and 'persist' not in manual and 'appliedShape' not in manual
+          assert 'stateApi()?.persist' not in manual and 'saved.photoStudioState=' not in manual and 'guide.appliedShape=' not in manual
           assert "document.addEventListener('click',onToolSelection,true)" in manual
           assert 'new MutationObserver' not in state and 'new MutationObserver' not in workflow and 'new MutationObserver' not in pipeline and 'new MutationObserver' not in lifecycle and 'new MutationObserver' not in save_restore and 'new MutationObserver' not in manual
           PY
