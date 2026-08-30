@@ -21,7 +21,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Check out Cutout Phase 3C fix2 preview
+      - name: Check out Cutout Phase 3C fix3 preview
         uses: actions/checkout@v4
         with:
           repository: thomaslee78-beep/Audrey-Closet
@@ -49,7 +49,7 @@ jobs:
           })().catch(e=>{console.error(e);process.exit(1)});
           NODE
 
-      - name: Prepare Cutout Phase 3C fix2 preview
+      - name: Prepare Cutout Phase 3C fix3 preview
         shell: bash
         run: |
           python - <<'PY'
@@ -60,9 +60,9 @@ jobs:
           swpat=re.compile(r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*',re.S)
           html,n=swpat.subn('\n',html,count=1)
           if n!=1: raise SystemExit('Production service worker block missing')
-          build='13.23-cutout-phase3c-fix2'
+          build='13.23-cutout-phase3c-fix3'
           html=html.replace('v=13.22-dev26',f'v={build}')
-          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreyCutoutPhase3CFix2')){\n            sessionStorage.setItem('audreyCutoutPhase3CFix2','1');\n            location.reload();\n          }\n        });\n      });\n    }\n  </script>\n'''
+          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreyCutoutPhase3CFix3')){\n            sessionStorage.setItem('audreyCutoutPhase3CFix3','1');\n            location.reload();\n          }\n        });\n      });\n    }\n  </script>\n'''
           app_tag=f'  <script src="app.js?v={build}"></script>\n'
           if app_tag not in html: raise SystemExit('Versioned app tag missing')
           html=html.replace(app_tag,cleanup+app_tag,1)
@@ -70,15 +70,15 @@ jobs:
           if no_cache not in html: html=html.replace('  <meta name="viewport"',no_cache+'  <meta name="viewport"',1)
           manifest=json.loads(Path('site/manifest.webmanifest').read_text(encoding='utf-8'))
           manifest.update({'name':'Audrey Closet — Cutout Preview','short_name':'Audrey Preview','id':'./index.html','start_url':'./index.html','scope':'./'})
-          pm='manifest-preview-v13.23-cutout-phase3c-fix2.webmanifest'
+          pm='manifest-preview-v13.23-cutout-phase3c-fix3.webmanifest'
           Path('site/'+pm).write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
           html,count=re.subn(r'(<link\s+[^>]*rel=["\']manifest["\'][^>]*href=["\'])[^"\']+(["\'][^>]*>)',r'\1'+pm+r'\2',html,count=1,flags=re.I)
           if count!=1: raise SystemExit('Manifest link missing')
-          html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.23-cutout-phase3c-fix2">\n</head>',1)
+          html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.23-cutout-phase3c-fix3">\n</head>',1)
           p.write_text(html,encoding='utf-8')
           PY
 
-      - name: Verify Cutout Phase 3C fix2 preview
+      - name: Verify Cutout Phase 3C fix3 preview
         shell: bash
         run: |
           node --check site/photo-cutout-methods-v13.23-preview1.js
@@ -97,10 +97,10 @@ jobs:
           workflow=Path('site/photo-cutout-workflow-v13.23-phase3b.js').read_text(encoding='utf-8')
           pipeline=Path('site/photo-cutout-pipeline-v13.23-phase3c.js').read_text(encoding='utf-8')
           lifecycle=Path('site/photo-guided-lifecycle-v13.23-phase3c.js').read_text(encoding='utf-8')
-          assert 'v13.23-cutout-phase3c-fix2' in html
+          assert 'v13.23-cutout-phase3c-fix3' in html
           assert 'navigator.serviceWorker.register' not in html
           assert 'v13.21 baseline — dev12 feature set, fresh delivery' in app
-          assert "const BG_PREVIEW='13.23-cutout-phase3c-fix2'" in share
+          assert "const BG_PREVIEW='13.23-cutout-phase3c-fix3'" in share
           assert 'photo-cutout-state-v13.23-phase3a.js' in share
           assert 'photo-cutout-workflow-v13.23-phase3b.js' in share
           assert 'photo-cutout-pipeline-v13.23-phase3c.js' in share
@@ -109,9 +109,13 @@ jobs:
           assert "phase:'3A-fix2'" in state and 'seedState' in state and 'persist(t=target()' in state
           assert 'sourceFingerprint' in state and 'appliedShape' in state and 'resetTarget' in state
           assert "phase:'3B-fix1'" in workflow
-          assert "phase:'3C'" in pipeline
+          assert "phase:'3C-refine1'" in pipeline
           assert "registerGuideProcessor('shirt',protectPolygonGuide)" in pipeline
-          assert "phase:'3C-fix1'" in lifecycle
+          assert 'const authority=.72+.28*pr' in pipeline
+          assert 'retainedAlpha' in pipeline
+          assert "phase:'3C-refine2'" in lifecycle
+          assert 'followGuideWithAdjust' in lifecycle
+          assert 'next.guide.appliedShape.transform=followGuideTransform' in lifecycle
           assert 'ensureOverlayAttached' in lifecycle and 'ensureGuidedVisible' in lifecycle
           assert "data-workflow=\"guided\"" in lifecycle
           assert 'stopImmediatePropagation' in lifecycle
