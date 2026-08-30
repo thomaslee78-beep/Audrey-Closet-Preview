@@ -1,0 +1,113 @@
+name: Deploy Cutout Phase 3C fix6
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out fix6
+        uses: actions/checkout@v4
+        with:
+          repository: thomaslee78-beep/Audrey-Closet
+          ref: v13.23-cutout-phase3a
+          path: site
+
+      - name: Pre-bake production runtime patch
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs=require('fs');
+          const sw=fs.readFileSync('site/sw.js','utf8');
+          const app=fs.readFileSync('site/app.js','utf8');
+          const tierStart=sw.indexOf('const TIER_PATCH=String.raw`');
+          const withStart=sw.indexOf('function withTierPatch(resp){',tierStart);
+          const installStart=sw.indexOf("self.addEventListener('install'",withStart);
+          if(tierStart<0||withStart<0||installStart<0) throw new Error('Production runtime patch not found');
+          const makePatch=new Function(`${sw.slice(tierStart,withStart)}\n${sw.slice(withStart,installStart)}\nreturn {withTierPatch};`);
+          const {withTierPatch}=makePatch();
+          (async()=>{
+            const response=await withTierPatch(new Response(app,{status:200,headers:{'content-type':'application/javascript; charset=utf-8'}}));
+            fs.writeFileSync('site/app.js',await response.text(),'utf8');
+          })().catch(e=>{console.error(e);process.exit(1)});
+          NODE
+
+      - name: Prepare Preview
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json,re
+          p=Path('site/index.html')
+          html=p.read_text(encoding='utf-8')
+          swpat=re.compile(r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*',re.S)
+          html,n=swpat.subn('\n',html,count=1)
+          if n!=1: raise SystemExit('Production service worker block missing')
+          build='13.23-cutout-phase3c-fix6'
+          html=html.replace('v=13.22-dev26',f'v={build}')
+          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreyCutoutPhase3CFix6')){sessionStorage.setItem('audreyCutoutPhase3CFix6','1');location.reload();}\n        });\n      });\n    }\n  </script>\n'''
+          app_tag=f'  <script src="app.js?v={build}"></script>\n'
+          if app_tag not in html: raise SystemExit('Versioned app tag missing')
+          html=html.replace(app_tag,cleanup+app_tag,1)
+          manifest=json.loads(Path('site/manifest.webmanifest').read_text(encoding='utf-8'))
+          manifest.update({'name':'Audrey Closet — Cutout Preview','short_name':'Audrey Preview','id':'./index.html','start_url':'./index.html','scope':'./'})
+          pm='manifest-preview-v13.23-cutout-phase3c-fix6.webmanifest'
+          Path('site/'+pm).write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          html,count=re.subn(r'(<link\s+[^>]*rel=["\']manifest["\'][^>]*href=["\'])[^"\']+(["\'][^>]*>)',r'\1'+pm+r'\2',html,count=1,flags=re.I)
+          if count!=1: raise SystemExit('Manifest link missing')
+          html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.23-cutout-phase3c-fix6">\n</head>',1)
+          p.write_text(html,encoding='utf-8')
+          PY
+
+      - name: Verify fix6
+        shell: bash
+        run: |
+          node --check site/photo-cutout-state-v13.23-phase3a.js
+          node --check site/photo-cutout-workflow-v13.23-phase3b.js
+          node --check site/photo-cutout-pipeline-v13.23-phase3c.js
+          node --check site/photo-guided-lifecycle-v13.23-phase3c.js
+          node --check site/photo-cutout-save-restore-v13.23-phase3c.js
+          node --check site/photo-guided-manual-tools-v13.23-phase3c.js
+          node --check site/share-render-v13.21-dev12.js
+          python - <<'PY'
+          from pathlib import Path
+          html=Path('site/index.html').read_text()
+          share=Path('site/share-render-v13.21-dev12.js').read_text()
+          state=Path('site/photo-cutout-state-v13.23-phase3a.js').read_text()
+          save_restore=Path('site/photo-cutout-save-restore-v13.23-phase3c.js').read_text()
+          manual=Path('site/photo-guided-manual-tools-v13.23-phase3c.js').read_text()
+          assert 'v13.23-cutout-phase3c-fix6' in html
+          assert "const BG_PREVIEW='13.23-cutout-phase3c-fix6'" in share
+          assert "phase:'3A-fix3'" in state
+          assert 'restoreCanonicalManualMasks' in state
+          assert 'studioManualEraseMask=cutout.eraseMask?await canvasFromData' in state
+          assert 'studioManualRestoreMask=cutout.restoreMask?await canvasFromData' in state
+          assert "phase:'3C-reopen1'" in save_restore
+          assert "phase:'3C-manual1'" in manual
+          assert 'navigator.serviceWorker.register' not in html
+          PY
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Upload Preview
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - name: Deploy Preview
+        id: deployment
+        uses: actions/deploy-pages@v4
