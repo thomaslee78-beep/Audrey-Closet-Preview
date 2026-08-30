@@ -114,7 +114,7 @@ jobs:
           assert 'studioShirtGuideProtection' in guide
           assert 'studio-shirt-guide-shape' in guide
           assert 'applyShirtGuideQuick' in guide
-          assert "studioMode==='quick'" in guide
+          assert "applyStudioMode('quick'" in guide
           assert "phase:'1C'" in guide
           assert "type:'shirt'" in guide
           assert 'getState:guideState' in guide
