@@ -1,4 +1,4 @@
-name: Deploy Cutout Phase 3D-C Tank Refinement
+name: Deploy Cutout Phase 3D-C Final Templates
 
 on:
   workflow_dispatch:
@@ -60,9 +60,9 @@ jobs:
           swpat=re.compile(r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*',re.S)
           html,n=swpat.subn('\n',html,count=1)
           if n!=1: raise SystemExit('Production service worker block missing')
-          build='13.23-cutout-phase3d-c3'
+          build='13.23-cutout-phase3d-c4'
           html=html.replace('v=13.22-dev26',f'v={build}')
-          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreyCutoutPhase3DC3')){\n            sessionStorage.setItem('audreyCutoutPhase3DC3','1');\n            location.reload();\n          }\n        });\n      });\n    }\n  </script>\n'''
+          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreyCutoutPhase3DC4')){\n            sessionStorage.setItem('audreyCutoutPhase3DC4','1');\n            location.reload();\n          }\n        });\n      });\n    }\n  </script>\n'''
           app_tag=f'  <script src="app.js?v={build}"></script>\n'
           if app_tag not in html: raise SystemExit('Versioned app tag missing')
           html=html.replace(app_tag,cleanup+app_tag,1)
@@ -70,11 +70,11 @@ jobs:
           if no_cache not in html: html=html.replace('  <meta name="viewport"',no_cache+'  <meta name="viewport"',1)
           manifest=json.loads(Path('site/manifest.webmanifest').read_text(encoding='utf-8'))
           manifest.update({'name':'Audrey Closet — Cutout Preview','short_name':'Audrey Preview','id':'./index.html','start_url':'./index.html','scope':'./'})
-          pm='manifest-preview-v13.23-cutout-phase3d-c3.webmanifest'
+          pm='manifest-preview-v13.23-cutout-phase3d-c4.webmanifest'
           Path('site/'+pm).write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
           html,count=re.subn(r'(<link\s+[^>]*rel=["\']manifest["\'][^>]*href=["\'])[^"\']+(["\'][^>]*>)',r'\1'+pm+r'\2',html,count=1,flags=re.I)
           if count!=1: raise SystemExit('Manifest link missing')
-          html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.23-cutout-phase3d-c3">\n</head>',1)
+          html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.23-cutout-phase3d-c4">\n</head>',1)
           p.write_text(html,encoding='utf-8')
           PY
 
@@ -98,22 +98,26 @@ jobs:
           workflow=Path('site/photo-cutout-workflow-v13.23-phase3b.js').read_text(encoding='utf-8')
           guides=Path('site/photo-garment-guides-v13.23-phase3d-a.js').read_text(encoding='utf-8')
           picker=Path('site/photo-garment-template-picker-v13.23-phase3d-b.js').read_text(encoding='utf-8')
-          assert 'v13.23-cutout-phase3d-c3' in html
+          assert 'v13.23-cutout-phase3d-c4' in html
           assert 'navigator.serviceWorker.register' not in html
-          assert "const BG_PREVIEW='13.23-cutout-phase3d-c3'" in share
+          assert "const BG_PREVIEW='13.23-cutout-phase3d-c4'" in share
           assert 'photo-garment-guides-v13.23-phase3d-a.js' in share
           assert 'photo-garment-template-picker-v13.23-phase3d-b.js' in share
           assert "phase:'3A-fix5'" in state
           assert "phase:'3B-generic1'" in workflow
-          assert "phase:'3D-C3'" in guides
-          assert "phase:'3D-C1'" in picker
-          assert "const ENABLED=['shirt','long-sleeve-shirt','tank','hoodie','pants','dress']" in picker
+          assert "phase:'3D-C4'" in guides
+          assert "phase:'3D-C2'" in picker
+          assert "const ENABLED=['shirt','long-sleeve-shirt','tank','hoodie','pants','dress','shorts','skirt','coat']" in picker
           assert "id:'tank',label:'Tank',geometryVersion:4" in guides
           assert "id:'hoodie',label:'Hoodie',geometryVersion:2" in guides
           assert "id:'pants',label:'Pants',geometryVersion:2" in guides
           assert "id:'dress',label:'Dress',geometryVersion:2" in guides
-          assert "defaultPoints:[[.28,.02],[.40,.05],[.44,.18],[.56,.18],[.60,.05],[.72,.02],[.69,.30],[.76,1],[.24,1],[.31,.30]]" in guides
-          assert "pointLabels:['Left strap outer top','Left strap inner','Left neckline curve','Right neckline curve','Right strap inner','Right strap outer top','Right armhole','Right hem','Left hem','Left armhole']" in guides
+          assert "id:'shorts',label:'Shorts',geometryVersion:2" in guides
+          assert "id:'skirt',label:'Skirt',geometryVersion:2" in guides
+          assert "id:'coat',label:'Coat / Jacket',geometryVersion:2" in guides
+          assert "defaultPoints:[[.74,0],[.92,.72],[.58,.82],[.50,.48],[.42,.82],[.08,.72],[.26,0]]" in guides
+          assert "defaultPoints:[[.66,0],[.78,.18],[.88,1],[.12,1],[.22,.18],[.34,0]]" in guides
+          assert "defaultPoints:[[.42,0],[.28,.08],[.05,.70],[.18,.70],[.20,1],[.80,1],[.82,.70],[.95,.70],[.72,.08],[.58,0]]" in guides
           assert 'templateIconSvg' in picker
           assert "${d.defaultPoints.length} pts" in picker
           assert 'next.guide.applied=false' in picker and 'next.guide.appliedShape=null' in picker
