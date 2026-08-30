@@ -1,4 +1,4 @@
-name: Deploy Cutout Phase 3C fix7
+name: Deploy Cutout Phase 3C fix8
 
 on:
   workflow_dispatch:
@@ -21,7 +21,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Check out Cutout Phase 3C fix7 preview
+      - name: Check out Cutout Phase 3C fix8 preview
         uses: actions/checkout@v4
         with:
           repository: thomaslee78-beep/Audrey-Closet
@@ -49,7 +49,7 @@ jobs:
           })().catch(e=>{console.error(e);process.exit(1)});
           NODE
 
-      - name: Prepare Cutout Phase 3C fix7 preview
+      - name: Prepare Cutout Phase 3C fix8 preview
         shell: bash
         run: |
           python - <<'PY'
@@ -60,9 +60,9 @@ jobs:
           swpat=re.compile(r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*',re.S)
           html,n=swpat.subn('\n',html,count=1)
           if n!=1: raise SystemExit('Production service worker block missing')
-          build='13.23-cutout-phase3c-fix7'
+          build='13.23-cutout-phase3c-fix8'
           html=html.replace('v=13.22-dev26',f'v={build}')
-          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreyCutoutPhase3CFix7')){\n            sessionStorage.setItem('audreyCutoutPhase3CFix7','1');\n            location.reload();\n          }\n        });\n      });\n    }\n  </script>\n'''
+          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreyCutoutPhase3CFix8')){\n            sessionStorage.setItem('audreyCutoutPhase3CFix8','1');\n            location.reload();\n          }\n        });\n      });\n    }\n  </script>\n'''
           app_tag=f'  <script src="app.js?v={build}"></script>\n'
           if app_tag not in html: raise SystemExit('Versioned app tag missing')
           html=html.replace(app_tag,cleanup+app_tag,1)
@@ -70,15 +70,15 @@ jobs:
           if no_cache not in html: html=html.replace('  <meta name="viewport"',no_cache+'  <meta name="viewport"',1)
           manifest=json.loads(Path('site/manifest.webmanifest').read_text(encoding='utf-8'))
           manifest.update({'name':'Audrey Closet — Cutout Preview','short_name':'Audrey Preview','id':'./index.html','start_url':'./index.html','scope':'./'})
-          pm='manifest-preview-v13.23-cutout-phase3c-fix7.webmanifest'
+          pm='manifest-preview-v13.23-cutout-phase3c-fix8.webmanifest'
           Path('site/'+pm).write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
           html,count=re.subn(r'(<link\s+[^>]*rel=["\']manifest["\'][^>]*href=["\'])[^"\']+(["\'][^>]*>)',r'\1'+pm+r'\2',html,count=1,flags=re.I)
           if count!=1: raise SystemExit('Manifest link missing')
-          html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.23-cutout-phase3c-fix7">\n</head>',1)
+          html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.23-cutout-phase3c-fix8">\n</head>',1)
           p.write_text(html,encoding='utf-8')
           PY
 
-      - name: Verify Cutout Phase 3C fix7 preview
+      - name: Verify Cutout Phase 3C fix8 preview
         shell: bash
         run: |
           node --check site/photo-cutout-state-v13.23-phase3a.js
@@ -93,12 +93,12 @@ jobs:
           html=Path('site/index.html').read_text(encoding='utf-8')
           share=Path('site/share-render-v13.21-dev12.js').read_text(encoding='utf-8')
           state=Path('site/photo-cutout-state-v13.23-phase3a.js').read_text(encoding='utf-8')
-          assert 'v13.23-cutout-phase3c-fix7' in html
+          assert 'v13.23-cutout-phase3c-fix8' in html
           assert 'navigator.serviceWorker.register' not in html
-          assert "const BG_PREVIEW='13.23-cutout-phase3c-fix7'" in share
-          assert "phase:'3A-fix4'" in state
+          assert "const BG_PREVIEW='13.23-cutout-phase3c-fix8'" in share
+          assert "phase:'3A-fix5'" in state
+          assert "studioApplyButton.onclick=()=>applyPhotoStudio();" in state
           assert 'const t=target(),committed=captureRuntime(t);' in state
-          assert 'const out=await applyPhoto0.apply(this,arguments);' in state
           assert state.count('persist(t,committed);')>=2
           assert 'restoreCanonicalManualMasks' in state
           PY
