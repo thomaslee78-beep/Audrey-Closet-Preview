@@ -81,6 +81,10 @@ jobs:
       - name: Verify Shirt Guide Phase 1A preview
         shell: bash
         run: |
+          node --check site/photo-cutout-methods-v13.23-preview1.js
+          node --check site/photo-cutout-method-persist-v13.23-preview2.js
+          node --check site/photo-garment-guide-v13.23-preview1.js
+          node --check site/share-render-v13.21-dev12.js
           python - <<'PY'
           from pathlib import Path
           html=Path('site/index.html').read_text(encoding='utf-8')
@@ -92,19 +96,20 @@ jobs:
           assert 'v13.23-bg-phase1a' in html
           assert 'navigator.serviceWorker.register' not in html
           assert 'v13.21 baseline — dev12 feature set, fresh delivery' in app
-          assert 'photo-cutout-methods-v13.23-preview1.js?v='+"13.23-bg-phase1a" in share
-          assert 'photo-cutout-method-persist-v13.23-preview2.js?v='+"13.23-bg-phase1a" in share
-          assert 'photo-garment-guide-v13.23-preview1.js?v='+"13.23-bg-phase1a" in share
+          assert "const BG_PREVIEW='13.23-bg-phase1a'" in share
+          assert 'photo-cutout-methods-v13.23-preview1.js?v=' in share
+          assert 'photo-cutout-method-persist-v13.23-preview2.js?v=' in share
+          assert 'photo-garment-guide-v13.23-preview1.js?v=' in share
           assert 'photo-cutout-smart-blend-v13.23-preview3.js' not in share
           assert 'Smart Blend' not in methods
+          assert "'blend'" not in persist
           assert 'Center Focus' in methods
           assert 'Edge Guide' in methods
           assert 'Subject Grow' in methods
           assert methods.count('enabled:true')==4
           assert 'studioShirtGuideToggle' in guide
           assert 'applyShirtGuideQuick' in guide
-          assert "mode==='quick'" in guide
-          assert "mode==='clean'" not in guide
+          assert "studioMode==='quick'" in guide
           assert "phase:'1A'" in guide
           assert "type:'shirt'" in guide
           assert 'stampWorkingStudioState' in persist
