@@ -112,8 +112,8 @@ jobs:
           assert 'cutout-method-body' in ui and 'is-collapsed' in ui
           assert 'cutout-guide-settings' in ui
           assert 'garment-template-options{display:flex' in ui
-          assert 'Preview lab' not in ui
-          assert 'Phase 3B' not in ui
+          assert "small.textContent=''" in ui
+          assert "note.textContent='Position the outline around the garment, then Apply. Use Edit whenever the shape needs adjustment.'" in ui
           PY
 
       - name: Configure Pages
