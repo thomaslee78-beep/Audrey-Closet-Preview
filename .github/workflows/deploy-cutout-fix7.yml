@@ -1,4 +1,4 @@
-name: Deploy Cutout UI Cleanup 3
+name: Deploy Cutout UI Cleanup 4
 
 on:
   workflow_dispatch:
@@ -21,7 +21,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Check out Cutout UI Cleanup 3 preview
+      - name: Check out Cutout UI Cleanup 4 preview
         uses: actions/checkout@v4
         with:
           repository: thomaslee78-beep/Audrey-Closet
@@ -49,7 +49,7 @@ jobs:
           })().catch(e=>{console.error(e);process.exit(1)});
           NODE
 
-      - name: Prepare Cutout UI Cleanup 3 preview
+      - name: Prepare Cutout UI Cleanup 4 preview
         shell: bash
         run: |
           python - <<'PY'
@@ -60,9 +60,9 @@ jobs:
           swpat=re.compile(r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*',re.S)
           html,n=swpat.subn('\n',html,count=1)
           if n!=1: raise SystemExit('Production service worker block missing')
-          build='13.23-cutout-ui-cleanup3'
+          build='13.23-cutout-ui-cleanup4'
           html=html.replace('v=13.22-dev26',f'v={build}')
-          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreyCutoutUiCleanup3')){\n            sessionStorage.setItem('audreyCutoutUiCleanup3','1');\n            location.reload();\n          }\n        });\n      });\n    }\n  </script>\n'''
+          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreyCutoutUiCleanup4')){\n            sessionStorage.setItem('audreyCutoutUiCleanup4','1');\n            location.reload();\n          }\n        });\n      });\n    }\n  </script>\n'''
           app_tag=f'  <script src="app.js?v={build}"></script>\n'
           if app_tag not in html: raise SystemExit('Versioned app tag missing')
           html=html.replace(app_tag,cleanup+app_tag,1)
@@ -70,15 +70,15 @@ jobs:
           if no_cache not in html: html=html.replace('  <meta name="viewport"',no_cache+'  <meta name="viewport"',1)
           manifest=json.loads(Path('site/manifest.webmanifest').read_text(encoding='utf-8'))
           manifest.update({'name':'Audrey Closet — Cutout UI Preview','short_name':'Audrey Preview','id':'./index.html','start_url':'./index.html','scope':'./'})
-          pm='manifest-preview-v13.23-cutout-ui-cleanup3.webmanifest'
+          pm='manifest-preview-v13.23-cutout-ui-cleanup4.webmanifest'
           Path('site/'+pm).write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
           html,count=re.subn(r'(<link\s+[^>]*rel=["\']manifest["\'][^>]*href=["\'])[^"\']+(["\'][^>]*>)',r'\1'+pm+r'\2',html,count=1,flags=re.I)
           if count!=1: raise SystemExit('Manifest link missing')
-          html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.23-cutout-ui-cleanup3">\n</head>',1)
+          html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.23-cutout-ui-cleanup4">\n</head>',1)
           p.write_text(html,encoding='utf-8')
           PY
 
-      - name: Verify Cutout UI Cleanup 3 preview
+      - name: Verify Cutout UI Cleanup 4 preview
         shell: bash
         run: |
           node --check site/photo-cutout-state-v13.23-phase3a.js
@@ -97,18 +97,19 @@ jobs:
           html=Path('site/index.html').read_text(encoding='utf-8')
           share=Path('site/share-render-v13.21-dev12.js').read_text(encoding='utf-8')
           ui2=Path('site/photo-cutout-ui-cleanup-v13.23-iter2.js').read_text(encoding='utf-8')
-          assert 'v13.23-cutout-ui-cleanup3' in html
+          assert 'v13.23-cutout-ui-cleanup4' in html
           assert 'navigator.serviceWorker.register' not in html
           assert 'photo-cutout-ui-cleanup-v13.23-iter2.js' in share
-          assert "phase:'cleanup3'" in ui2
+          assert "phase:'cleanup4'" in ui2
           assert "heading.textContent='Cutout Option'" in ui2
           assert "guided.textContent='Guided'" in ui2
-          assert "help.textContent=isGuided?'Use a garment outline when Automatic needs extra control around the item.':'Recommended for most photos. Choose Original, Quick or Clean for the cutout you prefer.'" in ui2
+          assert 'Automatic is recommended for most photos. Choose Original, Quick, or Clean to apply a cutout to the photo.' in ui2
+          assert 'Guided adds an editable garment outline which can be applied to protect the region, before applying a cutout method.' in ui2
           assert "methodHeading.textContent='Advanced Cutout Method'" in ui2
-          assert "note.textContent='Choose a Garment Shape, position the outline around the garment, then Apply.'" in ui2
+          assert 'Choose a Garment Shape, position it around the garment, edit the outline, then click the Apply Guide button to protect the region before applying a cutout method such as Quick or Clean.' in ui2
           assert "pickerHeading.textContent='Garment Shape'" in ui2
+          assert '#cutoutWorkflow3B.cutout-ui-clean{gap:5px!important}' in ui2
           assert "settings.classList.remove('is-collapsed')" in ui2
-          assert 'cutout-guide-settings-body{display:grid!important' in ui2
           assert "title.textContent='Cutout Sensitivity'" in ui2
           assert 'id="studioEdgeUi100" type="range" min="0" max="100"' in ui2
           PY
