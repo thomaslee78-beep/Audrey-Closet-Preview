@@ -1,4 +1,4 @@
-name: Deploy Photo Studio Layout dev8a
+name: Deploy Photo Studio Layout dev8b
 
 on:
   workflow_dispatch:
@@ -21,7 +21,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Check out Photo Studio Layout dev8a
+      - name: Check out Photo Studio Layout dev8b
         uses: actions/checkout@v4
         with:
           repository: thomaslee78-beep/Audrey-Closet
@@ -49,7 +49,7 @@ jobs:
           })().catch(e=>{console.error(e);process.exit(1)});
           NODE
 
-      - name: Prepare Photo Studio dev8a preview
+      - name: Prepare Photo Studio dev8b preview
         shell: bash
         run: |
           python - <<'PY'
@@ -60,40 +60,41 @@ jobs:
           swpat=re.compile(r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*',re.S)
           html,n=swpat.subn('\n',html,count=1)
           if n!=1: raise SystemExit('Production service worker block missing')
-          build='13.23-photo-studio-layout-dev8a'
+          build='13.23-photo-studio-layout-dev8b'
           html=html.replace('v=13.22-dev26',f'v={build}')
-          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreyPhotoStudioLayoutDev8a')){\n            sessionStorage.setItem('audreyPhotoStudioLayoutDev8a','1');\n            location.reload();\n          }\n        });\n      });\n    }\n  </script>\n'''
+          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreyPhotoStudioLayoutDev8b')){\n            sessionStorage.setItem('audreyPhotoStudioLayoutDev8b','1');\n            location.reload();\n          }\n        });\n      });\n    }\n  </script>\n'''
           app_tag=f'  <script src="app.js?v={build}"></script>\n'
           if app_tag not in html: raise SystemExit('Versioned app tag missing')
           html=html.replace(app_tag,cleanup+app_tag,1)
           no_cache='  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">\n  <meta http-equiv="Pragma" content="no-cache">\n  <meta http-equiv="Expires" content="0">\n'
           if no_cache not in html: html=html.replace('  <meta name="viewport"',no_cache+'  <meta name="viewport"',1)
           manifest=json.loads(Path('site/manifest.webmanifest').read_text(encoding='utf-8'))
-          manifest.update({'name':'Audrey Closet — Photo Studio Layout dev8a','short_name':'Audrey Preview','id':'./index.html','start_url':'./index.html','scope':'./'})
-          pm='manifest-preview-v13.23-photo-studio-layout-dev8a.webmanifest'
+          manifest.update({'name':'Audrey Closet — Photo Studio Layout dev8b','short_name':'Audrey Preview','id':'./index.html','start_url':'./index.html','scope':'./'})
+          pm='manifest-preview-v13.23-photo-studio-layout-dev8b.webmanifest'
           Path('site/'+pm).write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
           html,count=re.subn(r'(<link\s+[^>]*rel=["\']manifest["\'][^>]*href=["\'])[^"\']+(["\'][^>]*>)',r'\1'+pm+r'\2',html,count=1,flags=re.I)
           if count!=1: raise SystemExit('Manifest link missing')
-          html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.23-photo-studio-layout-dev8a">\n</head>',1)
+          html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.23-photo-studio-layout-dev8b">\n</head>',1)
           p.write_text(html,encoding='utf-8')
           PY
 
-      - name: Verify Photo Studio Layout dev8a
+      - name: Verify Photo Studio Layout dev8b
         shell: bash
         run: |
-          node --check site/photo-studio-adjust-sliders-v13.23-dev7.js
           node --check site/photo-studio-background-palette-v13.23-dev8.js
+          node --check site/photo-studio-menu-labels-v13.23-dev8b.js
           node --check site/share-render-v13.21-dev12.js
           python - <<'PY'
           from pathlib import Path
           html=Path('site/index.html').read_text(encoding='utf-8')
           share=Path('site/share-render-v13.21-dev12.js').read_text(encoding='utf-8')
-          bg=Path('site/photo-studio-background-palette-v13.23-dev8.js').read_text(encoding='utf-8')
-          assert 'v13.23-photo-studio-layout-dev8a' in html
-          assert 'photo-studio-background-palette-v13.23-dev8.js?v=' in share
-          assert 'grid-template-columns:repeat(8,minmax(0,1fr))' in bg
-          assert '.studio-palette-swatches>.studio-bg-swatch:nth-child(n+9){display:none!important}' in bg
-          assert '#studioPanelBackgroundDev5 .studio-bg-palette' in bg
+          labels=Path('site/photo-studio-menu-labels-v13.23-dev8b.js').read_text(encoding='utf-8')
+          assert 'v13.23-photo-studio-layout-dev8b' in html
+          assert 'photo-studio-menu-labels-v13.23-dev8b.js?v=' in share
+          assert "photoNav.textContent='Reset'" in labels
+          assert "bgNav.textContent='Canvas'" in labels
+          assert "photoTitle.textContent='Reset'" in labels
+          assert "bgTitle.textContent='Canvas'" in labels
           PY
 
       - name: Configure Pages
