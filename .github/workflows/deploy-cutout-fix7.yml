@@ -97,7 +97,9 @@ jobs:
           assert "handwritten:{label:'Pencil / Handwritten'" in text
           assert "typewriter:{label:'Typewriter'" in text
           assert "fun:{label:'Fun / Chalk'" in text
-          assert 'syncGuideOverlayForPanel' in layout
+          assert 'data-studio-active-panel' in layout
+          assert '#photoStudioDialog:not([data-studio-active-panel="cutout"]) #cutoutShirtOverlay3B{display:none!important}' in layout
+          assert 'dialog.dataset.studioActivePanel=key' in layout
           PY
 
       - name: Configure Pages
