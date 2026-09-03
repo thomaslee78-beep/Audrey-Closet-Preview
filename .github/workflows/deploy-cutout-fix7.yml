@@ -1,4 +1,4 @@
-name: Preview Smart Scan v13.24 Phase 5
+name: Preview Smart Scan v13.24 Phase 5.1
 
 on:
   workflow_dispatch:
@@ -21,7 +21,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Check out Smart Scan Phase 5 branch
+      - name: Check out Smart Scan Phase 5.1 branch
         uses: actions/checkout@v4
         with:
           repository: thomaslee78-beep/Audrey-Closet
@@ -60,53 +60,52 @@ jobs:
           swpat=re.compile(r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*',re.S)
           html,n=swpat.subn('\n',html,count=1)
           if n!=1: raise SystemExit('Production service worker block missing')
-          build='13.24-smart-scan-phase5-preview1'
+          build='13.24-smart-scan-phase5-1-preview1'
           html=re.sub(r'app\.js\?v=[^"\']+',f'app.js?v={build}',html,count=1)
-          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreySmartScanPhase5Preview1')){\n            sessionStorage.setItem('audreySmartScanPhase5Preview1','1');\n            location.reload();\n          }\n        });\n      });\n    }\n  </script>\n'''
+          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreySmartScanPhase51Preview1')){\n            sessionStorage.setItem('audreySmartScanPhase51Preview1','1');\n            location.reload();\n          }\n        });\n      });\n    }\n  </script>\n'''
           marker=f'<script src="app.js?v={build}"></script>'
           html=html.replace(marker,cleanup+'  '+marker,1)
           no_cache='  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">\n  <meta http-equiv="Pragma" content="no-cache">\n  <meta http-equiv="Expires" content="0">\n'
           if no_cache not in html: html=html.replace('  <meta name="viewport"',no_cache+'  <meta name="viewport"',1)
           manifest=json.loads(Path('site/manifest.webmanifest').read_text(encoding='utf-8'))
-          manifest.update({'name':'Audrey Closet — Smart Scan Phase 5 Preview','short_name':'Audrey Preview','id':'./index.html','start_url':'./index.html','scope':'./'})
-          pm='manifest-preview-v13.24-smart-scan-phase5.webmanifest'
+          manifest.update({'name':'Audrey Closet — Smart Scan Phase 5.1 Preview','short_name':'Audrey Preview','id':'./index.html','start_url':'./index.html','scope':'./'})
+          pm='manifest-preview-v13.24-smart-scan-phase5-1.webmanifest'
           Path('site/'+pm).write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
           html,count=re.subn(r'(<link\s+[^>]*rel=["\']manifest["\'][^>]*href=["\'])[^"\']+(["\'][^>]*>)',r'\1'+pm+r'\2',html,count=1,flags=re.I)
           if count!=1: raise SystemExit('Manifest link missing')
-          html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.24-smart-scan-phase5-preview1">\n</head>',1)
+          html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.24-smart-scan-phase5-1-preview1">\n</head>',1)
           p.write_text(html,encoding='utf-8')
           PY
 
-      - name: Verify Smart Scan Phase 5
+      - name: Verify Smart Scan Phase 5.1
         shell: bash
         run: |
           node --check site/app.js
           node --check site/share-render-v13.21-dev12.js
           node --check site/smart-scan-color-calibration-v13.24-phase4_2.js
           node --check site/smart-scan-pattern-v13.24-phase5.js
+          node --check site/smart-scan-pattern-v13.24-phase5_1.js
           python - <<'PY'
           from pathlib import Path
           html=Path('site/index.html').read_text(encoding='utf-8')
           share=Path('site/share-render-v13.21-dev12.js').read_text(encoding='utf-8')
-          phase5=Path('site/smart-scan-pattern-v13.24-phase5.js').read_text(encoding='utf-8')
+          phase51=Path('site/smart-scan-pattern-v13.24-phase5_1.js').read_text(encoding='utf-8')
           phase42=Path('site/smart-scan-color-calibration-v13.24-phase4_2.js').read_text(encoding='utf-8')
-          assert 'v13.24-smart-scan-phase5-preview1' in html
+          assert 'v13.24-smart-scan-phase5-1-preview1' in html
           assert "const SMART_SCAN_PHASE42='13.24-phase4.2-empirical1'" in share
-          assert "const SMART_SCAN_PHASE5='13.24-phase5-pattern1'" in share
-          assert 'smart-scan-pattern-v13.24-phase5.js?v=' in share
+          assert "const SMART_SCAN_PHASE51='13.24-phase5.1-pattern2'" in share
+          assert 'smart-scan-pattern-v13.24-phase5_1.js?v=' in share
           assert 'SMART_SCAN_PHASE43' not in share
           assert 'window.analyzeImage=analyzeImagePhase42' in phase42
-          assert 'function buildSpatialGrid' in phase5
-          assert 'function transitionFeatures' in phase5
-          assert 'function rowColumnSignatures' in phase5
-          assert 'function componentFeatures' in phase5
-          assert "pattern:'Stripe'" in phase5
-          assert "pattern:'Plaid'" in phase5
-          assert "pattern:'Graphic'" in phase5
-          assert "pattern:'Colorblock'" in phase5
-          assert "pattern:'Floral/Print'" in phase5
-          assert 'window.analyzeImage=analyzeImagePhase5' in phase5
-          assert 'Phase 4.2 color baseline preserved' in phase5
+          assert 'const GRID=32' in phase51
+          assert 'function solidFeatures' in phase51
+          assert 'function stripeRepetition' in phase51
+          assert 'function distributedDetail' in phase51
+          assert "reason:'dominant-solid-override'" in phase51
+          assert "reason:'repeated-band-sequence'" in phase51
+          assert "reason:'distributed-irregular-print'" in phase51
+          assert 'window.analyzeImage=analyzeImagePhase51' in phase51
+          assert 'Phase 4.2 color preserved' in phase51
           PY
 
       - name: Configure Pages
