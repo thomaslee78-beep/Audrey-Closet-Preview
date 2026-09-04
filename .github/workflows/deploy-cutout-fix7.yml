@@ -1,4 +1,4 @@
-name: Preview Smart Scan v13.24 Local v1.1 Final
+name: Preview Smart Scan v13.24 Phase 6.3 Contract
 
 on:
   workflow_dispatch:
@@ -41,11 +41,7 @@ jobs:
           if(tierStart<0||withStart<0||installStart<0) throw new Error('Production runtime patch not found');
           const makePatch=new Function(`${sw.slice(tierStart,withStart)}\n${sw.slice(withStart,installStart)}\nreturn {withTierPatch};`);
           const {withTierPatch}=makePatch();
-          (async()=>{
-            const response=await withTierPatch(new Response(app,{status:200,headers:{'content-type':'application/javascript; charset=utf-8'}}));
-            const patched=await response.text();
-            fs.writeFileSync('site/app.js',patched,'utf8');
-          })().catch(e=>{console.error(e);process.exit(1)});
+          (async()=>{const response=await withTierPatch(new Response(app,{status:200,headers:{'content-type':'application/javascript; charset=utf-8'}}));fs.writeFileSync('site/app.js',await response.text(),'utf8')})().catch(e=>{console.error(e);process.exit(1)});
           NODE
 
       - name: Prepare Preview
@@ -58,45 +54,51 @@ jobs:
           swpat=re.compile(r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*',re.S)
           html,n=swpat.subn('\n',html,count=1)
           if n!=1: raise SystemExit('Production service worker block missing')
-          build='13.24-smart-scan-local-v1-1-final-preview1'
+          build='13.24-smart-scan-phase6-3-contract-preview1'
           html=re.sub(r'app\.js\?v=[^"\']+',f'app.js?v={build}',html,count=1)
-          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        return Promise.all(regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;}).map(function(r){return r.unregister();}));\n      });\n    }\n  </script>\n'''
+          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(function(regs){return Promise.all(regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;}).map(function(r){return r.unregister();}));});\n  </script>\n'''
           marker=f'<script src="app.js?v={build}"></script>'
           html=html.replace(marker,cleanup+'  '+marker,1)
-          html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.24-smart-scan-local-v1-1-final-preview1">\n</head>',1)
+          html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.24-smart-scan-phase6-3-contract-preview1">\n</head>',1)
           manifest=json.loads(Path('site/manifest.webmanifest').read_text(encoding='utf-8'))
-          manifest.update({'name':'Audrey Closet — Smart Scan Local v1.1 Preview','short_name':'Audrey Preview','id':'./index.html','start_url':'./index.html','scope':'./'})
-          pm='manifest-preview-v13.24-smart-scan-local-v1-1.webmanifest'
+          manifest.update({'name':'Audrey Closet — Smart Scan Phase 6.3 Preview','short_name':'Audrey Preview','id':'./index.html','start_url':'./index.html','scope':'./'})
+          pm='manifest-preview-v13.24-smart-scan-phase6-3.webmanifest'
           Path('site/'+pm).write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
           html,count=re.subn(r'(<link\s+[^>]*rel=["\']manifest["\'][^>]*href=["\'])[^"\']+(["\'][^>]*>)',r'\1'+pm+r'\2',html,count=1,flags=re.I)
           if count!=1: raise SystemExit('Manifest link missing')
           p.write_text(html,encoding='utf-8')
           PY
 
-      - name: Verify Local Smart Scan v1.1 Final
+      - name: Verify Smart Scan Phase 6.3
         shell: bash
         run: |
           node --check site/app.js
           node --check site/share-render-v13.21-dev12.js
-          node --check site/smart-scan-pattern-v13.24-phase5_3.js
           node --check site/smart-scan-pattern-final-v13.24-phase5_4.js
           node --check site/smart-scan-category-v13.24-phase6_2.js
+          node --check site/smart-scan-contract-v13.24-phase6_3.js
           python - <<'PY'
           from pathlib import Path
           html=Path('site/index.html').read_text(encoding='utf-8')
           share=Path('site/share-render-v13.21-dev12.js').read_text(encoding='utf-8')
+          contract=Path('site/smart-scan-contract-v13.24-phase6_3.js').read_text(encoding='utf-8')
           phase54=Path('site/smart-scan-pattern-final-v13.24-phase5_4.js').read_text(encoding='utf-8')
-          assert 'v13.24-smart-scan-local-v1-1-final-preview1' in html
+          assert 'v13.24-smart-scan-phase6-3-contract-preview1' in html
           assert "const SMART_SCAN_PHASE54='13.24-phase5.4-final1'" in share
-          assert 'smart-scan-pattern-final-v13.24-phase5_4.js?v=' in share
-          assert share.index('smart-scan-pattern-v13.24-phase5_3.js') < share.index('smart-scan-pattern-final-v13.24-phase5_4.js') < share.index('smart-scan-category-v13.24-phase6.js')
+          assert "const SMART_SCAN_PHASE63='13.24-phase6.3-contract1'" in share
+          assert share.index('smart-scan-pattern-v13.24-phase5_3.js') < share.index('smart-scan-pattern-final-v13.24-phase5_4.js') < share.index('smart-scan-category-v13.24-phase6.js') < share.index('smart-scan-category-v13.24-phase6_2.js') < share.index('smart-scan-contract-v13.24-phase6_3.js')
           assert 'smart-scan-calibration-v13.24-phase6_3a.js' not in share
-          assert 'smart-scan-calibration-catalog-v13.24-phase6_3a2.js' not in share
           assert 'smart-scan-pattern-spatial-v13.24-phase5_4-exp.js' not in share
-          assert 'smart-scan-pattern-hybrid-v13.24-phase5_4c-exp.js' not in share
           assert "stripeMinScore:.62" in phase54
-          assert 'final-strong-plaid' in phase54 and 'final-localized-graphic' in phase54
-          assert 'window.analyzeImage=analyzeImagePhase54' in phase54
+          assert "const VERSION='13.24-phase6.3-contract1'" in contract
+          assert "const LOCAL_ANALYZE_IMAGE=P62.analyzeImage" in contract
+          assert "engine:'local',fallbackUsed:false" in contract
+          assert "type:{value:'',confidence:0}" in contract
+          assert 'colorConfidence' in contract and 'patternConfidence' in contract and 'categoryConfidence' in contract
+          assert 'window.AUDREY_SMART_SCAN=API' in contract
+          assert 'window.smartScanLocal=' in contract
+          assert 'pendingSmartScanResult=toPendingFlat(result)' in contract
+          assert 'openSmartScanReview(pendingSmartScanResult)' in contract
           assert 'SMART_SCAN_PHASE43' not in share
           PY
 
