@@ -1,4 +1,4 @@
-name: Preview Smart Scan v13.24 Phase 6.3A7 Edge Contrast Lab
+name: Preview Smart Scan v13.24 Local v1.1 Final
 
 on:
   workflow_dispatch:
@@ -21,11 +21,11 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Check out Smart Scan calibration experiment branch
+      - name: Check out Smart Scan dev branch
         uses: actions/checkout@v4
         with:
           repository: thomaslee78-beep/Audrey-Closet
-          ref: dev/smart-scan-calibration-graphic-precedence-v13.24
+          ref: dev/smart-scan-color-pattern-v13.24
           path: site
 
       - name: Pre-bake production runtime patch for Preview
@@ -44,86 +44,59 @@ jobs:
           (async()=>{
             const response=await withTierPatch(new Response(app,{status:200,headers:{'content-type':'application/javascript; charset=utf-8'}}));
             const patched=await response.text();
-            if(!patched.includes('v13.21 baseline — dev12 feature set, fresh delivery')) throw new Error('Production runtime marker missing');
             fs.writeFileSync('site/app.js',patched,'utf8');
           })().catch(e=>{console.error(e);process.exit(1)});
           NODE
 
-      - name: Prepare Smart Scan Preview
+      - name: Prepare Preview
         shell: bash
         run: |
           python - <<'PY'
           from pathlib import Path
           import json,re
-          p=Path('site/index.html')
-          html=p.read_text(encoding='utf-8')
+          p=Path('site/index.html'); html=p.read_text(encoding='utf-8')
           swpat=re.compile(r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*',re.S)
           html,n=swpat.subn('\n',html,count=1)
           if n!=1: raise SystemExit('Production service worker block missing')
-          build='13.24-smart-scan-phase6-3a7-preview1'
+          build='13.24-smart-scan-local-v1-1-final-preview1'
           html=re.sub(r'app\.js\?v=[^"\']+',f'app.js?v={build}',html,count=1)
-          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreySmartScanPhase63A7Preview1')){\n            sessionStorage.setItem('audreySmartScanPhase63A7Preview1','1');\n            location.reload();\n          }\n        });\n      });\n    }\n  </script>\n'''
+          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        return Promise.all(regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;}).map(function(r){return r.unregister();}));\n      });\n    }\n  </script>\n'''
           marker=f'<script src="app.js?v={build}"></script>'
           html=html.replace(marker,cleanup+'  '+marker,1)
-          no_cache='  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">\n  <meta http-equiv="Pragma" content="no-cache">\n  <meta http-equiv="Expires" content="0">\n'
-          if no_cache not in html: html=html.replace('  <meta name="viewport"',no_cache+'  <meta name="viewport"',1)
+          html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.24-smart-scan-local-v1-1-final-preview1">\n</head>',1)
           manifest=json.loads(Path('site/manifest.webmanifest').read_text(encoding='utf-8'))
-          manifest.update({'name':'Audrey Closet — Smart Scan Edge Contrast Preview','short_name':'Audrey Preview','id':'./index.html','start_url':'./index.html','scope':'./'})
-          pm='manifest-preview-v13.24-smart-scan-phase6-3a7.webmanifest'
+          manifest.update({'name':'Audrey Closet — Smart Scan Local v1.1 Preview','short_name':'Audrey Preview','id':'./index.html','start_url':'./index.html','scope':'./'})
+          pm='manifest-preview-v13.24-smart-scan-local-v1-1.webmanifest'
           Path('site/'+pm).write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
           html,count=re.subn(r'(<link\s+[^>]*rel=["\']manifest["\'][^>]*href=["\'])[^"\']+(["\'][^>]*>)',r'\1'+pm+r'\2',html,count=1,flags=re.I)
           if count!=1: raise SystemExit('Manifest link missing')
-          html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.24-smart-scan-phase6-3a7-preview1">\n</head>',1)
           p.write_text(html,encoding='utf-8')
           PY
 
-      - name: Verify Smart Scan Phase 6.3A7
+      - name: Verify Local Smart Scan v1.1 Final
         shell: bash
         run: |
           node --check site/app.js
           node --check site/share-render-v13.21-dev12.js
           node --check site/smart-scan-pattern-v13.24-phase5_3.js
-          node --check site/smart-scan-pattern-spatial-v13.24-phase5_4-exp.js
-          node --check site/smart-scan-pattern-spatial-solid-graphic-v13.24-phase5_4b-exp.js
-          node --check site/smart-scan-pattern-hybrid-v13.24-phase5_4c-exp.js
-          node --check site/smart-scan-calibration-v13.24-phase6_3a.js
-          node --check site/smart-scan-calibration-catalog-v13.24-phase6_3a2.js
-          node --check site/smart-scan-calibration-pattern-precedence-v13.24-phase6_3a3.js
-          node --check site/smart-scan-calibration-stripe-threshold-v13.24-phase6_3a6.js
-          node --check site/smart-scan-calibration-spatial-compare-v13.24-phase6_3a4.js
+          node --check site/smart-scan-pattern-final-v13.24-phase5_4.js
+          node --check site/smart-scan-category-v13.24-phase6_2.js
           python - <<'PY'
           from pathlib import Path
           html=Path('site/index.html').read_text(encoding='utf-8')
           share=Path('site/share-render-v13.21-dev12.js').read_text(encoding='utf-8')
-          phase53=Path('site/smart-scan-pattern-v13.24-phase5_3.js').read_text(encoding='utf-8')
-          phase54=Path('site/smart-scan-pattern-spatial-v13.24-phase5_4-exp.js').read_text(encoding='utf-8')
-          phase54b=Path('site/smart-scan-pattern-spatial-solid-graphic-v13.24-phase5_4b-exp.js').read_text(encoding='utf-8')
-          hybrid=Path('site/smart-scan-pattern-hybrid-v13.24-phase5_4c-exp.js').read_text(encoding='utf-8')
-          stripe=Path('site/smart-scan-calibration-stripe-threshold-v13.24-phase6_3a6.js').read_text(encoding='utf-8')
-          compare=Path('site/smart-scan-calibration-spatial-compare-v13.24-phase6_3a4.js').read_text(encoding='utf-8')
-          assert 'v13.24-smart-scan-phase6-3a7-preview1' in html
-          assert "const SMART_SCAN_PHASE54B_EXP='13.24-phase5.4b3-exp-edge-contrast1'" in share
-          assert "const SMART_SCAN_PHASE54C_EXP='13.24-phase5.4c-exp-hybrid1'" in share
-          assert "const SMART_SCAN_CAL_STRIPE='13.24-phase6.3a6-stripe-threshold1'" in share
-          assert "const SMART_SCAN_CAL_SPATIAL='13.24-phase6.3a7-hybrid-compare2'" in share
-          assert share.index('smart-scan-pattern-spatial-v13.24-phase5_4-exp.js') < share.index('smart-scan-pattern-spatial-solid-graphic-v13.24-phase5_4b-exp.js')
-          assert share.index('smart-scan-calibration-v13.24-phase6_3a.js') < share.index('smart-scan-calibration-stripe-threshold-v13.24-phase6_3a6.js') < share.index('smart-scan-pattern-hybrid-v13.24-phase5_4c-exp.js') < share.index('smart-scan-calibration-spatial-compare-v13.24-phase6_3a4.js')
-          assert "const VERSION='13.24-phase5.4b3-exp-edge-contrast1'" in phase54b
-          assert 'cell-level edge-relative contrast' in phase54b
-          assert 'contrastFamilies' in phase54b
-          assert 'shadowOnly' in phase54b
-          assert "const VERSION='13.24-phase5.4c-exp-hybrid1'" in hybrid
-          assert "hybrid-strong-stripe" in hybrid and "hybrid-strong-plaid" in hybrid and "hybrid-strong-floral-print" in hybrid
-          assert "current.pattern.stripeMinScore=.62" in stripe
-          assert "const VERSION='13.24-phase6.3a7-hybrid-compare2'" in compare
-          assert 'Phase 5.4B3 Edge Contrast' in compare
-          assert 'Total true edge-relative contrast' in compare
-          assert 'window.analyzeImage=' not in phase54
-          assert 'window.analyzeImage=' not in phase54b
-          assert 'window.analyzeImage=' not in hybrid
-          assert "const VERSION='13.24-phase5.3-pattern-normalization1'" in phase53
-          assert 'const solid=normalizedSolidDecision(normalizedGrid);' in phase53
-          assert 'if(solid)return{decision:solid,features};' in phase53
+          phase54=Path('site/smart-scan-pattern-final-v13.24-phase5_4.js').read_text(encoding='utf-8')
+          assert 'v13.24-smart-scan-local-v1-1-final-preview1' in html
+          assert "const SMART_SCAN_PHASE54='13.24-phase5.4-final1'" in share
+          assert 'smart-scan-pattern-final-v13.24-phase5_4.js?v=' in share
+          assert share.index('smart-scan-pattern-v13.24-phase5_3.js') < share.index('smart-scan-pattern-final-v13.24-phase5_4.js') < share.index('smart-scan-category-v13.24-phase6.js')
+          assert 'smart-scan-calibration-v13.24-phase6_3a.js' not in share
+          assert 'smart-scan-calibration-catalog-v13.24-phase6_3a2.js' not in share
+          assert 'smart-scan-pattern-spatial-v13.24-phase5_4-exp.js' not in share
+          assert 'smart-scan-pattern-hybrid-v13.24-phase5_4c-exp.js' not in share
+          assert "stripeMinScore:.62" in phase54
+          assert 'final-strong-plaid' in phase54 and 'final-localized-graphic' in phase54
+          assert 'window.analyzeImage=analyzeImagePhase54' in phase54
           assert 'SMART_SCAN_PHASE43' not in share
           PY
 
