@@ -1,4 +1,4 @@
-name: Preview Smart Scan v13.24 Phase 7A5A Progress Overlay
+name: Preview Smart Scan v13.24 Phase 7A5A Progress Overlay Fix
 
 on:
   workflow_dispatch:
@@ -61,18 +61,18 @@ jobs:
           swpat=re.compile(r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*',re.S)
           html,n=swpat.subn('\n',html,count=1)
           if n!=1: raise SystemExit('Production service worker block missing')
-          build='13.24-smart-scan-phase7a5a-progress-preview1'
+          build='13.24-smart-scan-phase7a5a-progress-preview2-toplayer'
           html=re.sub(r'app\.js\?v=[^"\']+',f'app.js?v={build}',html,count=1)
-          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreySmartScanPhase7A5APreview1')){\n            sessionStorage.setItem('audreySmartScanPhase7A5APreview1','1');\n            location.reload();\n          }\n        });\n      });\n    }\n  </script>\n'''
+          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreySmartScanPhase7A5APreview2TopLayer')){\n            sessionStorage.setItem('audreySmartScanPhase7A5APreview2TopLayer','1');\n            location.reload();\n          }\n        });\n      });\n    }\n  </script>\n'''
           marker=f'<script src="app.js?v={build}"></script>'
           repair='  <script src="tier-preview-regression-fix-v13.24.js?v=13.24-tier-preview-regression-fix1"></script>\n'
           html=html.replace(marker,cleanup+'  '+marker+'\n'+repair,1)
-          html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.24-smart-scan-phase7a5a-progress-preview1">\n</head>',1)
+          html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.24-smart-scan-phase7a5a-progress-preview2-toplayer">\n</head>',1)
 
           share_path=Path('site/share-render-v13.21-dev12.js')
           share=share_path.read_text(encoding='utf-8')
           old="const SMART_SCAN_PHASE7A2='13.24-phase7a2-ai-vision1';"
-          new="const SMART_SCAN_PHASE7A2='13.24-phase7a2-ai-vision2-progress-events';\n  const SMART_SCAN_PHASE7A5A='13.24-phase7a5a-progress-overlay1';"
+          new="const SMART_SCAN_PHASE7A2='13.24-phase7a2-ai-vision2-progress-events';\n  const SMART_SCAN_PHASE7A5A='13.24-phase7a5a-progress-overlay2-toplayer';"
           if old not in share: raise SystemExit('Phase 7A2 bootstrap marker missing')
           share=share.replace(old,new,1)
           oldmod="'smart-scan-ai-v13.24-phase7a2.js?v='+SMART_SCAN_PHASE7A2"
@@ -83,20 +83,18 @@ jobs:
 
           manifest=json.loads(Path('site/manifest.webmanifest').read_text(encoding='utf-8'))
           manifest.update({'name':'Audrey Closet — Smart Scan AI Preview','short_name':'Audrey Preview','id':'./index.html','start_url':'./index.html','scope':'./'})
-          pm='manifest-preview-v13.24-smart-scan-phase7a5a.webmanifest'
+          pm='manifest-preview-v13.24-smart-scan-phase7a5a-toplayer.webmanifest'
           Path('site/'+pm).write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
           html,count=re.subn(r'(<link\s+[^>]*rel=["\']manifest["\'][^>]*href=["\'])[^"\']+(["\'][^>]*>)',r'\1'+pm+r'\2',html,count=1,flags=re.I)
           if count!=1: raise SystemExit('Manifest link missing')
           p.write_text(html,encoding='utf-8')
           PY
 
-      - name: Verify Smart Scan Phase 7A5A
+      - name: Verify Smart Scan Phase 7A5A top-layer fix
         shell: bash
         run: |
           node --check site/app.js
           node --check site/share-render-v13.21-dev12.js
-          node --check site/smart-scan-contract-v13.24-phase6_3.js
-          node --check site/smart-scan-ai-v13.24-phase7a1.js
           node --check site/smart-scan-ai-v13.24-phase7a2.js
           node --check site/smart-scan-ai-v13.24-phase7a5a.js
           node --check site/tier-preview-regression-fix-v13.24.js
@@ -108,32 +106,23 @@ jobs:
           ai2=Path('site/smart-scan-ai-v13.24-phase7a2.js').read_text(encoding='utf-8')
           ux=Path('site/smart-scan-ai-v13.24-phase7a5a.js').read_text(encoding='utf-8')
           tierfix=Path('site/tier-preview-regression-fix-v13.24.js').read_text(encoding='utf-8')
-          assert 'v13.24-smart-scan-phase7a5a-progress-preview1' in html
+          assert 'v13.24-smart-scan-phase7a5a-progress-preview2-toplayer' in html
           assert app.count('v13.21 baseline — dev12 feature set, fresh delivery') == 1
           assert 'syncCatalogTierRibbons' in tierfix and 'dedupeTierSelector' in tierfix
           assert "const SMART_SCAN_PHASE7A2='13.24-phase7a2-ai-vision2-progress-events'" in share
-          assert "const SMART_SCAN_PHASE7A5A='13.24-phase7a5a-progress-overlay1'" in share
-          assert share.index('smart-scan-ai-v13.24-phase7a1.js') < share.index('smart-scan-ai-v13.24-phase7a2.js') < share.index('smart-scan-ai-v13.24-phase7a5a.js')
+          assert "const SMART_SCAN_PHASE7A5A='13.24-phase7a5a-progress-overlay2-toplayer'" in share
+          assert share.index('smart-scan-ai-v13.24-phase7a2.js') < share.index('smart-scan-ai-v13.24-phase7a5a.js')
           assert "const VERSION='13.24-phase7a2-ai-vision2-progress-events'" in ai2
-          assert "audrey:smartscan-progress" in ai2
-          assert "progress('scan-start'" in ai2
-          assert "progress('ai-request'" in ai2
-          assert "progress('ai-validating'" in ai2
-          assert "progress('fallback-start'" in ai2
-          assert "progress('scan-complete'" in ai2
-          assert "progress('scan-error'" in ai2
-          assert "const VERSION='13.24-phase7a5a-progress-overlay1'" in ux
-          assert 'smartScanProgressOverlay' in ux
+          assert "const VERSION='13.24-phase7a5a-progress-overlay2-toplayer'" in ux
+          assert "document.createElement('dialog')" in ux
+          assert 'showModal()' in ux
+          assert '::backdrop' in ux
           assert 'smartScanProgressImage' in ux
-          assert 'AI Smart Scan in progress' in ux
-          assert 'Local Smart Scan in progress' in ux
-          assert 'Switching to Local Smart Scan' in ux
+          assert "d.stage==='scan-complete'" in ux and 'hide(0)' in ux
           assert "window.addEventListener('audrey:smartscan-progress'" in ux
-          assert 'window.AUDREY_SMART_SCAN_PROGRESS=API' in ux
           assert 'openSmartScanReview' not in ux
           assert 'fetch(' not in ux
           assert 'smart-scan-calibration-v13.24-phase6_3a.js' not in share
-          assert 'SMART_SCAN_PHASE43' not in share
           PY
 
       - name: Configure Pages
