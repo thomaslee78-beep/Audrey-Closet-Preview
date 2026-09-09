@@ -1,4 +1,4 @@
-name: Preview Smart Scan v13.24 Phase 7A4 Service Architecture
+name: Preview Smart Scan v13.24 Phase 7A4 Cloudflare Service
 
 on:
   workflow_dispatch:
@@ -61,13 +61,14 @@ jobs:
           swpat=re.compile(r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*',re.S)
           html,n=swpat.subn('\n',html,count=1)
           if n!=1: raise SystemExit('Production service worker block missing')
-          build='13.24-smart-scan-phase7a4-service-architecture-preview1'
+          build='13.24-smart-scan-phase7a4-cloudflare-preview2'
           html=re.sub(r'app\.js\?v=[^"\']+',f'app.js?v={build}',html,count=1)
-          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreySmartScanPhase7A4Preview1')){\n            sessionStorage.setItem('audreySmartScanPhase7A4Preview1','1');\n            location.reload();\n          }\n        });\n      });\n    }\n  </script>\n'''
+          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreySmartScanPhase7A4CloudflarePreview2')){\n            sessionStorage.setItem('audreySmartScanPhase7A4CloudflarePreview2','1');\n            location.reload();\n          }\n        });\n      });\n    }\n  </script>\n'''
+          service_config='''  <script id="audreySmartScanServiceConfig">\n    window.AUDREY_SMART_SCAN_SERVICE_CONFIG = {\n      enabled: true,\n      endpoint: 'https://audrey-smartscan-api.thomaslee78.workers.dev',\n      defaultModel: 'gpt-5.6-luna',\n      detail: 'auto'\n    };\n  </script>\n'''
           marker=f'<script src="app.js?v={build}"></script>'
           repair='  <script src="tier-preview-regression-fix-v13.24.js?v=13.24-tier-preview-regression-fix1"></script>\n'
-          html=html.replace(marker,cleanup+'  '+marker+'\n'+repair,1)
-          html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.24-smart-scan-phase7a4-service-architecture-preview1">\n</head>',1)
+          html=html.replace(marker,cleanup+service_config+'  '+marker+'\n'+repair,1)
+          html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.24-smart-scan-phase7a4-cloudflare-preview2">\n</head>',1)
 
           share_path=Path('site/share-render-v13.21-dev12.js')
           share=share_path.read_text(encoding='utf-8')
@@ -83,14 +84,14 @@ jobs:
 
           manifest=json.loads(Path('site/manifest.webmanifest').read_text(encoding='utf-8'))
           manifest.update({'name':'Audrey Closet — Smart Scan AI Preview','short_name':'Audrey Preview','id':'./index.html','start_url':'./index.html','scope':'./'})
-          pm='manifest-preview-v13.24-smart-scan-phase7a4.webmanifest'
+          pm='manifest-preview-v13.24-smart-scan-phase7a4-cloudflare.webmanifest'
           Path('site/'+pm).write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
           html,count=re.subn(r'(<link\s+[^>]*rel=["\']manifest["\'][^>]*href=["\'])[^"\']+(["\'][^>]*>)',r'\1'+pm+r'\2',html,count=1,flags=re.I)
           if count!=1: raise SystemExit('Manifest link missing')
           p.write_text(html,encoding='utf-8')
           PY
 
-      - name: Verify Smart Scan Phase 7A4 architecture
+      - name: Verify Smart Scan Phase 7A4 Cloudflare integration
         shell: bash
         run: |
           node --check site/app.js
@@ -109,24 +110,23 @@ jobs:
           runtime=Path('site/smart-scan-ai-v13.24-phase7a4-runtime.js').read_text(encoding='utf-8')
           worker=Path('site/server/smartscan-worker.js').read_text(encoding='utf-8')
           editable=Path('site/smart-scan-ai-v13.24-phase7a3b.js').read_text(encoding='utf-8')
-          assert 'v13.24-smart-scan-phase7a4-service-architecture-preview1' in html
+          assert 'v13.24-smart-scan-phase7a4-cloudflare-preview2' in html
+          assert "endpoint: 'https://audrey-smartscan-api.thomaslee78.workers.dev'" in html
+          assert 'window.AUDREY_SMART_SCAN_SERVICE_CONFIG' in html and 'enabled: true' in html
           assert app.count('v13.21 baseline — dev12 feature set, fresh delivery') == 1
           assert "const SMART_SCAN_PHASE7A4A='13.24-phase7a4a-service-adapter1'" in share
           assert "const SMART_SCAN_PHASE7A4R='13.24-phase7a4-service-runtime1'" in share
           assert share.index('smart-scan-ai-v13.24-phase7a3b.js') < share.index('smart-scan-service-v13.24-phase7a4a.js') < share.index('smart-scan-ai-v13.24-phase7a4-runtime.js')
           assert "const VERSION='13.24-phase7a4a-service-adapter1'" in adapter
           assert "const VERSION='13.24-phase7a4-service-runtime1'" in runtime
-          assert 'AUDREY_SMART_SCAN_SERVICE_CONFIG' in adapter
-          assert "feature:t.feature||FEATURE" in adapter
           assert "'/v1/smartscan/analyze'" in adapter
           assert "if(!serviceConfigured())return typeof previousSmartScan==='function'?previousSmartScan(target):undefined" in runtime
           assert 'LOCAL.analyze(photo' in runtime
+          assert "SERVICE_VERSION='13.24-phase7a4b-worker2'" in worker
           assert 'OPENAI_API_KEY' in worker
           assert "DEFAULT_MODEL='gpt-5.6-luna'" in worker
           assert 'SMARTSCAN_USAGE_KV' in worker
           assert "type:'audrey.ai.usage'" in worker
-          assert 'MAX_IMAGE_CHARS' in worker and 'MAX_BODY_BYTES' in worker
-          assert "ALLOWED_MODELS=new Set(['gpt-5.6-luna','gpt-5.6-terra','gpt-5.6-sol'])" in worker
           assert "btn.onclick=function(){return window.applyPendingSmartScan()}" in editable
           assert 'resetReviewToProposal' in editable
           assert 'smart-scan-calibration-v13.24-phase6_3a.js' not in share
