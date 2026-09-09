@@ -1,4 +1,4 @@
-name: Preview Smart Scan v13.24 Phase 7A3B Reset Review
+name: Preview Smart Scan v13.24 Phase 7A4 Service Architecture
 
 on:
   workflow_dispatch:
@@ -61,40 +61,43 @@ jobs:
           swpat=re.compile(r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*',re.S)
           html,n=swpat.subn('\n',html,count=1)
           if n!=1: raise SystemExit('Production service worker block missing')
-          build='13.24-smart-scan-phase7a3b-preview5-reset-smartscan'
+          build='13.24-smart-scan-phase7a4-service-architecture-preview1'
           html=re.sub(r'app\.js\?v=[^"\']+',f'app.js?v={build}',html,count=1)
-          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreySmartScanPhase7A3BPreview5Reset')){\n            sessionStorage.setItem('audreySmartScanPhase7A3BPreview5Reset','1');\n            location.reload();\n          }\n        });\n      });\n    }\n  </script>\n'''
+          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreySmartScanPhase7A4Preview1')){\n            sessionStorage.setItem('audreySmartScanPhase7A4Preview1','1');\n            location.reload();\n          }\n        });\n      });\n    }\n  </script>\n'''
           marker=f'<script src="app.js?v={build}"></script>'
           repair='  <script src="tier-preview-regression-fix-v13.24.js?v=13.24-tier-preview-regression-fix1"></script>\n'
           html=html.replace(marker,cleanup+'  '+marker+'\n'+repair,1)
-          html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.24-smart-scan-phase7a3b-preview5-reset-smartscan">\n</head>',1)
+          html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.24-smart-scan-phase7a4-service-architecture-preview1">\n</head>',1)
 
           share_path=Path('site/share-render-v13.21-dev12.js')
           share=share_path.read_text(encoding='utf-8')
           old="const SMART_SCAN_PHASE7A2='13.24-phase7a2-ai-vision1';"
-          new="const SMART_SCAN_PHASE7A2='13.24-phase7a2-ai-vision3-offline-fallback';\n  const SMART_SCAN_PHASE7A5A='13.24-phase7a5a-progress-overlay2-toplayer';\n  const SMART_SCAN_PHASE7A5B='13.24-phase7a5b-light-polish1';\n  const SMART_SCAN_PHASE7A3='13.24-phase7a3-telemetry2-editable-review';\n  const SMART_SCAN_PHASE7A3B='13.24-phase7a3b-editable-review5-reset-smartscan';"
+          new="const SMART_SCAN_PHASE7A2='13.24-phase7a2-ai-vision3-offline-fallback';\n  const SMART_SCAN_PHASE7A5A='13.24-phase7a5a-progress-overlay2-toplayer';\n  const SMART_SCAN_PHASE7A5B='13.24-phase7a5b-light-polish1';\n  const SMART_SCAN_PHASE7A3='13.24-phase7a3-telemetry2-editable-review';\n  const SMART_SCAN_PHASE7A3B='13.24-phase7a3b-editable-review5-reset-smartscan';\n  const SMART_SCAN_PHASE7A4A='13.24-phase7a4a-service-adapter1';\n  const SMART_SCAN_PHASE7A4R='13.24-phase7a4-service-runtime1';"
           if old not in share: raise SystemExit('Phase 7A2 bootstrap marker missing')
           share=share.replace(old,new,1)
           oldmod="'smart-scan-ai-v13.24-phase7a2.js?v='+SMART_SCAN_PHASE7A2"
-          newmod="'smart-scan-ai-v13.24-phase7a2.js?v='+SMART_SCAN_PHASE7A2,'smart-scan-ai-v13.24-phase7a5a.js?v='+SMART_SCAN_PHASE7A5A,'smart-scan-ai-v13.24-phase7a5b.js?v='+SMART_SCAN_PHASE7A5B,'smart-scan-ai-v13.24-phase7a3.js?v='+SMART_SCAN_PHASE7A3,'smart-scan-ai-v13.24-phase7a3b.js?v='+SMART_SCAN_PHASE7A3B"
+          newmod="'smart-scan-ai-v13.24-phase7a2.js?v='+SMART_SCAN_PHASE7A2,'smart-scan-ai-v13.24-phase7a5a.js?v='+SMART_SCAN_PHASE7A5A,'smart-scan-ai-v13.24-phase7a5b.js?v='+SMART_SCAN_PHASE7A5B,'smart-scan-ai-v13.24-phase7a3.js?v='+SMART_SCAN_PHASE7A3,'smart-scan-ai-v13.24-phase7a3b.js?v='+SMART_SCAN_PHASE7A3B,'smart-scan-service-v13.24-phase7a4a.js?v='+SMART_SCAN_PHASE7A4A,'smart-scan-ai-v13.24-phase7a4-runtime.js?v='+SMART_SCAN_PHASE7A4R"
           if oldmod not in share: raise SystemExit('Phase 7A2 module entry missing')
           share=share.replace(oldmod,newmod,1)
           share_path.write_text(share,encoding='utf-8')
 
           manifest=json.loads(Path('site/manifest.webmanifest').read_text(encoding='utf-8'))
           manifest.update({'name':'Audrey Closet — Smart Scan AI Preview','short_name':'Audrey Preview','id':'./index.html','start_url':'./index.html','scope':'./'})
-          pm='manifest-preview-v13.24-smart-scan-phase7a3b-reset.webmanifest'
+          pm='manifest-preview-v13.24-smart-scan-phase7a4.webmanifest'
           Path('site/'+pm).write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
           html,count=re.subn(r'(<link\s+[^>]*rel=["\']manifest["\'][^>]*href=["\'])[^"\']+(["\'][^>]*>)',r'\1'+pm+r'\2',html,count=1,flags=re.I)
           if count!=1: raise SystemExit('Manifest link missing')
           p.write_text(html,encoding='utf-8')
           PY
 
-      - name: Verify Smart Scan Phase 7A3B reset revision
+      - name: Verify Smart Scan Phase 7A4 architecture
         shell: bash
         run: |
           node --check site/app.js
           node --check site/share-render-v13.21-dev12.js
+          node --check site/smart-scan-service-v13.24-phase7a4a.js
+          node --check site/smart-scan-ai-v13.24-phase7a4-runtime.js
+          node --check site/server/smartscan-worker.js
           node --check site/smart-scan-ai-v13.24-phase7a3b.js
           node --check site/tier-preview-regression-fix-v13.24.js
           python - <<'PY'
@@ -102,22 +105,30 @@ jobs:
           html=Path('site/index.html').read_text(encoding='utf-8')
           app=Path('site/app.js').read_text(encoding='utf-8')
           share=Path('site/share-render-v13.21-dev12.js').read_text(encoding='utf-8')
+          adapter=Path('site/smart-scan-service-v13.24-phase7a4a.js').read_text(encoding='utf-8')
+          runtime=Path('site/smart-scan-ai-v13.24-phase7a4-runtime.js').read_text(encoding='utf-8')
+          worker=Path('site/server/smartscan-worker.js').read_text(encoding='utf-8')
           editable=Path('site/smart-scan-ai-v13.24-phase7a3b.js').read_text(encoding='utf-8')
-          tierfix=Path('site/tier-preview-regression-fix-v13.24.js').read_text(encoding='utf-8')
-          assert 'v13.24-smart-scan-phase7a3b-preview5-reset-smartscan' in html
+          assert 'v13.24-smart-scan-phase7a4-service-architecture-preview1' in html
           assert app.count('v13.21 baseline — dev12 feature set, fresh delivery') == 1
-          assert 'syncCatalogTierRibbons' in tierfix and 'dedupeTierSelector' in tierfix
-          assert "const SMART_SCAN_PHASE7A3B='13.24-phase7a3b-editable-review5-reset-smartscan'" in share
-          assert "const VERSION='13.24-phase7a3b-editable-review5-reset-smartscan'" in editable
-          assert 'resetSmartScanReviewBtn' in editable
-          assert '↶ Reset to Smart Scan' in editable
-          assert 'resetReviewToProposal' in editable
-          assert 'hasReviewEdits' in editable
-          assert 'btn.hidden=!hasReviewEdits()' in editable
-          assert 'control.value=String(proposal[key]??\'\')' in editable
+          assert "const SMART_SCAN_PHASE7A4A='13.24-phase7a4a-service-adapter1'" in share
+          assert "const SMART_SCAN_PHASE7A4R='13.24-phase7a4-service-runtime1'" in share
+          assert share.index('smart-scan-ai-v13.24-phase7a3b.js') < share.index('smart-scan-service-v13.24-phase7a4a.js') < share.index('smart-scan-ai-v13.24-phase7a4-runtime.js')
+          assert "const VERSION='13.24-phase7a4a-service-adapter1'" in adapter
+          assert "const VERSION='13.24-phase7a4-service-runtime1'" in runtime
+          assert 'AUDREY_SMART_SCAN_SERVICE_CONFIG' in adapter
+          assert "feature:t.feature||FEATURE" in adapter
+          assert "'/v1/smartscan/analyze'" in adapter
+          assert "if(!serviceConfigured())return typeof previousSmartScan==='function'?previousSmartScan(target):undefined" in runtime
+          assert 'LOCAL.analyze(photo' in runtime
+          assert 'OPENAI_API_KEY' in worker
+          assert "DEFAULT_MODEL='gpt-5.6-luna'" in worker
+          assert 'SMARTSCAN_USAGE_KV' in worker
+          assert "type:'audrey.ai.usage'" in worker
+          assert 'MAX_IMAGE_CHARS' in worker and 'MAX_BODY_BYTES' in worker
+          assert "ALLOWED_MODELS=new Set(['gpt-5.6-luna','gpt-5.6-terra','gpt-5.6-sol'])" in worker
           assert "btn.onclick=function(){return window.applyPendingSmartScan()}" in editable
-          assert 'enforceEditedValues(edited,selectedSet,wish)' in editable
-          assert 'fetch(' not in editable and 'localStorage' not in editable
+          assert 'resetReviewToProposal' in editable
           assert 'smart-scan-calibration-v13.24-phase6_3a.js' not in share
           PY
 
