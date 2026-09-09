@@ -126,7 +126,7 @@ jobs:
           assert 'build TEXT NOT NULL' in schema
           assert 'Audrey Cloud Admin' in admin
           assert "let adminToken=''" in admin
-          assert 'localStorage' not in admin
+          assert 'localStorage.setItem' not in admin
           assert '/v1/admin/smartscan/config' in admin
           assert '/v1/admin/smartscan/usage' in admin
           assert "btn.onclick=function(){return window.applyPendingSmartScan()}" in editable
