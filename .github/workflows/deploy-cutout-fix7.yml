@@ -1,4 +1,4 @@
-name: Preview Smart Scan v13.24 Phase 7A4C Production Controls
+name: Preview Smart Scan v13.24 Phase 7A4C Admin1
 
 on:
   workflow_dispatch:
@@ -61,14 +61,14 @@ jobs:
           swpat=re.compile(r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*',re.S)
           html,n=swpat.subn('\n',html,count=1)
           if n!=1: raise SystemExit('Production service worker block missing')
-          build='13.24-smart-scan-phase7a4c-controls-preview1'
+          build='13.24-smart-scan-phase7a4c-admin1-preview1'
           html=re.sub(r'app\.js\?v=[^"\']+',f'app.js?v={build}',html,count=1)
-          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreySmartScanPhase7A4CPreview1')){\n            sessionStorage.setItem('audreySmartScanPhase7A4CPreview1','1');\n            location.reload();\n          }\n        });\n      });\n    }\n  </script>\n'''
+          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreySmartScanPhase7A4CAdmin1Preview1')){\n            sessionStorage.setItem('audreySmartScanPhase7A4CAdmin1Preview1','1');\n            location.reload();\n          }\n        });\n      });\n    }\n  </script>\n'''
           service_config=f'''  <script id="audreySmartScanServiceConfig">\n    window.AUDREY_SMART_SCAN_SERVICE_CONFIG = {{\n      enabled: true,\n      endpoint: 'https://audrey-smartscan-api.thomaslee78.workers.dev',\n      channel: 'preview',\n      build: '{build}'\n    }};\n  </script>\n'''
           marker=f'<script src="app.js?v={build}"></script>'
           repair='  <script src="tier-preview-regression-fix-v13.24.js?v=13.24-tier-preview-regression-fix1"></script>\n'
           html=html.replace(marker,cleanup+service_config+'  '+marker+'\n'+repair,1)
-          html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.24-smart-scan-phase7a4c-controls-preview1">\n</head>',1)
+          html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.24-smart-scan-phase7a4c-admin1-preview1">\n</head>',1)
 
           share_path=Path('site/share-render-v13.21-dev12.js')
           share=share_path.read_text(encoding='utf-8')
@@ -84,14 +84,14 @@ jobs:
 
           manifest=json.loads(Path('site/manifest.webmanifest').read_text(encoding='utf-8'))
           manifest.update({'name':'Audrey Closet — Smart Scan AI Preview','short_name':'Audrey Preview','id':'./index.html','start_url':'./index.html','scope':'./'})
-          pm='manifest-preview-v13.24-smart-scan-phase7a4c.webmanifest'
+          pm='manifest-preview-v13.24-smart-scan-phase7a4c-admin1.webmanifest'
           Path('site/'+pm).write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
           html,count=re.subn(r'(<link\s+[^>]*rel=["\']manifest["\'][^>]*href=["\'])[^"\']+(["\'][^>]*>)',r'\1'+pm+r'\2',html,count=1,flags=re.I)
           if count!=1: raise SystemExit('Manifest link missing')
           p.write_text(html,encoding='utf-8')
           PY
 
-      - name: Verify Smart Scan Phase 7A4C production controls
+      - name: Verify Smart Scan Phase 7A4C Admin1
         shell: bash
         run: |
           node --check site/app.js
@@ -104,6 +104,7 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           html=Path('site/index.html').read_text(encoding='utf-8')
+          admin=Path('site/admin/index.html').read_text(encoding='utf-8')
           app=Path('site/app.js').read_text(encoding='utf-8')
           share=Path('site/share-render-v13.21-dev12.js').read_text(encoding='utf-8')
           adapter=Path('site/smart-scan-service-v13.24-phase7a4a.js').read_text(encoding='utf-8')
@@ -111,26 +112,23 @@ jobs:
           worker=Path('site/server/smartscan-worker.js').read_text(encoding='utf-8')
           editable=Path('site/smart-scan-ai-v13.24-phase7a3b.js').read_text(encoding='utf-8')
           schema=Path('site/server/schema.sql').read_text(encoding='utf-8')
-          assert 'v13.24-smart-scan-phase7a4c-controls-preview1' in html
+          assert 'v13.24-smart-scan-phase7a4c-admin1-preview1' in html
           assert "endpoint: 'https://audrey-smartscan-api.thomaslee78.workers.dev'" in html
           assert "channel: 'preview'" in html
-          assert 'defaultModel' not in html and "detail: 'auto'" not in html
           assert app.count('v13.21 baseline — dev12 feature set, fresh delivery') == 1
           assert "const SMART_SCAN_PHASE7A4A='13.24-phase7a4c-service-adapter2'" in share
           assert "const SMART_SCAN_PHASE7A4R='13.24-phase7a4c-service-runtime2'" in share
-          assert share.index('smart-scan-ai-v13.24-phase7a3b.js') < share.index('smart-scan-service-v13.24-phase7a4a.js') < share.index('smart-scan-ai-v13.24-phase7a4-runtime.js')
-          assert "const VERSION='13.24-phase7a4c-service-adapter2'" in adapter
-          assert "const VERSION='13.24-phase7a4c-service-runtime2'" in runtime
-          assert 'model:' not in adapter.split('function buildEnvelope',1)[1].split('function normalizeServiceResult',1)[0]
-          assert "SERVICE_VERSION='13.24-phase7a4c-worker1'" in worker
-          assert "url.pathname==='/v1/smartscan/config'" in worker
+          assert "SERVICE_VERSION='13.24-phase7a4c-admin1-worker1'" in worker
           assert "url.pathname==='/v1/admin/smartscan/config'" in worker
-          assert 'AUDREY_ADMIN_TOKEN' in worker and 'AUDREY_DB' in worker
-          assert 'SMARTSCAN_GLOBAL_DAILY_LIMIT' in worker
-          assert "channel=String(body?.client?.channel" in worker
-          assert 'CREATE TABLE IF NOT EXISTS app_config' in schema
-          assert "card.querySelectorAll('label.field').forEach(row=>row.hidden=true)" in runtime
-          assert 'SERVICE.serverConfig()' in runtime
+          assert "url.pathname==='/v1/admin/smartscan/usage'" in worker
+          assert 'recordUsage' in worker and 'ai_install_daily' in worker
+          assert 'CREATE TABLE IF NOT EXISTS ai_install_daily' in schema
+          assert 'build TEXT NOT NULL' in schema
+          assert 'Audrey Cloud Admin' in admin
+          assert "let adminToken=''" in admin
+          assert 'localStorage' not in admin
+          assert '/v1/admin/smartscan/config' in admin
+          assert '/v1/admin/smartscan/usage' in admin
           assert "btn.onclick=function(){return window.applyPendingSmartScan()}" in editable
           assert 'resetReviewToProposal' in editable
           assert 'smart-scan-calibration-v13.24-phase6_3a.js' not in share
