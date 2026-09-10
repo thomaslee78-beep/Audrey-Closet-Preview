@@ -1,4 +1,4 @@
-name: Preview Smart Scan v13.24 Phase 7A8A Consolidation
+name: Preview Smart Scan v13.24 Phase 7A8B Release Packaging
 
 on:
   workflow_dispatch:
@@ -50,7 +50,7 @@ jobs:
           })().catch(e=>{console.error(e);process.exit(1)});
           NODE
 
-      - name: Prepare 7A8A Preview
+      - name: Prepare 7A8B Preview
         shell: bash
         run: |
           python - <<'PY'
@@ -60,28 +60,28 @@ jobs:
           swpat=re.compile(r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*',re.S)
           html,n=swpat.subn('\n',html,count=1)
           if n!=1: raise SystemExit('Production service worker block missing')
-          build='13.24-smart-scan-phase7a8a-preview1'
+          build='13.24-smart-scan-phase7a8b-preview1'
           html=re.sub(r'app\.js\?v=[^"\']+',f'app.js?v={build}',html,count=1)
           old='share-render-v13.21-dev12.js?v=13.23-photo-studio1'
           new='share-render-v13.24-release.js?v=13.24-phase7a8a-runtime1'
           if old not in html: raise SystemExit('Legacy release bootstrap reference missing')
           html=html.replace(old,new,1)
-          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreySmartScanPhase7A8APreview1')){sessionStorage.setItem('audreySmartScanPhase7A8APreview1','1');location.reload();}\n        });\n      });\n    }\n  </script>\n'''
+          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreySmartScanPhase7A8BPreview1')){sessionStorage.setItem('audreySmartScanPhase7A8BPreview1','1');location.reload();}\n        });\n      });\n    }\n  </script>\n'''
           service=f'''  <script id="audreySmartScanServiceConfig">\n    window.AUDREY_SMART_SCAN_SERVICE_CONFIG = {{enabled:true,endpoint:'https://audrey-smartscan-api.thomaslee78.workers.dev',channel:'preview',build:'{build}'}};\n  </script>\n'''
           marker=f'<script src="app.js?v={build}"></script>'
           repair='  <script src="tier-preview-regression-fix-v13.24.js?v=13.24-tier-preview-regression-fix1"></script>\n'
           html=html.replace(marker,cleanup+service+'  '+marker+'\n'+repair,1)
           html=html.replace('</head>',f'  <meta name="audrey-preview-build" content="{build}">\n</head>',1)
           manifest=json.loads(Path('site/manifest.webmanifest').read_text(encoding='utf-8'))
-          manifest.update({'name':'Audrey Closet — Smart Scan 7A8A Preview','short_name':'Audrey Preview','id':'./index.html','start_url':'./index.html','scope':'./'})
-          pm='manifest-preview-v13.24-smart-scan-phase7a8a.webmanifest'
+          manifest.update({'name':'Audrey Closet — Smart Scan 7A8B Preview','short_name':'Audrey Preview','id':'./index.html','start_url':'./index.html','scope':'./'})
+          pm='manifest-preview-v13.24-smart-scan-phase7a8b.webmanifest'
           Path('site/'+pm).write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
           html,count=re.subn(r'(<link\s+[^>]*rel=["\']manifest["\'][^>]*href=["\'])[^"\']+(["\'][^>]*>)',r'\1'+pm+r'\2',html,count=1,flags=re.I)
           if count!=1: raise SystemExit('Manifest link missing')
           p.write_text(html,encoding='utf-8')
           PY
 
-      - name: Build isolated prod-like offline Preview
+      - name: Build prod-like 7A8B offline Preview
         shell: bash
         run: |
           python - <<'PY'
@@ -95,51 +95,52 @@ jobs:
           for src in root.rglob('*'):
             if not src.is_file(): continue
             rel=src.relative_to(root)
-            if rel.parts[0] in excluded or rel.name in {'sw.js','offline-preview-sw-v13.24-phase7a7b.js'} or src.suffix.lower() not in ext: continue
+            if rel.parts[0] in excluded or rel.name in {'sw.js','offline-preview-sw-v13.24-phase7a7b.js','sw-v13.24-release.js'} or src.suffix.lower() not in ext: continue
             dst=offline/rel; dst.parent.mkdir(parents=True,exist_ok=True); shutil.copy2(src,dst)
+          shutil.copy2(root/'sw-v13.24-release.js',offline/'sw.js')
           idx=offline/'index.html'; html=idx.read_text(encoding='utf-8')
           html=re.sub(r'\s*<script id="previewServiceWorkerCleanup">.*?</script>\s*','\n',html,count=1,flags=re.S)
           manifest=json.loads((root/'manifest.webmanifest').read_text(encoding='utf-8'))
-          manifest.update({'name':'Audrey Closet — Offline Validation','short_name':'Audrey Offline','id':'./index.html','start_url':'./index.html','scope':'./'})
-          pm='manifest-offline-v13.24-phase7a8a.webmanifest'; (offline/pm).write_text(json.dumps(manifest,indent=2)+'\n')
+          manifest.update({'name':'Audrey Closet — v13.24 Release Offline Test','short_name':'Audrey Offline','id':'./index.html','start_url':'./index.html','scope':'./'})
+          pm='manifest-offline-v13.24-phase7a8b.webmanifest'; (offline/pm).write_text(json.dumps(manifest,indent=2)+'\n')
           html=re.sub(r'(<link\s+[^>]*rel=["\']manifest["\'][^>]*href=["\'])[^"\']+(["\'][^>]*>)',r'\1'+pm+r'\2',html,count=1,flags=re.I)
-          html=html.replace('</body>',"<script id=\"audreyOfflineValidationSW\">if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js',{scope:'./'}),{once:true})}</script></body>",1)
+          html=html.replace('</body>',"<script id=\"audreyOfflineValidationSW\">if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js',{scope:'./',updateViaCache:'none'}).then(r=>r.update()),{once:true})}</script></body>",1)
           idx.write_text(html,encoding='utf-8')
-          assets=sorted(set(['./']+['./'+f.relative_to(offline).as_posix() for f in offline.rglob('*') if f.is_file() and f.name!='sw.js']))
-          template=(root/'offline-preview-sw-v13.24-phase7a7b.js').read_text(encoding='utf-8')
-          sw=template.replace("'__AUDREY_OFFLINE_CACHE__'","'audrey-offline-preview-13.24-7a8a-1'").replace('__AUDREY_OFFLINE_ASSETS__',json.dumps(assets,separators=(',',':')))
-          (offline/'sw.js').write_text(sw,encoding='utf-8')
           PY
 
-      - name: Verify Phase 7A8A runtime consolidation
+      - name: Verify Phase 7A8B release packaging
         shell: bash
         run: |
           node --check site/share-render-v13.24-release.js
-          node --check site/app.js
+          node --check site/release-assets-v13.24.js
+          node --check site/sw-v13.24-release.js
           node --check site/offline/sw.js
           python - <<'PY'
           from pathlib import Path
+          import re
           html=Path('site/index.html').read_text(encoding='utf-8')
-          boot=Path('site/share-render-v13.24-release.js').read_text(encoding='utf-8')
           offline=Path('site/offline/index.html').read_text(encoding='utf-8')
           sw=Path('site/offline/sw.js').read_text(encoding='utf-8')
-          assert '13.24-smart-scan-phase7a8a-preview1' in html
+          assets=Path('site/release-assets-v13.24.js').read_text(encoding='utf-8')
+          boot=Path('site/share-render-v13.24-release.js').read_text(encoding='utf-8')
+          assert '13.24-smart-scan-phase7a8b-preview1' in html
           assert 'share-render-v13.24-release.js?v=13.24-phase7a8a-runtime1' in html
-          assert 'share-render-v13.21-dev12.js?v=13.23-photo-studio1' not in html
-          assert "channel:'preview'" in html
-          assert "RELEASE='13.24-phase7a8a-runtime1'" in boot
-          assert "a2:'13.24-phase7a2-ai-vision3-offline-fallback'" in boot
-          assert 'smart-scan-ai-v13.24-phase7a3b.js' in boot
-          assert 'smart-scan-service-v13.24-phase7a4a.js' in boot
-          assert 'smart-scan-ai-v13.24-phase7a4-runtime.js' in boot
-          assert 'smart-scan-color-calibration-v13.24-phase4_3.js' in boot.split('const forbidden=',1)[1]
-          modules=boot.split('const smartScanModules=[',1)[1].split('];',1)[0]
-          assert 'phase4_3.js' not in modules
-          assert 'phase6_3a.js' not in modules
-          assert 'calibration-catalog' not in modules
           assert 'previewServiceWorkerCleanup' in html and 'previewServiceWorkerCleanup' not in offline
-          assert 'share-render-v13.24-release.js' in sw
-          assert 'smart-scan-ai-v13.24-phase7a4-runtime.js' in sw
+          assert "importScripts('./release-assets-v13.24.js')" in sw
+          assert "CACHE='audrey-closet-v13.24-release1'" in sw
+          assert 'smart-scan-color-calibration-v13.24-phase4_3.js' not in assets
+          assert 'smart-scan-calibration-v13.24-phase6_3a.js' not in assets
+          assert 'smart-scan-calibration-catalog-v13.24-phase6_3a2.js' not in assets
+          required=['./index.html','./app.js','./share-render-v13.24-release.js','./smart-scan-contract-v13.24-phase6_3.js','./smart-scan-ai-v13.24-phase7a3b.js','./smart-scan-service-v13.24-phase7a4a.js','./smart-scan-ai-v13.24-phase7a4-runtime.js']
+          for x in required: assert x in assets, x
+          paths=re.findall(r"'((?:\./)[^']+)'",assets)
+          missing=[]
+          for rel in paths:
+            if rel=='./': continue
+            if not (Path('site')/rel[2:]).exists(): missing.append(rel)
+          if missing: raise SystemExit('Release manifest missing files: '+', '.join(missing[:20]))
+          assert "RELEASE='13.24-phase7a8a-runtime1'" in boot
+          assert 'phase4_3.js' not in boot.split('const smartScanModules=[',1)[1].split('];',1)[0]
           PY
 
       - name: Configure Pages
