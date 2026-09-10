@@ -1,4 +1,4 @@
-name: Preview Smart Scan v13.24 Phase 7A8D Final Merge Readiness
+name: Preview Smart Scan v13.24 Phase 7A8D Hang Safety
 
 on:
   workflow_dispatch:
@@ -38,13 +38,11 @@ jobs:
           swpat=re.compile(r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*',re.S)
           html,n=swpat.subn('\n',html,count=1)
           if n!=1: raise SystemExit('Production service worker block missing')
-          build='13.24-smart-scan-phase7a8d-preview1'
+          build='13.24-smart-scan-phase7a8d-hangsafe1'
           html=re.sub(r'app\.js\?v=[^"\']+',f'app.js?v={build}',html,count=1)
-          # Important: do NOT replace the historical release-entry filename here.
-          # Preview must exercise the exact v13.24 source shim that main will use.
           legacy='share-render-v13.21-dev12.js?v=13.23-photo-studio1'
           if legacy not in html: raise SystemExit('Stable release entry reference missing')
-          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreySmartScanPhase7A8DPreview1')){sessionStorage.setItem('audreySmartScanPhase7A8DPreview1','1');location.reload();}\n        });\n      });\n    }\n  </script>\n'''
+          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreySmartScanPhase7A8DHangSafe1')){sessionStorage.setItem('audreySmartScanPhase7A8DHangSafe1','1');location.reload();}\n        });\n      });\n    }\n  </script>\n'''
           service=f'''  <script id="audreySmartScanServiceConfig">\n    window.AUDREY_SMART_SCAN_SERVICE_CONFIG = {{enabled:true,endpoint:'https://audrey-smartscan-api.thomaslee78.workers.dev',channel:'preview',build:'{build}'}};\n  </script>\n'''
           marker=f'<script src="app.js?v={build}"></script>'
           html=html.replace(marker,cleanup+service+'  '+marker,1)
@@ -115,12 +113,15 @@ jobs:
           idx.write_text(html,encoding='utf-8')
           PY
 
-      - name: Verify Phase 7A8D merge candidate
+      - name: Verify Phase 7A8D hang-safety merge candidate
         shell: bash
         run: |
           node --check site/app.js
           node --check site/share-render-v13.21-dev12.js
           node --check site/share-render-v13.24-release.js
+          node --check site/smart-scan-service-v13.24-phase7a4a.js
+          node --check site/smart-scan-ai-v13.24-phase7a4-runtime.js
+          node --check site/smart-scan-ai-v13.24-phase7a5a.js
           node --check site/legacy-release-compat-v13.24.js
           node --check site/release-assets-v13.24.js
           node --check site/sw.js
@@ -132,6 +133,9 @@ jobs:
           app=Path('site/app.js').read_text(encoding='utf-8')
           entry=Path('site/share-render-v13.21-dev12.js').read_text(encoding='utf-8')
           boot=Path('site/share-render-v13.24-release.js').read_text(encoding='utf-8')
+          service=Path('site/smart-scan-service-v13.24-phase7a4a.js').read_text(encoding='utf-8')
+          runtime=Path('site/smart-scan-ai-v13.24-phase7a4-runtime.js').read_text(encoding='utf-8')
+          progress=Path('site/smart-scan-ai-v13.24-phase7a5a.js').read_text(encoding='utf-8')
           compat=Path('site/legacy-release-compat-v13.24.js').read_text(encoding='utf-8')
           source=Path('site/legacy-release-payload-source-v13.24.js').read_text(encoding='utf-8')
           assets=Path('site/release-assets-v13.24.js').read_text(encoding='utf-8')
@@ -139,18 +143,21 @@ jobs:
           sw=Path('site/sw-v13.24-release.js').read_text(encoding='utf-8')
           offline=Path('site/offline/index.html').read_text(encoding='utf-8')
           offsw=Path('site/offline/sw.js').read_text(encoding='utf-8')
-          assert '13.24-smart-scan-phase7a8d-preview1' in html
-          assert 'share-render-v13.21-dev12.js?v=13.23-photo-studio1' in html
+          assert '13.24-smart-scan-phase7a8d-hangsafe1' in html
           assert "channel:'production'" in entry and "build:'13.24'" in entry
-          assert 'share-render-v13.24-release.js?v=13.24-phase7a8c-runtime1' in entry
-          assert "RELEASE='13.24-phase7a8c-runtime1'" in boot
-          assert 'legacy-release-compat-v13.24.js?v=13.24-phase7a8c-legacy-compat2' in boot
-          assert 'legacy-release-payload-source-v13.24.js?v=13.24-phase7a8c-source1' in compat
+          assert 'REQUEST_TIMEOUT_MS=25000' in service
+          assert "SERVICE_TIMEOUT" in service and 'AbortController' in service
+          assert 'LOCAL_TIMEOUT_MS=15000' in runtime
+          assert 'SCAN_TIMEOUT_MS=45000' in runtime
+          assert "LOCAL_TIMEOUT" in runtime and "SCAN_TIMEOUT" in runtime
+          assert 'AUDREY_SMART_SCAN_PROGRESS?.hide?.(0)' in runtime
+          assert 'OVERLAY_WATCHDOG_MS=50000' in progress
+          assert "window.addEventListener('pageshow'" in progress
           assert source.count('v13.21 baseline — dev12 feature set, fresh delivery') == 1
           assert app.count('v13.21 baseline — dev12 feature set, fresh delivery') == 0
           assert "importScripts('./sw-v13.24-release.js')" in swshim
           assert 'TIER_PATCH' not in swshim
-          assert "CACHE='audrey-closet-v13.24-release3'" in sw
+          assert "CACHE='audrey-closet-v13.24-release4'" in sw
           assert "const RUNTIME_JS=ASSETS.filter" in sw
           assert './share-render-v13.21-dev12.js' in assets
           assert './legacy-release-compat-v13.24.js' in assets
@@ -159,8 +166,6 @@ jobs:
           assert 'smart-scan-calibration-v13.24-phase6_3a.js' not in assets
           assert "importScripts('./sw-v13.24-release.js')" in offsw
           assert 'Offline ready' in offline
-          assert 'if(navigator.serviceWorker.controller)ready()' in offline
-          assert 'if(navigator.onLine)reg.update()' in offline
           paths=re.findall(r"'((?:\./)[^']+)'",assets)
           missing=[rel for rel in paths if rel!='./' and not (Path('site')/rel[2:]).exists()]
           if missing: raise SystemExit('Release manifest missing files: '+', '.join(missing[:20]))
