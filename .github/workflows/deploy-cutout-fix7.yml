@@ -106,7 +106,6 @@ jobs:
           static_ext={'.html','.css','.js','.json','.webmanifest','.png','.jpg','.jpeg','.webp','.svg','.gif','.ico','.woff','.woff2','.ttf','.otf'}
           excluded_roots={'.git','server','admin','offline'}
           excluded_files={'sw.js','offline-preview-sw-v13.24-phase7a7b.js'}
-          copied=[]
           for src in root.rglob('*'):
             if not src.is_file(): continue
             rel=src.relative_to(root)
@@ -116,14 +115,12 @@ jobs:
             dst=offline/rel
             dst.parent.mkdir(parents=True,exist_ok=True)
             shutil.copy2(src,dst)
-            copied.append(rel.as_posix())
 
           idx=offline/'index.html'
           html=idx.read_text(encoding='utf-8')
           html=re.sub(r'\s*<script id="previewServiceWorkerCleanup">.*?</script>\s*','\n',html,count=1,flags=re.S)
           if 'previewServiceWorkerCleanup' in html: raise SystemExit('Offline copy still contains Preview SW cleanup')
 
-          build='13.24-smart-scan-phase7a7b-offline-preview1'
           offline_manifest='manifest-offline-v13.24-phase7a7b.webmanifest'
           manifest=json.loads((root/'manifest.webmanifest').read_text(encoding='utf-8'))
           manifest.update({'name':'Audrey Closet — Offline Validation','short_name':'Audrey Offline','id':'./index.html','start_url':'./index.html','scope':'./'})
@@ -136,15 +133,14 @@ jobs:
 
           assets=[]
           for f in offline.rglob('*'):
-            if f.is_file() and f.name!='sw.js':
-              assets.append('./'+f.relative_to(offline).as_posix())
+            if f.is_file() and f.name!='sw.js': assets.append('./'+f.relative_to(offline).as_posix())
           if './index.html' not in assets: raise SystemExit('Offline index missing from asset set')
           assets=sorted(set(assets+['./']))
 
           template=(root/'offline-preview-sw-v13.24-phase7a7b.js').read_text(encoding='utf-8')
           sw=template.replace("'__AUDREY_OFFLINE_CACHE__'","'audrey-offline-preview-13.24-7a7b-1'")
           sw=sw.replace('__AUDREY_OFFLINE_ASSETS__',json.dumps(assets,separators=(',',':')))
-          if '__AUDREY_OFFLINE_' in sw: raise SystemExit('Offline SW template token remains')
+          if "const CACHE='__AUDREY_OFFLINE_CACHE__'" in sw or 'const ASSETS=__AUDREY_OFFLINE_ASSETS__' in sw: raise SystemExit('Offline SW executable placeholder remains')
           (offline/'sw.js').write_text(sw,encoding='utf-8')
           print(f'7A7B offline copy prepared with {len(assets)} cached paths')
           PY
@@ -168,7 +164,6 @@ jobs:
           html=Path('site/index.html').read_text(encoding='utf-8')
           offline=Path('site/offline/index.html').read_text(encoding='utf-8')
           sw=Path('site/offline/sw.js').read_text(encoding='utf-8')
-          validation=Path('site/admin/validation.html').read_text(encoding='utf-8')
           wrapper=Path('site/server/worker-entry-v13.24-phase7a7.js').read_text(encoding='utf-8')
           harness=Path('site/server/smartscan-validation-v13.24-phase7a7.js').read_text(encoding='utf-8')
           app=Path('site/app.js').read_text(encoding='utf-8')
