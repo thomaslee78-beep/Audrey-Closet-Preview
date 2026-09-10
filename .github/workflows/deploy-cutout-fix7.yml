@@ -1,4 +1,4 @@
-name: Preview Smart Scan v13.24 Phase 7A8B Release Packaging
+name: Preview Smart Scan v13.24 Phase 7A8C Final Release Integration
 
 on:
   workflow_dispatch:
@@ -28,29 +28,7 @@ jobs:
           ref: dev/smart-scan-v13.24-phase7a8-consolidation
           path: site
 
-      - name: Pre-bake production Tier runtime patch for Preview
-        shell: bash
-        run: |
-          node <<'NODE'
-          const fs=require('fs');
-          const sw=fs.readFileSync('site/sw.js','utf8');
-          const app=fs.readFileSync('site/app.js','utf8');
-          const tierStart=sw.indexOf('const TIER_PATCH=String.raw`');
-          const withStart=sw.indexOf('function withTierPatch(resp){',tierStart);
-          const installStart=sw.indexOf("self.addEventListener('install'",withStart);
-          if(tierStart<0||withStart<0||installStart<0) throw new Error('Production Tier runtime patch not found');
-          const makePatch=new Function(`${sw.slice(tierStart,withStart)}\n${sw.slice(withStart,installStart)}\nreturn {withTierPatch};`);
-          const {withTierPatch}=makePatch();
-          (async()=>{
-            const response=await withTierPatch(new Response(app,{status:200,headers:{'content-type':'application/javascript; charset=utf-8'}}));
-            const patched=await response.text();
-            const marker='v13.21 baseline — dev12 feature set, fresh delivery';
-            if(patched.split(marker).length-1!==1) throw new Error('Preview app.js expected exactly one Tier patch');
-            fs.writeFileSync('site/app.js',patched,'utf8');
-          })().catch(e=>{console.error(e);process.exit(1)});
-          NODE
-
-      - name: Prepare 7A8B Preview
+      - name: Prepare 7A8C Preview
         shell: bash
         run: |
           python - <<'PY'
@@ -60,28 +38,27 @@ jobs:
           swpat=re.compile(r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*',re.S)
           html,n=swpat.subn('\n',html,count=1)
           if n!=1: raise SystemExit('Production service worker block missing')
-          build='13.24-smart-scan-phase7a8b-preview1'
+          build='13.24-smart-scan-phase7a8c-preview1'
           html=re.sub(r'app\.js\?v=[^"\']+',f'app.js?v={build}',html,count=1)
           old='share-render-v13.21-dev12.js?v=13.23-photo-studio1'
-          new='share-render-v13.24-release.js?v=13.24-phase7a8a-runtime1'
+          new='share-render-v13.24-release.js?v=13.24-phase7a8c-runtime1'
           if old not in html: raise SystemExit('Legacy release bootstrap reference missing')
           html=html.replace(old,new,1)
-          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreySmartScanPhase7A8BPreview1')){sessionStorage.setItem('audreySmartScanPhase7A8BPreview1','1');location.reload();}\n        });\n      });\n    }\n  </script>\n'''
+          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreySmartScanPhase7A8CPreview1')){sessionStorage.setItem('audreySmartScanPhase7A8CPreview1','1');location.reload();}\n        });\n      });\n    }\n  </script>\n'''
           service=f'''  <script id="audreySmartScanServiceConfig">\n    window.AUDREY_SMART_SCAN_SERVICE_CONFIG = {{enabled:true,endpoint:'https://audrey-smartscan-api.thomaslee78.workers.dev',channel:'preview',build:'{build}'}};\n  </script>\n'''
           marker=f'<script src="app.js?v={build}"></script>'
-          repair='  <script src="tier-preview-regression-fix-v13.24.js?v=13.24-tier-preview-regression-fix1"></script>\n'
-          html=html.replace(marker,cleanup+service+'  '+marker+'\n'+repair,1)
+          html=html.replace(marker,cleanup+service+'  '+marker,1)
           html=html.replace('</head>',f'  <meta name="audrey-preview-build" content="{build}">\n</head>',1)
           manifest=json.loads(Path('site/manifest.webmanifest').read_text(encoding='utf-8'))
-          manifest.update({'name':'Audrey Closet — Smart Scan 7A8B Preview','short_name':'Audrey Preview','id':'./index.html','start_url':'./index.html','scope':'./'})
-          pm='manifest-preview-v13.24-smart-scan-phase7a8b.webmanifest'
+          manifest.update({'name':'Audrey Closet — Smart Scan 7A8C Preview','short_name':'Audrey Preview','id':'./index.html','start_url':'./index.html','scope':'./'})
+          pm='manifest-preview-v13.24-smart-scan-phase7a8c.webmanifest'
           Path('site/'+pm).write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
           html,count=re.subn(r'(<link\s+[^>]*rel=["\']manifest["\'][^>]*href=["\'])[^"\']+(["\'][^>]*>)',r'\1'+pm+r'\2',html,count=1,flags=re.I)
           if count!=1: raise SystemExit('Manifest link missing')
           p.write_text(html,encoding='utf-8')
           PY
 
-      - name: Build prod-like 7A8B offline Preview
+      - name: Build prod-like 7A8C offline Preview
         shell: bash
         run: |
           python - <<'PY'
@@ -102,16 +79,18 @@ jobs:
           html=re.sub(r'\s*<script id="previewServiceWorkerCleanup">.*?</script>\s*','\n',html,count=1,flags=re.S)
           manifest=json.loads((root/'manifest.webmanifest').read_text(encoding='utf-8'))
           manifest.update({'name':'Audrey Closet — v13.24 Release Offline Test','short_name':'Audrey Offline','id':'./index.html','start_url':'./index.html','scope':'./'})
-          pm='manifest-offline-v13.24-phase7a8b.webmanifest'; (offline/pm).write_text(json.dumps(manifest,indent=2)+'\n')
+          pm='manifest-offline-v13.24-phase7a8c.webmanifest'; (offline/pm).write_text(json.dumps(manifest,indent=2)+'\n')
           html=re.sub(r'(<link\s+[^>]*rel=["\']manifest["\'][^>]*href=["\'])[^"\']+(["\'][^>]*>)',r'\1'+pm+r'\2',html,count=1,flags=re.I)
           html=html.replace('</body>',"<script id=\"audreyOfflineValidationSW\">if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js',{scope:'./',updateViaCache:'none'}).then(r=>r.update()),{once:true})}</script></body>",1)
           idx.write_text(html,encoding='utf-8')
           PY
 
-      - name: Verify Phase 7A8B release packaging
+      - name: Verify Phase 7A8C final release integration
         shell: bash
         run: |
+          node --check site/app.js
           node --check site/share-render-v13.24-release.js
+          node --check site/legacy-release-compat-v13.24.js
           node --check site/release-assets-v13.24.js
           node --check site/sw-v13.24-release.js
           node --check site/offline/sw.js
@@ -119,28 +98,31 @@ jobs:
           from pathlib import Path
           import re
           html=Path('site/index.html').read_text(encoding='utf-8')
+          app=Path('site/app.js').read_text(encoding='utf-8')
+          boot=Path('site/share-render-v13.24-release.js').read_text(encoding='utf-8')
+          compat=Path('site/legacy-release-compat-v13.24.js').read_text(encoding='utf-8')
+          source=Path('site/legacy-release-payload-source-v13.24.js').read_text(encoding='utf-8')
+          assets=Path('site/release-assets-v13.24.js').read_text(encoding='utf-8')
           offline=Path('site/offline/index.html').read_text(encoding='utf-8')
           sw=Path('site/offline/sw.js').read_text(encoding='utf-8')
-          assets=Path('site/release-assets-v13.24.js').read_text(encoding='utf-8')
-          boot=Path('site/share-render-v13.24-release.js').read_text(encoding='utf-8')
-          assert '13.24-smart-scan-phase7a8b-preview1' in html
-          assert 'share-render-v13.24-release.js?v=13.24-phase7a8a-runtime1' in html
-          assert 'previewServiceWorkerCleanup' in html and 'previewServiceWorkerCleanup' not in offline
-          assert "importScripts('./release-assets-v13.24.js')" in sw
-          assert "CACHE='audrey-closet-v13.24-release1'" in sw
+          assert '13.24-smart-scan-phase7a8c-preview1' in html
+          assert 'share-render-v13.24-release.js?v=13.24-phase7a8c-runtime1' in html
+          assert 'tier-preview-regression-fix-v13.24.js' not in html
+          assert app.count('v13.21 baseline — dev12 feature set, fresh delivery') == 0
+          assert "RELEASE='13.24-phase7a8c-runtime1'" in boot
+          assert 'legacy-release-compat-v13.24.js?v=13.24-phase7a8c-legacy-compat2' in boot
+          assert 'legacy-release-payload-source-v13.24.js?v=13.24-phase7a8c-source1' in compat
+          assert source.count('v13.21 baseline — dev12 feature set, fresh delivery') == 1
+          assert 'const TIER_PATCH=String.raw`' in source
+          assert './legacy-release-compat-v13.24.js' in assets
+          assert './legacy-release-payload-source-v13.24.js' in assets
           assert 'smart-scan-color-calibration-v13.24-phase4_3.js' not in assets
           assert 'smart-scan-calibration-v13.24-phase6_3a.js' not in assets
-          assert 'smart-scan-calibration-catalog-v13.24-phase6_3a2.js' not in assets
-          required=['./index.html','./app.js','./share-render-v13.24-release.js','./smart-scan-contract-v13.24-phase6_3.js','./smart-scan-ai-v13.24-phase7a3b.js','./smart-scan-service-v13.24-phase7a4a.js','./smart-scan-ai-v13.24-phase7a4-runtime.js']
-          for x in required: assert x in assets, x
+          assert 'previewServiceWorkerCleanup' in html and 'previewServiceWorkerCleanup' not in offline
+          assert "importScripts('./release-assets-v13.24.js')" in sw
           paths=re.findall(r"'((?:\./)[^']+)'",assets)
-          missing=[]
-          for rel in paths:
-            if rel=='./': continue
-            if not (Path('site')/rel[2:]).exists(): missing.append(rel)
+          missing=[rel for rel in paths if rel!='./' and not (Path('site')/rel[2:]).exists()]
           if missing: raise SystemExit('Release manifest missing files: '+', '.join(missing[:20]))
-          assert "RELEASE='13.24-phase7a8a-runtime1'" in boot
-          assert 'phase4_3.js' not in boot.split('const smartScanModules=[',1)[1].split('];',1)[0]
           PY
 
       - name: Configure Pages
