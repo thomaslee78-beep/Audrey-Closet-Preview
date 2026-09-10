@@ -1,4 +1,4 @@
-name: Preview Smart Scan v13.24 Phase 7A7B Offline PWA Validation
+name: Preview Smart Scan v13.24 Phase 7A8A Consolidation
 
 on:
   workflow_dispatch:
@@ -21,14 +21,14 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Check out Smart Scan dev branch
+      - name: Check out 7A8 consolidation branch
         uses: actions/checkout@v4
         with:
           repository: thomaslee78-beep/Audrey-Closet
-          ref: dev/smart-scan-color-pattern-v13.24
+          ref: dev/smart-scan-v13.24-phase7a8-consolidation
           path: site
 
-      - name: Pre-bake production runtime patch for Preview
+      - name: Pre-bake production Tier runtime patch for Preview
         shell: bash
         run: |
           node <<'NODE'
@@ -38,20 +38,19 @@ jobs:
           const tierStart=sw.indexOf('const TIER_PATCH=String.raw`');
           const withStart=sw.indexOf('function withTierPatch(resp){',tierStart);
           const installStart=sw.indexOf("self.addEventListener('install'",withStart);
-          if(tierStart<0||withStart<0||installStart<0) throw new Error('Production runtime patch not found');
+          if(tierStart<0||withStart<0||installStart<0) throw new Error('Production Tier runtime patch not found');
           const makePatch=new Function(`${sw.slice(tierStart,withStart)}\n${sw.slice(withStart,installStart)}\nreturn {withTierPatch};`);
           const {withTierPatch}=makePatch();
           (async()=>{
             const response=await withTierPatch(new Response(app,{status:200,headers:{'content-type':'application/javascript; charset=utf-8'}}));
             const patched=await response.text();
             const marker='v13.21 baseline — dev12 feature set, fresh delivery';
-            const count=patched.split(marker).length-1;
-            if(count!==1) throw new Error(`Preview app.js expected exactly one Tier patch, found ${count}`);
+            if(patched.split(marker).length-1!==1) throw new Error('Preview app.js expected exactly one Tier patch');
             fs.writeFileSync('site/app.js',patched,'utf8');
           })().catch(e=>{console.error(e);process.exit(1)});
           NODE
 
-      - name: Prepare Preview
+      - name: Prepare 7A8A Preview
         shell: bash
         run: |
           python - <<'PY'
@@ -61,30 +60,21 @@ jobs:
           swpat=re.compile(r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*',re.S)
           html,n=swpat.subn('\n',html,count=1)
           if n!=1: raise SystemExit('Production service worker block missing')
-          build='13.24-smart-scan-phase7a7b-offline-preview1'
+          build='13.24-smart-scan-phase7a8a-preview1'
           html=re.sub(r'app\.js\?v=[^"\']+',f'app.js?v={build}',html,count=1)
-          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreySmartScanPhase7A7BPreview1')){\n            sessionStorage.setItem('audreySmartScanPhase7A7BPreview1','1');\n            location.reload();\n          }\n        });\n      });\n    }\n  </script>\n'''
-          service_config=f'''  <script id="audreySmartScanServiceConfig">\n    window.AUDREY_SMART_SCAN_SERVICE_CONFIG = {{\n      enabled: true,\n      endpoint: 'https://audrey-smartscan-api.thomaslee78.workers.dev',\n      channel: 'preview',\n      build: '{build}'\n    }};\n  </script>\n'''
+          old='share-render-v13.21-dev12.js?v=13.23-photo-studio1'
+          new='share-render-v13.24-release.js?v=13.24-phase7a8a-runtime1'
+          if old not in html: raise SystemExit('Legacy release bootstrap reference missing')
+          html=html.replace(old,new,1)
+          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreySmartScanPhase7A8APreview1')){sessionStorage.setItem('audreySmartScanPhase7A8APreview1','1');location.reload();}\n        });\n      });\n    }\n  </script>\n'''
+          service=f'''  <script id="audreySmartScanServiceConfig">\n    window.AUDREY_SMART_SCAN_SERVICE_CONFIG = {{enabled:true,endpoint:'https://audrey-smartscan-api.thomaslee78.workers.dev',channel:'preview',build:'{build}'}};\n  </script>\n'''
           marker=f'<script src="app.js?v={build}"></script>'
           repair='  <script src="tier-preview-regression-fix-v13.24.js?v=13.24-tier-preview-regression-fix1"></script>\n'
-          html=html.replace(marker,cleanup+service_config+'  '+marker+'\n'+repair,1)
-          html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.24-smart-scan-phase7a7b-offline-preview1">\n</head>',1)
-
-          share_path=Path('site/share-render-v13.21-dev12.js')
-          share=share_path.read_text(encoding='utf-8')
-          old="const SMART_SCAN_PHASE7A2='13.24-phase7a2-ai-vision1';"
-          new="const SMART_SCAN_PHASE7A2='13.24-phase7a2-ai-vision3-offline-fallback';\n  const SMART_SCAN_PHASE7A5A='13.24-phase7a5a-progress-overlay2-toplayer';\n  const SMART_SCAN_PHASE7A5B='13.24-phase7a5b-light-polish1';\n  const SMART_SCAN_PHASE7A3='13.24-phase7a3-telemetry2-editable-review';\n  const SMART_SCAN_PHASE7A3B='13.24-phase7a3b-editable-review5-reset-smartscan';\n  const SMART_SCAN_PHASE7A4A='13.24-phase7a4c-service-adapter2';\n  const SMART_SCAN_PHASE7A4R='13.24-phase7a4c-service-runtime2';"
-          if old not in share: raise SystemExit('Phase 7A2 bootstrap marker missing')
-          share=share.replace(old,new,1)
-          oldmod="'smart-scan-ai-v13.24-phase7a2.js?v='+SMART_SCAN_PHASE7A2"
-          newmod="'smart-scan-ai-v13.24-phase7a2.js?v='+SMART_SCAN_PHASE7A2,'smart-scan-ai-v13.24-phase7a5a.js?v='+SMART_SCAN_PHASE7A5A,'smart-scan-ai-v13.24-phase7a5b.js?v='+SMART_SCAN_PHASE7A5B,'smart-scan-ai-v13.24-phase7a3.js?v='+SMART_SCAN_PHASE7A3,'smart-scan-ai-v13.24-phase7a3b.js?v='+SMART_SCAN_PHASE7A3B,'smart-scan-service-v13.24-phase7a4a.js?v='+SMART_SCAN_PHASE7A4A,'smart-scan-ai-v13.24-phase7a4-runtime.js?v='+SMART_SCAN_PHASE7A4R"
-          if oldmod not in share: raise SystemExit('Phase 7A2 module entry missing')
-          share=share.replace(oldmod,newmod,1)
-          share_path.write_text(share,encoding='utf-8')
-
+          html=html.replace(marker,cleanup+service+'  '+marker+'\n'+repair,1)
+          html=html.replace('</head>',f'  <meta name="audrey-preview-build" content="{build}">\n</head>',1)
           manifest=json.loads(Path('site/manifest.webmanifest').read_text(encoding='utf-8'))
-          manifest.update({'name':'Audrey Closet — Smart Scan AI Preview','short_name':'Audrey Preview','id':'./index.html','start_url':'./index.html','scope':'./'})
-          pm='manifest-preview-v13.24-smart-scan-phase7a7b.webmanifest'
+          manifest.update({'name':'Audrey Closet — Smart Scan 7A8A Preview','short_name':'Audrey Preview','id':'./index.html','start_url':'./index.html','scope':'./'})
+          pm='manifest-preview-v13.24-smart-scan-phase7a8a.webmanifest'
           Path('site/'+pm).write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
           html,count=re.subn(r'(<link\s+[^>]*rel=["\']manifest["\'][^>]*href=["\'])[^"\']+(["\'][^>]*>)',r'\1'+pm+r'\2',html,count=1,flags=re.I)
           if count!=1: raise SystemExit('Manifest link missing')
@@ -97,94 +87,59 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           import json,re,shutil
-
-          root=Path('site')
-          offline=root/'offline'
+          root=Path('site'); offline=root/'offline'
           if offline.exists(): shutil.rmtree(offline)
           offline.mkdir()
-
-          static_ext={'.html','.css','.js','.json','.webmanifest','.png','.jpg','.jpeg','.webp','.svg','.gif','.ico','.woff','.woff2','.ttf','.otf'}
-          excluded_roots={'.git','server','admin','offline'}
-          excluded_files={'sw.js','offline-preview-sw-v13.24-phase7a7b.js'}
+          ext={'.html','.css','.js','.json','.webmanifest','.png','.jpg','.jpeg','.webp','.svg','.gif','.ico','.woff','.woff2','.ttf','.otf'}
+          excluded={'.git','server','admin','offline'}
           for src in root.rglob('*'):
             if not src.is_file(): continue
             rel=src.relative_to(root)
-            if rel.parts[0] in excluded_roots: continue
-            if rel.name in excluded_files: continue
-            if src.suffix.lower() not in static_ext: continue
-            dst=offline/rel
-            dst.parent.mkdir(parents=True,exist_ok=True)
-            shutil.copy2(src,dst)
-
-          idx=offline/'index.html'
-          html=idx.read_text(encoding='utf-8')
+            if rel.parts[0] in excluded or rel.name in {'sw.js','offline-preview-sw-v13.24-phase7a7b.js'} or src.suffix.lower() not in ext: continue
+            dst=offline/rel; dst.parent.mkdir(parents=True,exist_ok=True); shutil.copy2(src,dst)
+          idx=offline/'index.html'; html=idx.read_text(encoding='utf-8')
           html=re.sub(r'\s*<script id="previewServiceWorkerCleanup">.*?</script>\s*','\n',html,count=1,flags=re.S)
-          if 'previewServiceWorkerCleanup' in html: raise SystemExit('Offline copy still contains Preview SW cleanup')
-
-          offline_manifest='manifest-offline-v13.24-phase7a7b.webmanifest'
           manifest=json.loads((root/'manifest.webmanifest').read_text(encoding='utf-8'))
           manifest.update({'name':'Audrey Closet — Offline Validation','short_name':'Audrey Offline','id':'./index.html','start_url':'./index.html','scope':'./'})
-          (offline/offline_manifest).write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-          html=re.sub(r'(<link\s+[^>]*rel=["\']manifest["\'][^>]*href=["\'])[^"\']+(["\'][^>]*>)',r'\1'+offline_manifest+r'\2',html,count=1,flags=re.I)
-          html=html.replace('<meta name="audrey-preview-build" content="v13.24-smart-scan-phase7a7b-offline-preview1">','<meta name="audrey-preview-build" content="v13.24-smart-scan-phase7a7b-offline-preview1"><meta name="audrey-offline-validation" content="7A7B">',1)
-          registration='''\n<script id="audreyOfflineValidationSW">\nif ('serviceWorker' in navigator) {\n  window.addEventListener('load', function(){\n    navigator.serviceWorker.register('./sw.js',{scope:'./'}).then(function(reg){\n      console.log('Audrey 7A7B offline worker ready',reg.scope);\n    }).catch(function(err){console.error('Audrey 7A7B offline worker failed',err);});\n  },{once:true});\n}\n</script>\n'''
-          html=html.replace('</body>',registration+'</body>',1)
+          pm='manifest-offline-v13.24-phase7a8a.webmanifest'; (offline/pm).write_text(json.dumps(manifest,indent=2)+'\n')
+          html=re.sub(r'(<link\s+[^>]*rel=["\']manifest["\'][^>]*href=["\'])[^"\']+(["\'][^>]*>)',r'\1'+pm+r'\2',html,count=1,flags=re.I)
+          html=html.replace('</body>',"<script id=\"audreyOfflineValidationSW\">if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js',{scope:'./'}),{once:true})}</script></body>",1)
           idx.write_text(html,encoding='utf-8')
-
-          assets=[]
-          for f in offline.rglob('*'):
-            if f.is_file() and f.name!='sw.js': assets.append('./'+f.relative_to(offline).as_posix())
-          if './index.html' not in assets: raise SystemExit('Offline index missing from asset set')
-          assets=sorted(set(assets+['./']))
-
+          assets=sorted(set(['./']+['./'+f.relative_to(offline).as_posix() for f in offline.rglob('*') if f.is_file() and f.name!='sw.js']))
           template=(root/'offline-preview-sw-v13.24-phase7a7b.js').read_text(encoding='utf-8')
-          sw=template.replace("'__AUDREY_OFFLINE_CACHE__'","'audrey-offline-preview-13.24-7a7b-1'")
-          sw=sw.replace('__AUDREY_OFFLINE_ASSETS__',json.dumps(assets,separators=(',',':')))
-          if "const CACHE='__AUDREY_OFFLINE_CACHE__'" in sw or 'const ASSETS=__AUDREY_OFFLINE_ASSETS__' in sw: raise SystemExit('Offline SW executable placeholder remains')
+          sw=template.replace("'__AUDREY_OFFLINE_CACHE__'","'audrey-offline-preview-13.24-7a8a-1'").replace('__AUDREY_OFFLINE_ASSETS__',json.dumps(assets,separators=(',',':')))
           (offline/'sw.js').write_text(sw,encoding='utf-8')
-          print(f'7A7B offline copy prepared with {len(assets)} cached paths')
           PY
 
-      - name: Verify Smart Scan Phase 7A7B offline isolation
+      - name: Verify Phase 7A8A runtime consolidation
         shell: bash
         run: |
+          node --check site/share-render-v13.24-release.js
           node --check site/app.js
-          node --check site/share-render-v13.21-dev12.js
-          node --check site/smart-scan-service-v13.24-phase7a4a.js
-          node --check site/smart-scan-ai-v13.24-phase7a4-runtime.js
-          node --check site/server/smartscan-worker.js
-          node --check site/server/worker-entry-v13.24-phase7a7.js
-          node --check site/server/smartscan-calibration-v13.24-phase7a6a.js
-          node --check site/server/smartscan-validation-v13.24-phase7a7.js
-          node --check site/smart-scan-ai-v13.24-phase7a3b.js
-          node --check site/tier-preview-regression-fix-v13.24.js
           node --check site/offline/sw.js
           python - <<'PY'
           from pathlib import Path
           html=Path('site/index.html').read_text(encoding='utf-8')
+          boot=Path('site/share-render-v13.24-release.js').read_text(encoding='utf-8')
           offline=Path('site/offline/index.html').read_text(encoding='utf-8')
           sw=Path('site/offline/sw.js').read_text(encoding='utf-8')
-          wrapper=Path('site/server/worker-entry-v13.24-phase7a7.js').read_text(encoding='utf-8')
-          harness=Path('site/server/smartscan-validation-v13.24-phase7a7.js').read_text(encoding='utf-8')
-          app=Path('site/app.js').read_text(encoding='utf-8')
-          share=Path('site/share-render-v13.21-dev12.js').read_text(encoding='utf-8')
-          editable=Path('site/smart-scan-ai-v13.24-phase7a3b.js').read_text(encoding='utf-8')
-          assert 'v13.24-smart-scan-phase7a7b-offline-preview1' in html
-          assert "channel: 'preview'" in html
-          assert app.count('v13.21 baseline — dev12 feature set, fresh delivery') == 1
-          assert 'previewServiceWorkerCleanup' in html
-          assert 'previewServiceWorkerCleanup' not in offline
-          assert 'audrey-offline-validation' in offline
-          assert "serviceWorker.register('./sw.js',{scope:'./'})" in offline
-          assert 'audrey-offline-preview-13.24-7a7b-1' in sw
-          assert './index.html' in sw and './app.js' in sw and './share-render-v13.21-dev12.js' in sw
+          assert '13.24-smart-scan-phase7a8a-preview1' in html
+          assert 'share-render-v13.24-release.js?v=13.24-phase7a8a-runtime1' in html
+          assert 'share-render-v13.21-dev12.js?v=13.23-photo-studio1' not in html
+          assert "channel:'preview'" in html
+          assert "RELEASE='13.24-phase7a8a-runtime1'" in boot
+          assert "a2:'13.24-phase7a2-ai-vision3-offline-fallback'" in boot
+          assert 'smart-scan-ai-v13.24-phase7a3b.js' in boot
+          assert 'smart-scan-service-v13.24-phase7a4a.js' in boot
+          assert 'smart-scan-ai-v13.24-phase7a4-runtime.js' in boot
+          assert 'smart-scan-color-calibration-v13.24-phase4_3.js' in boot.split('const forbidden=',1)[1]
+          modules=boot.split('const smartScanModules=[',1)[1].split('];',1)[0]
+          assert 'phase4_3.js' not in modules
+          assert 'phase6_3a.js' not in modules
+          assert 'calibration-catalog' not in modules
+          assert 'previewServiceWorkerCleanup' in html and 'previewServiceWorkerCleanup' not in offline
+          assert 'share-render-v13.24-release.js' in sw
           assert 'smart-scan-ai-v13.24-phase7a4-runtime.js' in sw
-          assert "url.pathname.startsWith('/v1/admin/smartscan/validation')" in wrapper
-          assert 'providerCalls:0' in harness and 'configMutations:0' in harness
-          assert 'smart-scan-validation-v13.24-phase7a7.js' not in share
-          assert "btn.onclick=function(){return window.applyPendingSmartScan()}" in editable
-          assert 'resetReviewToProposal' in editable
-          assert 'smart-scan-calibration-v13.24-phase6_3a.js' not in share
           PY
 
       - name: Configure Pages
