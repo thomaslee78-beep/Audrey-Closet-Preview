@@ -1,4 +1,4 @@
-name: Preview Smart Scan v13.24 Phase 7A6A Calibration Lab
+name: Preview Smart Scan v13.24 Phase 7A7 Validation
 
 on:
   workflow_dispatch:
@@ -61,14 +61,14 @@ jobs:
           swpat=re.compile(r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*',re.S)
           html,n=swpat.subn('\n',html,count=1)
           if n!=1: raise SystemExit('Production service worker block missing')
-          build='13.24-smart-scan-phase7a6a-calibration-preview1'
+          build='13.24-smart-scan-phase7a7-validation-preview1'
           html=re.sub(r'app\.js\?v=[^"\']+',f'app.js?v={build}',html,count=1)
-          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreySmartScanPhase7A6APreview1')){\n            sessionStorage.setItem('audreySmartScanPhase7A6APreview1','1');\n            location.reload();\n          }\n        });\n      });\n    }\n  </script>\n'''
+          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreySmartScanPhase7A7Preview1')){\n            sessionStorage.setItem('audreySmartScanPhase7A7Preview1','1');\n            location.reload();\n          }\n        });\n      });\n    }\n  </script>\n'''
           service_config=f'''  <script id="audreySmartScanServiceConfig">\n    window.AUDREY_SMART_SCAN_SERVICE_CONFIG = {{\n      enabled: true,\n      endpoint: 'https://audrey-smartscan-api.thomaslee78.workers.dev',\n      channel: 'preview',\n      build: '{build}'\n    }};\n  </script>\n'''
           marker=f'<script src="app.js?v={build}"></script>'
           repair='  <script src="tier-preview-regression-fix-v13.24.js?v=13.24-tier-preview-regression-fix1"></script>\n'
           html=html.replace(marker,cleanup+service_config+'  '+marker+'\n'+repair,1)
-          html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.24-smart-scan-phase7a6a-calibration-preview1">\n</head>',1)
+          html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.24-smart-scan-phase7a7-validation-preview1">\n</head>',1)
 
           share_path=Path('site/share-render-v13.21-dev12.js')
           share=share_path.read_text(encoding='utf-8')
@@ -84,14 +84,14 @@ jobs:
 
           manifest=json.loads(Path('site/manifest.webmanifest').read_text(encoding='utf-8'))
           manifest.update({'name':'Audrey Closet — Smart Scan AI Preview','short_name':'Audrey Preview','id':'./index.html','start_url':'./index.html','scope':'./'})
-          pm='manifest-preview-v13.24-smart-scan-phase7a6a.webmanifest'
+          pm='manifest-preview-v13.24-smart-scan-phase7a7.webmanifest'
           Path('site/'+pm).write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
           html,count=re.subn(r'(<link\s+[^>]*rel=["\']manifest["\'][^>]*href=["\'])[^"\']+(["\'][^>]*>)',r'\1'+pm+r'\2',html,count=1,flags=re.I)
           if count!=1: raise SystemExit('Manifest link missing')
           p.write_text(html,encoding='utf-8')
           PY
 
-      - name: Verify Smart Scan Phase 7A6A calibration isolation
+      - name: Verify Smart Scan Phase 7A7 validation isolation
         shell: bash
         run: |
           node --check site/app.js
@@ -99,31 +99,31 @@ jobs:
           node --check site/smart-scan-service-v13.24-phase7a4a.js
           node --check site/smart-scan-ai-v13.24-phase7a4-runtime.js
           node --check site/server/smartscan-worker.js
-          node --check site/server/worker-entry-v13.24-phase7a6a.js
+          node --check site/server/worker-entry-v13.24-phase7a7.js
           node --check site/server/smartscan-calibration-v13.24-phase7a6a.js
+          node --check site/server/smartscan-validation-v13.24-phase7a7.js
           node --check site/smart-scan-ai-v13.24-phase7a3b.js
           node --check site/tier-preview-regression-fix-v13.24.js
           python - <<'PY'
           from pathlib import Path
           html=Path('site/index.html').read_text(encoding='utf-8')
-          calibration=Path('site/admin/calibration.html').read_text(encoding='utf-8')
-          wrapper=Path('site/server/worker-entry-v13.24-phase7a6a.js').read_text(encoding='utf-8')
-          service=Path('site/server/smartscan-calibration-v13.24-phase7a6a.js').read_text(encoding='utf-8')
-          migration=Path('site/server/migrations/0002_smartscan_calibration.sql').read_text(encoding='utf-8')
+          validation=Path('site/admin/validation.html').read_text(encoding='utf-8')
+          wrapper=Path('site/server/worker-entry-v13.24-phase7a7.js').read_text(encoding='utf-8')
+          harness=Path('site/server/smartscan-validation-v13.24-phase7a7.js').read_text(encoding='utf-8')
           app=Path('site/app.js').read_text(encoding='utf-8')
           share=Path('site/share-render-v13.21-dev12.js').read_text(encoding='utf-8')
           editable=Path('site/smart-scan-ai-v13.24-phase7a3b.js').read_text(encoding='utf-8')
-          assert 'v13.24-smart-scan-phase7a6a-calibration-preview1' in html
+          assert 'v13.24-smart-scan-phase7a7-validation-preview1' in html
           assert "channel: 'preview'" in html
           assert app.count('v13.21 baseline — dev12 feature set, fresh delivery') == 1
-          assert 'Smart Scan Calibration Lab' in calibration
-          assert 'Calibration photos are sent for analysis but are not stored in D1.' in calibration
-          assert "CALIBRATION_VERSION='13.24-phase7a6a-calibration1'" in service
-          assert "url.pathname.startsWith('/v1/admin/smartscan/calibration')" in wrapper
+          assert '7A7 Validation Console' in validation
+          assert 'zero OpenAI calls' in validation
+          assert "VALIDATION_VERSION='13.24-phase7a7-validation1'" in harness
+          assert "url.pathname.startsWith('/v1/admin/smartscan/validation')" in wrapper
           assert "return baseWorker.fetch(request,env,ctx)" in wrapper
-          assert 'CREATE TABLE IF NOT EXISTS ai_calibration_runs' in migration
-          assert 'CREATE TABLE IF NOT EXISTS ai_calibration_results' in migration
-          assert 'smart-scan-calibration-v13.24-phase7a6a.js' not in share
+          assert 'providerCalls:0' in harness
+          assert 'configMutations:0' in harness
+          assert 'smart-scan-validation-v13.24-phase7a7.js' not in share
           assert "btn.onclick=function(){return window.applyPendingSmartScan()}" in editable
           assert 'resetReviewToProposal' in editable
           assert 'smart-scan-calibration-v13.24-phase6_3a.js' not in share
