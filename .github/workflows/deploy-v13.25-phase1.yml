@@ -8,6 +8,8 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 concurrency:
   group: audrey-v13-25-phase1-preview
@@ -15,6 +17,9 @@ concurrency:
 
 jobs:
   deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout v13.25 source branch
@@ -42,6 +47,8 @@ jobs:
 
           python3 - <<'PY'
           from pathlib import Path
+          import re
+
           path=Path('preview/index.html')
           text=path.read_text()
 
@@ -50,9 +57,8 @@ jobs:
           if old in text:
               text=text.replace(old,new,1)
 
-          import re
-          text=re.sub(r'\s*<script src="\./v13\.25-phase1-journal-board\.js(?:\?[^\"]*)?"></script>\s*', '\n', text)
-          marker='<script src="./v13.25-phase1-journal-board.js?v=phase1-fix4"></script>'
+          text=re.sub(r'\s*<script src="\./v13\.25-phase1-journal-board\.js(?:\?[^\"]*)?"></script>\s*','\n',text)
+          marker='<script src="./v13.25-phase1-journal-board.js?v=phase1-fix5"></script>'
           text=text.replace('</body>',f'  {marker}\n</body>')
           path.write_text(text)
           PY
@@ -61,9 +67,9 @@ jobs:
           test -f preview/app.js
           test -f preview/v13.25-phase1-journal-board.js
           grep -q 'id="journalOpenBoardBtn"' preview/index.html
-          grep -q 'v13.25-phase1-journal-board.js?v=phase1-fix4' preview/index.html
+          grep -q 'v13.25-phase1-journal-board.js?v=phase1-fix5' preview/index.html
 
-      - name: Publish preview
+      - name: Publish preview repository
         shell: bash
         working-directory: preview
         run: |
@@ -71,9 +77,21 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
-          if git diff --cached --quiet; then
-            echo 'Preview already current.'
-            exit 0
+          if ! git diff --cached --quiet; then
+            git commit -m 'Deploy v13.25 Phase 1 Journal Board preview'
+            git push origin HEAD:main
+          else
+            echo 'Preview repository already current.'
           fi
-          git commit -m 'Deploy v13.25 Phase 1 Journal Board preview'
-          git push origin HEAD:main
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Preview site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: preview
+
+      - name: Deploy Preview Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
