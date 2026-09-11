@@ -1,8 +1,5 @@
 /* Audrey Closet v13.25 Phase 1 — Journal -> Outfit Board bridge
- * Preview-first overlay. Keeps production app.js unchanged while we iterate.
- * Converts a Journal entry's closet itemIds into normal transient boardItems,
- * applies a deterministic category-aware starting layout, and reuses the
- * existing board conflict/save/replace flow.
+ * Preview-first bridge for Journal detail -> Outfit Board.
  */
 (function(){
   'use strict';
@@ -49,15 +46,9 @@
   };
 
   const SIZE={
-    tops:{w:.34,h:.31},
-    bottoms:{w:.32,h:.35},
-    dresses:{w:.39,h:.54},
-    outerwear:{w:.34,h:.38},
-    shoes:{w:.25,h:.18},
-    accessories:{w:.20,h:.20},
-    misc:{w:.28,h:.26}
+    tops:{w:.34,h:.31},bottoms:{w:.32,h:.35},dresses:{w:.39,h:.54},
+    outerwear:{w:.34,h:.38},shoes:{w:.25,h:.18},accessories:{w:.20,h:.20},misc:{w:.28,h:.26}
   };
-
   const LAYER={bottoms:2,tops:3,dresses:3,outerwear:4,shoes:5,accessories:6,misc:4};
 
   function deterministicRotation(category,index){
@@ -77,17 +68,12 @@
       const zone=zones[index%zones.length];
       const cycle=Math.floor(index/zones.length);
       const size=SIZE[category]||SIZE.misc;
-      const w=Math.round(Math.max(76,Math.min(width*.48,width*size.w*(cycle?0.9:1))));
-      const h=Math.round(Math.max(70,Math.min(height*.58,height*size.h*(cycle?0.9:1))));
+      const w=Math.round(Math.max(76,Math.min(width*.48,width*size.w*(cycle?.9:1))));
+      const h=Math.round(Math.max(70,Math.min(height*.58,height*size.h*(cycle?.9:1))));
       const cycleShift=(cycle%3-1)*Math.min(24,width*.05);
       const x=Math.round(Math.max(4,Math.min(width-w-4,width*zone.x-w/2+cycleShift)));
       const y=Math.round(Math.max(4,Math.min(height-h-4,height*zone.y-h/2+cycle*10)));
-      return {
-        uid:id(),kind:'piece',source:'closet',id:item.id,
-        x,y,w,h,
-        rotation:deterministicRotation(category,index),
-        z:(LAYER[category]||3)*10+order
-      };
+      return {uid:id(),kind:'piece',source:'closet',id:item.id,x,y,w,h,rotation:deterministicRotation(category,index),z:(LAYER[category]||3)*10+order};
     });
   }
 
@@ -100,10 +86,7 @@
     document.querySelector('#outfitBoard')?.classList.remove('drawing');
     const name=document.querySelector('#outfitName');if(name)name.value='';
     const notes=document.querySelector('#outfitNotes');if(notes)notes.value='';
-    if(typeof populatePortfolioFolderSelect==='function'){
-      const first=state.settings?.portfolioFolders?.[0]||'Everyday';
-      populatePortfolioFolderSelect(first);
-    }
+    if(typeof populatePortfolioFolderSelect==='function')populatePortfolioFolderSelect(state.settings?.portfolioFolders?.[0]||'Everyday');
     const save=document.querySelector('#saveOutfitBtn');if(save)save.textContent='Save outfit';
   }
 
@@ -111,17 +94,14 @@
     const entry=state.journal.find(row=>row.id===entryId);
     const items=validJournalClosetItems(entry);
     if(!entry||!items.length){toast('No available closet pieces to open on the Board');return;}
-
     if(document.querySelector('#journalDetailDialog')?.open&&typeof closeJournalDetail==='function')closeJournalDetail();
     resetBoardSessionForJournal();
     showScreen('outfits');
-
     requestAnimationFrame(()=>{
       const size=boardSize();
       boardItems=layoutJournalItems(items,size.width,size.height);
       drawBoard();
-      const board=document.querySelector('#outfitBoard');
-      setTimeout(()=>board?.scrollIntoView({behavior:'smooth',block:'center'}),60);
+      setTimeout(()=>document.querySelector('#outfitBoard')?.scrollIntoView({behavior:'smooth',block:'center'}),60);
       const missing=(entry.itemIds||[]).length-items.length;
       toast(missing>0?`Loaded ${items.length} pieces · ${missing} unavailable item${missing===1?'':'s'} skipped`:`Loaded ${items.length} journal piece${items.length===1?'':'s'} onto the Board`);
     });
@@ -131,8 +111,7 @@
     const entry=state.journal.find(row=>row.id===viewingJournalId);
     const items=validJournalClosetItems(entry);
     if(!entry||!items.length){toast('No available closet pieces to open on the Board');return;}
-    const entryId=entry.id;
-    guardBoardSwitch(()=>loadJournalEntryToBoard(entryId),'open this journal look');
+    guardBoardSwitch(()=>loadJournalEntryToBoard(entry.id),'open this journal look');
   }
 
   function refreshButton(){
@@ -148,7 +127,6 @@
   function installJournalBoardAction(){
     const actions=document.querySelector('#journalDetailDialog .journal-detail-actions');
     if(!actions)return;
-
     let button=document.querySelector('#'+BUTTON_ID);
     if(!button){
       button=document.createElement('button');
@@ -156,24 +134,19 @@
       button.id=BUTTON_ID;
       button.className='soft-btn journal-open-board-btn';
       button.textContent='Open on Board';
-      button.addEventListener('click',requestJournalEntryOnBoard);
       const edit=document.querySelector('#editJournalDetailBtn');
       actions.insertBefore(button,edit||null);
     }
-
+    if(button.dataset.v1325Bound!=='1'){
+      button.addEventListener('click',requestJournalEntryOnBoard);
+      button.dataset.v1325Bound='1';
+    }
     if(!document.querySelector('#v1325Phase1JournalBoardStyles')){
       const style=document.createElement('style');
       style.id='v1325Phase1JournalBoardStyles';
-      style.textContent=`
-        #journalDetailDialog .journal-detail-actions{flex-wrap:wrap}
-        #journalDetailDialog .journal-open-board-btn{white-space:nowrap}
-        @media (max-width:430px){
-          #journalDetailDialog .journal-open-board-btn{order:-1;flex:1 0 100%}
-        }
-      `;
+      style.textContent=`#journalDetailDialog .journal-detail-actions{flex-wrap:wrap}#journalDetailDialog .journal-open-board-btn{white-space:nowrap}@media(max-width:430px){#journalDetailDialog .journal-open-board-btn{order:-1;flex:1 0 100%}}`;
       document.head.appendChild(style);
     }
-
     refreshButton();
   }
 
@@ -186,6 +159,7 @@
     return result;
   };
 
+  window.AudreyJournalBoard={openCurrent:requestJournalEntryOnBoard,refresh:refreshButton};
   installJournalBoardAction();
   window.addEventListener('pageshow',()=>{installJournalBoardAction();requestAnimationFrame(refreshButton)});
 })();
