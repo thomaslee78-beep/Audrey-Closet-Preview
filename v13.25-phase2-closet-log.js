@@ -21,23 +21,28 @@
     return state.items.find(item=>item.id===id&&!isArchived(item))||null;
   }
 
-  function closetViewIsModern(){
-    const direct=(state?.settings?.closetView||state?.settings?.closetViewMode||state?.settings?.catalogView||'').toString().toLowerCase();
-    if(direct==='modern')return true;
-    if(document.body.classList.contains('modern')||document.body.classList.contains('closet-modern')||document.body.classList.contains('closet-view-modern'))return true;
-    if(document.documentElement.dataset.closetView==='modern'||document.body.dataset.closetView==='modern')return true;
-    const selects=[...document.querySelectorAll('select')];
-    return selects.some(select=>{
-      const label=select.closest('label');
-      const text=(label?.textContent||select.getAttribute('aria-label')||'').toLowerCase();
-      return text.includes('closet')&&text.includes('view')&&String(select.value||select.options?.[select.selectedIndex]?.text||'').toLowerCase()==='modern';
-    });
-  }
-
   function syncButtonShape(){
     const button=document.querySelector('#'+IDS.button);
-    if(!button)return;
-    button.classList.toggle('v1325-modern-action',closetViewIsModern());
+    const add=document.querySelector('#addItemBtn');
+    if(!button||!add)return;
+    const style=getComputedStyle(add);
+    button.style.borderRadius=style.borderRadius;
+  }
+
+  function syncModeLocks(){
+    const quick=document.querySelector('#quickAddBtn');
+    const nav=document.querySelector('.bottom-nav');
+    if(quick){
+      quick.disabled=active;
+      quick.setAttribute('aria-disabled',active?'true':'false');
+    }
+    if(nav){
+      nav.setAttribute('aria-disabled',active?'true':'false');
+      nav.querySelectorAll('button').forEach(btn=>{
+        btn.disabled=active;
+        btn.setAttribute('aria-disabled',active?'true':'false');
+      });
+    }
   }
 
   function installControls(){
@@ -100,20 +105,21 @@
         .v1325-closet-hero-copy .script,.v1325-closet-hero-copy h2{white-space:nowrap}
         .v1325-closet-hero-copy .script{font-size:clamp(17px,4.8vw,22px)}
         .v1325-closet-hero-copy h2{font-size:clamp(24px,6vw,30px);margin-bottom:5px}
-        .v1325-closet-hero-actions{position:relative;z-index:2;display:flex;flex-direction:column;gap:7px;align-items:stretch;justify-content:center;flex:0 0 auto;width:116px}
-        .v1325-closet-hero-button{width:100%;min-height:34px;padding:7px 9px!important;font-size:12px!important;line-height:1.1;white-space:nowrap;font-family:inherit;font-weight:750}
-        #closetLogOutfitBtn{background:rgba(255,250,240,.9);color:var(--olive-dark,#3f4937);border:1px solid rgba(255,255,255,.38)}
-        #closetLogOutfitBtn.v1325-modern-action{border-radius:3px!important}
+        .v1325-closet-hero-actions{position:relative;z-index:2;display:flex;flex-direction:column;gap:8px;align-items:stretch;justify-content:center;flex:0 0 auto;width:124px}
+        .v1325-closet-hero-button{width:100%;min-height:40px;padding:9px 11px!important;font-size:12.5px!important;line-height:1.1;white-space:nowrap;font-family:inherit;font-weight:750}
+        #closetLogOutfitBtn{background:rgba(255,250,240,.94);color:var(--olive-dark,#3f4937);border:1px solid rgba(255,255,255,.42)}
 
-        .v1325-closet-log-bar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(76px + env(safe-area-inset-bottom));z-index:999;width:min(850px,calc(100% - 16px));display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 12px;border:1px solid rgba(108,81,66,.18);border-radius:16px;background:rgba(251,248,239,.97);backdrop-filter:blur(18px);box-shadow:0 -4px 18px rgba(54,50,42,.13)}
+        .v1325-closet-log-bar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(72px + max(env(safe-area-inset-bottom),4px));z-index:999;width:min(850px,calc(100% - 8px));display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 12px 12px;border:1px solid rgba(108,81,66,.22);border-radius:17px 17px 8px 8px;background:rgba(251,248,239,.985);backdrop-filter:blur(18px);box-shadow:0 -10px 28px rgba(54,50,42,.20),0 -2px 8px rgba(54,50,42,.10)}
         .v1325-closet-log-copy{display:flex;flex-direction:column;gap:1px;min-width:0;line-height:1.25}
         .v1325-closet-log-copy strong{font-size:.91rem;color:var(--ink,#292820)}
         .v1325-closet-log-copy span{font-size:.72rem;color:#746b5e;max-width:430px}
         .v1325-closet-log-copy small{font-size:.72rem;color:var(--olive-dark,#3f4937);font-weight:750;margin-top:2px}
         .v1325-closet-log-actions{display:flex;gap:7px;flex:0 0 auto}
-        .v1325-closet-log-actions>button{min-width:68px;padding:9px 11px;font-size:12px}
+        .v1325-closet-log-actions>button{min-width:70px;padding:9px 11px;font-size:12px}
         body.v1325-closet-log-mode{padding-bottom:calc(164px + env(safe-area-inset-bottom))}
         body.v1325-closet-log-mode #addItemBtn,body.v1325-closet-log-mode #closetLogOutfitBtn{visibility:hidden;pointer-events:none}
+        body.v1325-closet-log-mode #quickAddBtn{opacity:.32;pointer-events:none}
+        body.v1325-closet-log-mode .bottom-nav{opacity:.48;pointer-events:none}
         body.v1325-closet-log-mode #catalogGrid .item-card{cursor:pointer;position:relative;transition:transform .14s ease,box-shadow .14s ease,outline-color .14s ease}
         body.v1325-closet-log-mode #catalogGrid .item-card.v1325-log-selected{outline:3px solid var(--olive,#66715a);outline-offset:-3px;box-shadow:0 8px 22px rgba(60,72,54,.18);transform:translateY(-1px)}
         body.v1325-closet-log-mode #catalogGrid .item-card.v1325-log-selected::after{content:'✓';position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:999px;display:grid;place-items:center;background:var(--olive,#66715a);color:white;font-weight:800;font-size:16px;box-shadow:0 2px 8px rgba(0,0,0,.2);z-index:5}
@@ -121,20 +127,20 @@
 
         @media(max-width:520px){
           [data-screen="catalog"] .hero-card.v1325-closet-hero{padding:15px 14px 15px 16px;gap:8px}
-          .v1325-closet-hero-copy .muted{font-size:11px;line-height:1.25;max-width:190px}
-          .v1325-closet-hero-actions{width:103px;gap:6px}
-          .v1325-closet-hero-button{min-height:32px;padding:6px 7px!important;font-size:11px!important}
-          .v1325-closet-log-bar{width:calc(100% - 12px);gap:8px;padding:9px 9px 10px;border-radius:14px}
-          .v1325-closet-log-copy span{font-size:.68rem;max-width:210px}
+          .v1325-closet-hero-copy .muted{font-size:11px;line-height:1.25;max-width:180px}
+          .v1325-closet-hero-actions{width:112px;gap:7px}
+          .v1325-closet-hero-button{min-height:38px;padding:8px 9px!important;font-size:12px!important}
+          .v1325-closet-log-bar{width:calc(100% - 4px);gap:8px;padding:10px 9px 11px;border-radius:15px 15px 6px 6px}
+          .v1325-closet-log-copy span{font-size:.68rem;max-width:205px}
           .v1325-closet-log-actions{gap:5px}
-          .v1325-closet-log-actions>button{min-width:61px;padding:8px 8px;font-size:11px}
+          .v1325-closet-log-actions>button{min-width:62px;padding:8px 8px;font-size:11px}
         }
         @media(max-width:390px){
           .v1325-closet-hero-copy .muted{display:none}
           .v1325-closet-hero-copy .script{font-size:17px}
           .v1325-closet-hero-copy h2{font-size:23px}
-          .v1325-closet-hero-actions{width:96px}
-          .v1325-closet-log-copy span{max-width:175px}
+          .v1325-closet-hero-actions{width:104px}
+          .v1325-closet-log-copy span{max-width:170px}
         }
       `;
       document.head.appendChild(style);
@@ -147,6 +153,7 @@
     selected=new Set();
     document.body.classList.add('v1325-closet-log-mode');
     document.querySelector('#'+IDS.toolbar)?.classList.remove('hidden');
+    syncModeLocks();
     observeCatalog();
     refreshSelectionUI();
   }
@@ -157,6 +164,7 @@
     document.querySelector('#'+IDS.toolbar)?.classList.add('hidden');
     document.querySelectorAll('#catalogGrid .item-card.v1325-log-selected').forEach(card=>card.classList.remove('v1325-log-selected'));
     if(observer){observer.disconnect();observer=null;}
+    syncModeLocks();
   }
 
   function cancelSelectionMode(){
@@ -239,7 +247,8 @@
   installControls();
   installCaptureGuards();
   observeViewSetting();
-  window.addEventListener('pageshow',()=>{installControls();installCaptureGuards();syncButtonShape();if(active){observeCatalog();refreshSelectionUI();}});
+  syncModeLocks();
+  window.addEventListener('pageshow',()=>{installControls();installCaptureGuards();syncButtonShape();syncModeLocks();if(active){observeCatalog();refreshSelectionUI();}});
 
   window.AudreyClosetLogOutfit={
     start:startSelectionMode,
