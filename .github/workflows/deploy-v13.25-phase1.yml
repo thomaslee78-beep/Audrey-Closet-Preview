@@ -44,16 +44,24 @@ jobs:
           from pathlib import Path
           path=Path('preview/index.html')
           text=path.read_text()
-          marker='<script src="./v13.25-phase1-journal-board.js"></script>'
-          if marker not in text:
-              text=text.replace('</body>',f'  {marker}\n</body>')
+
+          old='<div class="sheet-actions journal-detail-actions"><button type="button" class="soft-btn" id="cancelJournalDetailBtn">Cancel</button><button type="button" class="danger-text" id="deleteJournalDetailBtn">Delete</button><button type="button" class="primary" id="editJournalDetailBtn">Edit</button></div>'
+          new='<div class="sheet-actions journal-detail-actions"><button type="button" class="soft-btn" id="cancelJournalDetailBtn">Cancel</button><button type="button" class="danger-text" id="deleteJournalDetailBtn">Delete</button><button type="button" class="soft-btn journal-open-board-btn" id="journalOpenBoardBtn">Open on Board</button><button type="button" class="primary" id="editJournalDetailBtn">Edit</button></div>'
+          if old in text:
+              text=text.replace(old,new,1)
+
+          import re
+          text=re.sub(r'\s*<script src="\./v13\.25-phase1-journal-board\.js(?:\?[^\"]*)?"></script>\s*', '\n', text)
+          marker='<script src="./v13.25-phase1-journal-board.js?v=phase1-fix3"></script>'
+          text=text.replace('</body>',f'  {marker}\n</body>')
           path.write_text(text)
           PY
 
           test -f preview/index.html
           test -f preview/app.js
           test -f preview/v13.25-phase1-journal-board.js
-          grep -q 'v13.25-phase1-journal-board.js' preview/index.html
+          grep -q 'id="journalOpenBoardBtn"' preview/index.html
+          grep -q 'v13.25-phase1-journal-board.js?v=phase1-fix3' preview/index.html
 
       - name: Publish preview
         shell: bash
