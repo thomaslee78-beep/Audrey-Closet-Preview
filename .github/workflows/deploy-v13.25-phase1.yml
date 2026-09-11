@@ -1,0 +1,71 @@
+name: Deploy v13.25 Phase 1 Preview
+
+on:
+  push:
+    paths:
+      - '.v1325-phase1-trigger'
+      - '.github/workflows/deploy-v13.25-phase1.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: audrey-v13-25-phase1-preview
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout v13.25 source branch
+        uses: actions/checkout@v4
+        with:
+          repository: thomaslee78-beep/Audrey-Closet
+          ref: dev/v13.25-outfit-workflow-contextual-journal
+          path: source
+          fetch-depth: 1
+
+      - name: Checkout preview repository
+        uses: actions/checkout@v4
+        with:
+          path: preview
+          fetch-depth: 0
+
+      - name: Build preview from v13.25 source
+        shell: bash
+        run: |
+          set -euo pipefail
+          rsync -a --delete \
+            --exclude='.git' \
+            --exclude='.github' \
+            source/ preview/
+
+          python3 - <<'PY'
+          from pathlib import Path
+          path=Path('preview/index.html')
+          text=path.read_text()
+          marker='<script src="./v13.25-phase1-journal-board.js"></script>'
+          if marker not in text:
+              text=text.replace('</body>',f'  {marker}\n</body>')
+          path.write_text(text)
+          PY
+
+          test -f preview/index.html
+          test -f preview/app.js
+          test -f preview/v13.25-phase1-journal-board.js
+          grep -q 'v13.25-phase1-journal-board.js' preview/index.html
+
+      - name: Publish preview
+        shell: bash
+        working-directory: preview
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          if git diff --cached --quiet; then
+            echo 'Preview already current.'
+            exit 0
+          fi
+          git commit -m 'Deploy v13.25 Phase 1 Journal Board preview'
+          git push origin HEAD:main
