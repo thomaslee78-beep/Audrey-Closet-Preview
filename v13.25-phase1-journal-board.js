@@ -140,39 +140,52 @@
     if(!button)return;
     const entry=state.journal.find(row=>row.id===viewingJournalId);
     const count=validJournalClosetItems(entry).length;
-    button.classList.toggle('hidden',!count);
     button.disabled=!count;
+    button.style.display=count?'':'none';
     button.textContent=count===1?'Open 1 piece on Board':`Open ${count} pieces on Board`;
   }
 
   function installJournalBoardAction(){
     const actions=document.querySelector('#journalDetailDialog .journal-detail-actions');
-    if(!actions||document.querySelector('#'+BUTTON_ID))return;
-    const button=document.createElement('button');
-    button.type='button';
-    button.id=BUTTON_ID;
-    button.className='soft-btn journal-open-board-btn hidden';
-    button.textContent='Open on Board';
-    button.addEventListener('click',requestJournalEntryOnBoard);
-    const edit=document.querySelector('#editJournalDetailBtn');
-    actions.insertBefore(button,edit||null);
+    if(!actions)return;
 
-    const style=document.createElement('style');
-    style.id='v1325Phase1JournalBoardStyles';
-    style.textContent=`
-      #journalDetailDialog .journal-detail-actions{flex-wrap:wrap}
-      #journalDetailDialog .journal-open-board-btn{white-space:nowrap}
-      @media (max-width:430px){
-        #journalDetailDialog .journal-open-board-btn{order:-1;flex:1 0 100%}
-      }
-    `;
-    document.head.appendChild(style);
+    let button=document.querySelector('#'+BUTTON_ID);
+    if(!button){
+      button=document.createElement('button');
+      button.type='button';
+      button.id=BUTTON_ID;
+      button.className='soft-btn journal-open-board-btn';
+      button.textContent='Open on Board';
+      button.addEventListener('click',requestJournalEntryOnBoard);
+      const edit=document.querySelector('#editJournalDetailBtn');
+      actions.insertBefore(button,edit||null);
+    }
 
-    const dialog=document.querySelector('#journalDetailDialog');
-    new MutationObserver(()=>{if(dialog.open)requestAnimationFrame(refreshButton)}).observe(dialog,{attributes:true,attributeFilter:['open']});
-    dialog.addEventListener('click',()=>requestAnimationFrame(refreshButton));
+    if(!document.querySelector('#v1325Phase1JournalBoardStyles')){
+      const style=document.createElement('style');
+      style.id='v1325Phase1JournalBoardStyles';
+      style.textContent=`
+        #journalDetailDialog .journal-detail-actions{flex-wrap:wrap}
+        #journalDetailDialog .journal-open-board-btn{white-space:nowrap}
+        @media (max-width:430px){
+          #journalDetailDialog .journal-open-board-btn{order:-1;flex:1 0 100%}
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    refreshButton();
   }
 
+  const originalOpenJournalDetail=openJournalDetail;
+  openJournalDetail=function(jid){
+    const result=originalOpenJournalDetail(jid);
+    installJournalBoardAction();
+    requestAnimationFrame(refreshButton);
+    setTimeout(refreshButton,0);
+    return result;
+  };
+
   installJournalBoardAction();
-  window.addEventListener('pageshow',installJournalBoardAction);
+  window.addEventListener('pageshow',()=>{installJournalBoardAction();requestAnimationFrame(refreshButton)});
 })();
