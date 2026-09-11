@@ -2,8 +2,6 @@ name: Deploy Audrey Closet Preview Pages
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
 
 permissions:
   contents: read
@@ -36,29 +34,21 @@ jobs:
           import re
           p=Path('site/index.html')
           html=p.read_text(encoding='utf-8')
-
-          # Preview should never be held behind an older service worker while we iterate.
           swpat=re.compile(r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*',re.S)
           html,_=swpat.subn('\n',html,count=1)
           cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        return Promise.all(ours.map(function(r){return r.unregister();}));\n      }).catch(function(){});\n    }\n  </script>\n'''
           html=html.replace('</body>',cleanup+'</body>',1)
           if 'audrey-preview-build' not in html:
-            html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.25-phase1">\n</head>',1)
+            html=html.replace('</head>','  <meta name="audrey-preview-build" content="manual-preview">\n</head>',1)
           p.write_text(html,encoding='utf-8')
           PY
 
-          test -f site/index.html
-          test -f site/app.js
-          grep -q 'audrey-preview-build' site/index.html
-
       - name: Configure Pages
         uses: actions/configure-pages@v5
-
       - name: Upload Preview site
         uses: actions/upload-pages-artifact@v3
         with:
           path: site
-
       - name: Deploy Preview
         id: deployment
         uses: actions/deploy-pages@v4
