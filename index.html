@@ -11,6 +11,14 @@
   <link rel="apple-touch-icon" href="icon-192.png" />
   <link rel="stylesheet" href="styles.css?v=13.22-dev26" />
   <title>Audrey's Closet</title>
+  <style id="v1325PreviewJournalFooterStyles">
+    #journalDetailDialog .journal-detail-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);grid-template-areas:"edit board" "cancel delete";gap:10px 12px;align-items:center}
+    #journalDetailDialog #editJournalDetailBtn{grid-area:edit;width:100%;min-width:0}
+    #journalDetailDialog .journal-open-board-btn{grid-area:board;width:100%;min-width:0;white-space:nowrap}
+    #journalDetailDialog #cancelJournalDetailBtn{grid-area:cancel;width:100%;min-width:0}
+    #journalDetailDialog #deleteJournalDetailBtn{grid-area:delete;width:100%;min-width:0;justify-self:stretch;text-align:center}
+  </style>
+  <meta name="audrey-preview-build" content="v13.25-phase2-dev1">
 </head>
 <body>
   <div class="paper-grain"></div>
@@ -549,7 +557,7 @@
       </section>
       <div id="journalDetailItems" class="journal-detail-items"></div>
     </div>
-    <div class="sheet-actions journal-detail-actions"><button type="button" class="soft-btn" id="cancelJournalDetailBtn">Cancel</button><button type="button" class="danger-text" id="deleteJournalDetailBtn">Delete</button><button type="button" class="soft-btn journal-open-board-btn" id="journalOpenBoardBtn">Open on Board</button><button type="button" class="primary" id="editJournalDetailBtn">Edit</button></div>
+    <div class="sheet-actions journal-detail-actions"><button type="button" class="soft-btn" id="editJournalDetailBtn">Edit</button><button type="button" class="primary journal-open-board-btn" id="journalOpenBoardBtn">Add to Outfit Board</button><button type="button" class="soft-btn" id="cancelJournalDetailBtn">Cancel</button><button type="button" class="danger-text" id="deleteJournalDetailBtn">Delete</button></div>
   </dialog>
 
   <dialog id="journalItemPreviewDialog" class="sheet-dialog journal-item-preview-dialog">
@@ -654,15 +662,21 @@
   <script src="shape-studio-v13.22-dev5.js?v=13.22-dev26"></script>
   <script src="shape-studio-v13.22-dev6.js?v=13.22-dev26"></script>
   <script src="shape-studio-v13.22-dev26.js?v=13.22-dev26"></script>
-  <script>
+  <script id="previewServiceWorkerCleanup">
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function () {
-        navigator.serviceWorker.register('./sw.js?v=13.23-photo-studio1', { updateViaCache: 'none' })
-          .then(function (registration) { return registration.update(); })
-          .catch(function (error) { console.error('Service worker registration failed', error); });
-      });
+      navigator.serviceWorker.getRegistrations().then(function(regs){
+        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});
+        if(!ours.length)return;
+        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){
+          if(!sessionStorage.getItem('audreyV1325PreviewSWCleared')){
+            sessionStorage.setItem('audreyV1325PreviewSWCleared','1');
+            location.reload();
+          }
+        });
+      }).catch(function(){});
     }
   </script>
-  <script src="./v13.25-phase1-journal-board.js?v=phase1-fix5"></script>
+  <script src="./v13.25-phase1-journal-board.js?v=phase2-dev1"></script>
+  <script src="./v13.25-phase2-closet-log.js?v=phase2-dev1"></script>
 </body>
 </html>
