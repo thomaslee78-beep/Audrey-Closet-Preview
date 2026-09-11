@@ -18,10 +18,7 @@
 
   function boardSize(){
     const board=document.querySelector('#outfitBoard');
-    return {
-      width:Math.max(320,Number(board?.clientWidth)||390),
-      height:Math.max(360,Number(board?.clientHeight)||420)
-    };
+    return {width:Math.max(320,Number(board?.clientWidth)||390),height:Math.max(360,Number(board?.clientHeight)||420)};
   }
 
   function categoryKey(item){
@@ -44,11 +41,7 @@
     accessories:[{x:.14,y:.18},{x:.86,y:.18},{x:.12,y:.52},{x:.88,y:.52},{x:.18,y:.76},{x:.82,y:.76}],
     misc:[{x:.25,y:.70},{x:.75,y:.70},{x:.50,y:.78},{x:.50,y:.48}]
   };
-
-  const SIZE={
-    tops:{w:.34,h:.31},bottoms:{w:.32,h:.35},dresses:{w:.39,h:.54},
-    outerwear:{w:.34,h:.38},shoes:{w:.25,h:.18},accessories:{w:.20,h:.20},misc:{w:.28,h:.26}
-  };
+  const SIZE={tops:{w:.34,h:.31},bottoms:{w:.32,h:.35},dresses:{w:.39,h:.54},outerwear:{w:.34,h:.38},shoes:{w:.25,h:.18},accessories:{w:.20,h:.20},misc:{w:.28,h:.26}};
   const LAYER={bottoms:2,tops:3,dresses:3,outerwear:4,shoes:5,accessories:6,misc:4};
 
   function deterministicRotation(category,index){
@@ -61,13 +54,9 @@
   function layoutJournalItems(items,width,height){
     const counters={};
     return items.map((item,order)=>{
-      const category=categoryKey(item);
-      const index=counters[category]||0;
+      const category=categoryKey(item),index=counters[category]||0;
       counters[category]=index+1;
-      const zones=ZONES[category]||ZONES.misc;
-      const zone=zones[index%zones.length];
-      const cycle=Math.floor(index/zones.length);
-      const size=SIZE[category]||SIZE.misc;
+      const zones=ZONES[category]||ZONES.misc,zone=zones[index%zones.length],cycle=Math.floor(index/zones.length),size=SIZE[category]||SIZE.misc;
       const w=Math.round(Math.max(76,Math.min(width*.48,width*size.w*(cycle?.9:1))));
       const h=Math.round(Math.max(70,Math.min(height*.58,height*size.h*(cycle?.9:1))));
       const cycleShift=(cycle%3-1)*Math.min(24,width*.05);
@@ -78,10 +67,7 @@
   }
 
   function resetBoardSessionForJournal(){
-    editingOutfitId=null;
-    boardUndoStack=[];
-    selectedBoardUid=null;
-    doodleMode=false;
+    editingOutfitId=null;boardUndoStack=[];selectedBoardUid=null;doodleMode=false;
     document.querySelector('#drawModeBtn')?.classList.remove('active');
     document.querySelector('#outfitBoard')?.classList.remove('drawing');
     const name=document.querySelector('#outfitName');if(name)name.value='';
@@ -91,16 +77,12 @@
   }
 
   function loadJournalEntryToBoard(entryId){
-    const entry=state.journal.find(row=>row.id===entryId);
-    const items=validJournalClosetItems(entry);
+    const entry=state.journal.find(row=>row.id===entryId),items=validJournalClosetItems(entry);
     if(!entry||!items.length){toast('No available closet pieces to open on the Board');return;}
     if(document.querySelector('#journalDetailDialog')?.open&&typeof closeJournalDetail==='function')closeJournalDetail();
-    resetBoardSessionForJournal();
-    showScreen('outfits');
+    resetBoardSessionForJournal();showScreen('outfits');
     requestAnimationFrame(()=>{
-      const size=boardSize();
-      boardItems=layoutJournalItems(items,size.width,size.height);
-      drawBoard();
+      const size=boardSize();boardItems=layoutJournalItems(items,size.width,size.height);drawBoard();
       setTimeout(()=>document.querySelector('#outfitBoard')?.scrollIntoView({behavior:'smooth',block:'center'}),60);
       const missing=(entry.itemIds||[]).length-items.length;
       toast(missing>0?`Loaded ${items.length} pieces · ${missing} unavailable item${missing===1?'':'s'} skipped`:`Loaded ${items.length} journal piece${items.length===1?'':'s'} onto the Board`);
@@ -108,56 +90,47 @@
   }
 
   function requestJournalEntryOnBoard(){
-    const entry=state.journal.find(row=>row.id===viewingJournalId);
-    const items=validJournalClosetItems(entry);
+    const entry=state.journal.find(row=>row.id===viewingJournalId),items=validJournalClosetItems(entry);
     if(!entry||!items.length){toast('No available closet pieces to open on the Board');return;}
     guardBoardSwitch(()=>loadJournalEntryToBoard(entry.id),'open this journal look');
   }
 
   function refreshButton(){
-    const button=document.querySelector('#'+BUTTON_ID);
-    if(!button)return;
-    const entry=state.journal.find(row=>row.id===viewingJournalId);
-    const count=validJournalClosetItems(entry).length;
-    button.disabled=!count;
-    button.style.display=count?'':'none';
-    button.textContent=count===1?'Open 1 piece on Board':`Open ${count} pieces on Board`;
+    const button=document.querySelector('#'+BUTTON_ID);if(!button)return;
+    const entry=state.journal.find(row=>row.id===viewingJournalId),count=validJournalClosetItems(entry).length;
+    button.disabled=!count;button.style.display=count?'':'none';button.textContent='Open on Board';
   }
 
   function installJournalBoardAction(){
-    const actions=document.querySelector('#journalDetailDialog .journal-detail-actions');
-    if(!actions)return;
+    const actions=document.querySelector('#journalDetailDialog .journal-detail-actions');if(!actions)return;
     let button=document.querySelector('#'+BUTTON_ID);
     if(!button){
-      button=document.createElement('button');
-      button.type='button';
-      button.id=BUTTON_ID;
-      button.className='soft-btn journal-open-board-btn';
-      button.textContent='Open on Board';
-      const edit=document.querySelector('#editJournalDetailBtn');
-      actions.insertBefore(button,edit||null);
+      button=document.createElement('button');button.type='button';button.id=BUTTON_ID;button.className='soft-btn journal-open-board-btn';button.textContent='Open on Board';
+      const edit=document.querySelector('#editJournalDetailBtn');actions.insertBefore(button,edit||null);
     }
-    if(button.dataset.v1325Bound!=='1'){
-      button.addEventListener('click',requestJournalEntryOnBoard);
-      button.dataset.v1325Bound='1';
-    }
+    if(button.dataset.v1325Bound!=='1'){button.addEventListener('click',requestJournalEntryOnBoard);button.dataset.v1325Bound='1';}
     if(!document.querySelector('#v1325Phase1JournalBoardStyles')){
-      const style=document.createElement('style');
-      style.id='v1325Phase1JournalBoardStyles';
-      style.textContent=`#journalDetailDialog .journal-detail-actions{flex-wrap:wrap}#journalDetailDialog .journal-open-board-btn{white-space:nowrap}@media(max-width:430px){#journalDetailDialog .journal-open-board-btn{order:-1;flex:1 0 100%}}`;
+      const style=document.createElement('style');style.id='v1325Phase1JournalBoardStyles';
+      style.textContent=`
+        #journalDetailDialog .journal-detail-actions{
+          display:grid;
+          grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+          grid-template-areas:"board edit" "cancel delete";
+          gap:10px 12px;
+          align-items:center;
+        }
+        #journalDetailDialog .journal-open-board-btn{grid-area:board;white-space:nowrap;width:100%;min-width:0}
+        #journalDetailDialog #editJournalDetailBtn{grid-area:edit;width:100%;min-width:0}
+        #journalDetailDialog #cancelJournalDetailBtn{grid-area:cancel;width:100%;min-width:0}
+        #journalDetailDialog #deleteJournalDetailBtn{grid-area:delete;width:100%;min-width:0;justify-self:stretch;text-align:center}
+      `;
       document.head.appendChild(style);
     }
     refreshButton();
   }
 
   const originalOpenJournalDetail=openJournalDetail;
-  openJournalDetail=function(jid){
-    const result=originalOpenJournalDetail(jid);
-    installJournalBoardAction();
-    requestAnimationFrame(refreshButton);
-    setTimeout(refreshButton,0);
-    return result;
-  };
+  openJournalDetail=function(jid){const result=originalOpenJournalDetail(jid);installJournalBoardAction();requestAnimationFrame(refreshButton);setTimeout(refreshButton,0);return result;};
 
   window.AudreyJournalBoard={openCurrent:requestJournalEntryOnBoard,refresh:refreshButton};
   installJournalBoardAction();
