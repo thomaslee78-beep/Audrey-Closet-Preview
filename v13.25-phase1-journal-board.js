@@ -5,6 +5,8 @@
   'use strict';
 
   const BUTTON_ID='journalOpenBoardBtn';
+  const DEFAULT_PIECE_W=146;
+  const DEFAULT_PIECE_H=172;
 
   function validJournalClosetItems(entry){
     if(!entry||!Array.isArray(entry.itemIds))return [];
@@ -33,15 +35,14 @@
   }
 
   const ZONES={
-    tops:[{x:.50,y:.24},{x:.34,y:.25},{x:.66,y:.25},{x:.50,y:.34}],
-    bottoms:[{x:.50,y:.62},{x:.36,y:.63},{x:.64,y:.63},{x:.50,y:.72}],
-    dresses:[{x:.50,y:.48},{x:.34,y:.49},{x:.66,y:.49}],
-    outerwear:[{x:.78,y:.42},{x:.22,y:.42},{x:.82,y:.58},{x:.18,y:.58}],
-    shoes:[{x:.27,y:.86},{x:.73,y:.86},{x:.50,y:.88}],
-    accessories:[{x:.14,y:.18},{x:.86,y:.18},{x:.12,y:.52},{x:.88,y:.52},{x:.18,y:.76},{x:.82,y:.76}],
-    misc:[{x:.25,y:.70},{x:.75,y:.70},{x:.50,y:.78},{x:.50,y:.48}]
+    tops:[{x:.50,y:.24},{x:.31,y:.26},{x:.69,y:.26},{x:.50,y:.35}],
+    bottoms:[{x:.50,y:.62},{x:.31,y:.64},{x:.69,y:.64},{x:.50,y:.73}],
+    dresses:[{x:.50,y:.47},{x:.30,y:.49},{x:.70,y:.49}],
+    outerwear:[{x:.77,y:.39},{x:.23,y:.39},{x:.79,y:.60},{x:.21,y:.60}],
+    shoes:[{x:.27,y:.82},{x:.73,y:.82},{x:.50,y:.84}],
+    accessories:[{x:.20,y:.18},{x:.80,y:.18},{x:.18,y:.50},{x:.82,y:.50},{x:.22,y:.76},{x:.78,y:.76}],
+    misc:[{x:.28,y:.69},{x:.72,y:.69},{x:.50,y:.77},{x:.50,y:.48}]
   };
-  const SIZE={tops:{w:.34,h:.31},bottoms:{w:.32,h:.35},dresses:{w:.39,h:.54},outerwear:{w:.34,h:.38},shoes:{w:.25,h:.18},accessories:{w:.20,h:.20},misc:{w:.28,h:.26}};
   const LAYER={bottoms:2,tops:3,dresses:3,outerwear:4,shoes:5,accessories:6,misc:4};
 
   function deterministicRotation(category,index){
@@ -53,13 +54,13 @@
 
   function layoutJournalItems(items,width,height){
     const counters={};
+    const w=Math.min(DEFAULT_PIECE_W,Math.max(120,width-16));
+    const h=Math.min(DEFAULT_PIECE_H,Math.max(140,height-16));
     return items.map((item,order)=>{
       const category=categoryKey(item),index=counters[category]||0;
       counters[category]=index+1;
-      const zones=ZONES[category]||ZONES.misc,zone=zones[index%zones.length],cycle=Math.floor(index/zones.length),size=SIZE[category]||SIZE.misc;
-      const w=Math.round(Math.max(76,Math.min(width*.48,width*size.w*(cycle?.9:1))));
-      const h=Math.round(Math.max(70,Math.min(height*.58,height*size.h*(cycle?.9:1))));
-      const cycleShift=(cycle%3-1)*Math.min(24,width*.05);
+      const zones=ZONES[category]||ZONES.misc,zone=zones[index%zones.length],cycle=Math.floor(index/zones.length);
+      const cycleShift=(cycle%3-1)*Math.min(20,width*.045);
       const x=Math.round(Math.max(4,Math.min(width-w-4,width*zone.x-w/2+cycleShift)));
       const y=Math.round(Math.max(4,Math.min(height-h-4,height*zone.y-h/2+cycle*10)));
       return {uid:id(),kind:'piece',source:'closet',id:item.id,x,y,w,h,rotation:deterministicRotation(category,index),z:(LAYER[category]||3)*10+order};
