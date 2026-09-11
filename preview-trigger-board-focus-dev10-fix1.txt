@@ -1,3 +1,0 @@
-Board Focus dev10 fix1 preview trigger
-Sticker outline rollback + shape borderStyle retention
-Verifier compatibility rerun

@@ -1,0 +1,661 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#66715a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Audrey's Closet" />
+  <link rel="manifest" href="manifest.webmanifest?v=13.21-dev12" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="stylesheet" href="styles.css?v=13.21-dev12" />
+  <title>Audrey's Closet</title>
+</head>
+<body>
+  <div class="paper-grain"></div>
+  <header class="topbar">
+    <div>
+      <div class="eyebrow" id="appNameEyebrow">AUDREY'S CLOTHING APP</div>
+      <h1>Closet <span>Journal</span></h1>
+    </div>
+    <div class="top-actions"><button class="icon-btn" id="quickAddBtn" aria-label="Quick add item">＋</button><button class="icon-btn settings-icon" id="settingsBtn" aria-label="Open preferences">⚙</button></div>
+  </header>
+
+  <main id="app">
+    <section class="screen active" data-screen="catalog">
+      <div class="hero-card plaid-corner">
+        <div>
+          <p class="script">wear what feels like you</p>
+          <h2>Clothing Catalog</h2>
+          <p class="muted">Photograph, organize, search, and rediscover every piece.</p>
+        </div>
+        <button class="primary" id="addItemBtn">Add piece</button>
+      </div>
+
+      <div class="category-strip" id="categoryStrip"></div>
+
+      <div class="toolbar">
+        <label class="searchbox"><span>⌕</span><input id="catalogSearch" placeholder="Search brand, color, notes…" /><button type="button" id="clearCatalogSearchBtn" class="search-clear-btn hidden" aria-label="Clear search" title="Clear search">×</button></label>
+        <button class="soft-btn" id="filterBtn">Filter</button>
+      </div>
+
+      <div class="filter-panel hidden" id="filterPanel">
+        <select id="filterCategory"><option value="">All categories</option></select>
+        <select id="filterSeason"><option value="">All seasons</option><option>Winter</option><option>Spring</option><option>Summer</option><option>Fall</option><option>All-season</option></select>
+        <select id="filterColor"><option value="">All colors</option></select>
+        <label class="include-archived-toggle filter-archived-toggle"><input type="checkbox" id="includeArchivedCloset" /> <span>Include archived</span></label>
+        <button class="text-btn" id="clearFilters">Clear</button>
+      </div>
+
+      <div class="section-title closet-section-title"><h3>Closet</h3><span id="catalogCount">0 pieces</span></div>
+      <div class="closet-grid" id="catalogGrid"></div>
+      <div class="empty-state" id="catalogEmpty">
+        <div class="hanger">⌇</div>
+        <h3>Your closet starts here</h3>
+        <p>Take a photo of a piece. The app will detect its main color and can try to read visible brand/size text.</p>
+        <button class="primary" id="emptyAddBtn">Photograph first item</button>
+      </div>
+    </section>
+
+    <section class="screen" data-screen="outfits">
+      <div class="page-head board-page-head">
+        <div><p class="script">mix • match • play</p><h2>Outfit Board</h2></div>
+        <button class="soft-btn" id="newBoardBtn">New</button>
+      </div>
+
+      <div class="board-controls board-controls-top">
+        <button type="button" class="decorate-toggle" id="decorateToggle">＋ Decorate <span>text • stickers • draw</span></button>
+        <div class="creative-tools hidden" id="creativeTools">
+          <div class="tool-row"><input id="boardTextInput" maxlength="60" placeholder="Add a note or title…"><button type="button" class="soft-btn" id="addBoardTextBtn">Add text</button></div>
+          <div class="sticker-row" aria-label="Creative stickers">
+            <button type="button" data-sticker="★">★</button><button type="button" data-sticker="♡">♡</button><button type="button" data-sticker="✿">✿</button><button type="button" data-sticker="✦">✦</button><button type="button" data-sticker="☻">☻</button><button type="button" data-sticker="🦋">🦋</button><button type="button" data-sticker="🌼">🌼</button><button type="button" data-sticker="✨">✨</button>
+          </div>
+          <div class="shape-row">
+            <button type="button" data-shape="circle">○ circle</button><button type="button" data-shape="line">— line</button><button type="button" data-shape="tape">tape</button><button type="button" id="drawModeBtn">✎ doodle</button>
+          </div>
+          <p class="board-help" id="boardHelp">Select an object to move, resize, rotate, layer or delete it.</p>
+        </div>
+      </div>
+
+      <div class="board-shell simplified-board board-first">
+        <div>
+          <div class="board" id="outfitBoard">
+            <div class="board-tip">Build your look here<br><small>pick clothes below • drag to move • pinch to resize + rotate</small></div>
+          </div>
+          <div class="board-editbar" id="boardEditbar">
+            <button type="button" id="sendBackBtn" disabled title="Move behind">⇩ Send back</button>
+            <button type="button" id="bringFrontBtn" disabled title="Move in front">⇧ Bring front</button>
+            <button type="button" id="undoBoardBtn" title="Undo last removal" disabled>↶ Undo</button>
+            <button type="button" id="rotateLeftBtn" disabled title="Rotate left">↶</button>
+            <button type="button" id="rotateRightBtn" disabled title="Rotate right">↷</button>
+            <button type="button" id="duplicateBoardBtn" disabled title="Duplicate">⧉</button>
+            <button type="button" id="deleteBoardBtn" disabled class="danger-mini" title="Remove">×</button>
+          </div>
+        </div>
+        <div class="board-controls board-save-panel">
+          <div class="save-look-fields">
+            <input id="outfitName" placeholder="Outfit name" />
+            <textarea id="outfitNotes" placeholder="Notes: where I'd wear it, vibe, styling ideas…"></textarea>
+          </div>
+          <p class="save-destination-hint">Portfolio folder is chosen when you save.</p>
+          <div class="inline-actions board-save-actions"><button class="primary" id="saveOutfitBtn">Save outfit</button><button class="soft-btn" id="shareOutfitBtn">↗ Share</button><button class="soft-btn" id="clearBoardBtn">Clear</button></div>
+        </div>
+      </div>
+
+      <div class="board-picker-card board-picker-bottom">
+        <div class="picker-head"><strong>Pick your pieces</strong><span>Tap to add</span></div>
+        <div class="tabs-small"><button class="active" data-source="closet">Closet</button><button data-source="wishlist">Wishlist</button></div>
+        <div class="outfit-category-filter" id="outfitCategoryFilter"></div>
+        <div class="piece-tray piece-grid" id="pieceTray"></div>
+      </div>
+    </section>
+
+    <section class="screen" data-screen="portfolio">
+      <div class="page-head"><div><p class="script">looks worth keeping</p><h2>Style Portfolio</h2></div><button class="soft-btn" id="portfolioNewBtn">＋ New look</button></div>
+      <p class="portfolio-intro">Browse saved outfits like a lookbook. Favorites stay together automatically.</p>
+      <div class="portfolio-tabs" id="portfolioTabs"></div>
+      <div class="portfolio-discovery-bar">
+        <label class="searchbox portfolio-search-wrap"><span>⌕</span><input id="portfolioSearch" type="text" inputmode="search" placeholder="Search looks, jeans, orange, Nike…" autocomplete="off" enterkeyhint="search"></label>
+        <button type="button" class="soft-btn portfolio-item-filter-btn" id="portfolioItemFilterBtn">Filter</button>
+      </div>
+      <div class="portfolio-selected-filters hidden" id="portfolioSelectedFilters"></div>
+      <div class="portfolio-item-filter-panel hidden" id="portfolioItemFilterPanel"></div>
+      <div class="portfolio-summary"><span id="outfitCount">0 looks</span></div><p class="portfolio-reorder-hint" id="portfolioReorderHint">Choose a portfolio folder to reorder looks.</p>
+      <div class="saved-outfits portfolio-gallery" id="savedOutfits"></div>
+    </section>
+
+    <section class="screen" data-screen="journal">
+      <div class="page-head"><div><p class="script">the story of what you wear</p><h2>Journal</h2></div><button class="primary" id="logWearBtn">Log outfit</button></div>
+      <section id="todayJournalSection" class="today-journal-section hidden" data-journal-section="today">
+        <button type="button" id="todayJournalToggle" class="today-section-toggle" aria-expanded="true" aria-controls="todayJournalContent">
+          <span><strong>Today’s Look</strong><small id="todayJournalMeta">today</small></span><span class="today-toggle-icon">−</span>
+        </button>
+        <div id="todayJournalContent" class="today-journal-content">
+          <div class="journal-list today-journal-list" id="todayJournalList"></div>
+        </div>
+      </section>
+      <section id="plannedJournalSection" class="planned-journal-section hidden" data-journal-section="planned">
+        <button type="button" id="plannedJournalToggle" class="planned-section-toggle" aria-expanded="false">
+          <span><strong>Planned looks</strong><small id="plannedJournalCount">future dates</small></span><span class="planned-toggle-icon">＋</span>
+        </button>
+        <div class="journal-list planned-journal-list hidden" id="plannedJournalList"></div>
+      </section>
+      <section id="wearLogSection" class="journal-section-block" data-journal-section="wearLog">
+        <div class="journal-toolbar wear-log-header">
+          <button type="button" id="wearLogToggle" class="wear-log-toggle" aria-expanded="true" aria-controls="wearLogContent">
+            <span><strong>Wear log</strong><small id="journalCount">0 days</small></span><span class="wear-log-toggle-icon">−</span>
+          </button>
+        </div>
+        <div id="wearLogContent" class="wear-log-content">
+          <div class="wear-log-filter-row">
+            <span id="journalRangeSummary" class="journal-range-summary hidden" aria-live="polite"></span>
+            <select id="journalRange" class="journal-range-select" aria-label="Wear log date filter">
+              <option value="all">All dates</option>
+              <option value="7">Last 7 days</option>
+              <option value="30">Last 30 days</option>
+              <option value="90">Last 90 days</option>
+              <option value="season">This season</option>
+              <option value="year">This year</option>
+              <option value="favorites">Favorites</option>
+              <option value="custom">Custom range</option>
+            </select>
+            <button type="button" class="text-btn journal-clear-filter-btn hidden" id="journalClearFiltersBtn">Clear</button>
+          </div>
+          <div class="journal-list" id="journalList"></div>
+        </div>
+      </section>
+      <section id="wearInsightsSection" class="wear-insights-section" data-journal-section="insights">
+        <button type="button" id="wearInsightsToggle" class="wear-insights-toggle" aria-expanded="true" aria-controls="wearInsightsContent">
+          <span><strong>Wear insights</strong><small>tap cards for detail</small></span><span class="wear-insights-toggle-icon">−</span>
+        </button>
+        <div id="wearInsightsContent" class="wear-insights-content">
+          <div class="stats-grid">
+            <button class="stat-card stat-action" data-stat="most"><span>Most worn</span><strong id="mostWorn">—</strong><small id="mostWornMeta">No wear data yet</small></button>
+            <button class="stat-card stat-action" data-stat="color"><span>Favorite color</span><strong id="favColor">—</strong><small id="favColorMeta">No wear data yet</small></button>
+            <button class="stat-card stat-action" data-stat="total"><span>Closet wears</span><strong id="totalWears">0</strong><small>journaled item-wears</small></button>
+            <button class="stat-card stat-action" data-stat="season"><span>This season</span><strong id="seasonWears">0</strong><small id="seasonName">—</small></button>
+          </div>
+          <details class="journal-insights-more">
+            <summary>Charts & trends</summary>
+            <div class="chart-card"><div class="section-title"><h3>Color story</h3><span>by wears</span></div><canvas id="colorChart" width="640" height="270"></canvas></div>
+            <div class="chart-card"><div class="section-title"><h3>Season rhythm</h3><span>journal entries</span></div><canvas id="seasonChart" width="640" height="240"></canvas></div>
+          </details>
+        </div>
+      </section>
+    </section>
+
+    <section class="screen" data-screen="wishlist">
+      <div class="page-head wishlist-page-head">
+        <div class="wishlist-title-stack"><p class="script">maybe someday…</p><h2>Wishlist</h2></div>
+        <div class="wishlist-head-actions"><button type="button" class="wishlist-sessions-toggle" id="wishlistSessionsBtn"><span aria-hidden="true">🛒</span> Start Session</button><button class="primary" id="addWishBtn"><span class="add-wish-sparkle" aria-hidden="true">✦</span> Add wish</button><button type="button" class="wishlist-quick-capture" id="quickCaptureWishBtn">Quick capture</button></div>
+      </div>
+      <div id="wishlistActiveSession" class="wishlist-active-session hidden" role="status"><span class="wishlist-active-session-icon" aria-hidden="true">🛒</span><div><small>Current shopping session</small><strong id="wishlistActiveSessionName"></strong></div><button type="button" id="clearWishlistSessionBtn">Clear</button></div>
+      <div class="wishlist-list-toolbar">
+        <div class="wishlist-view-tabs" role="group" aria-label="Wishlist view">
+          <button type="button" class="active" id="wishlistAllBtn" data-wishlist-view="all">All</button>
+          <button type="button" id="wishlistTop10Btn" data-wishlist-view="top10">Top 10</button>
+          <button type="button" id="wishlistRemovedBtn" data-wishlist-view="removed">Removed</button>
+        </div>
+        <div class="wishlist-toolbar-actions"><button type="button" class="wishlist-reorder-toggle" id="wishlistReorderBtn" aria-pressed="false">Reorder</button></div>
+      </div>
+      <div class="wishlist-grid" id="wishlistGrid"></div>
+      <div class="empty-state compact" id="wishlistEmpty"><h3>Save future finds</h3><p>Add a photo, link, price and brand. Wishlist pieces can be tried on your Outfit Board.</p></div>
+    </section>
+
+    <section class="screen" data-screen="more">
+      <div class="page-head"><div><p class="script">closet housekeeping</p><h2>More</h2></div></div>
+      <div class="settings-card app-identity-card">
+        <h3>App identity</h3>
+        <p>Give this closet its own name. The name is saved on this device and included in backups.</p>
+        <label class="settings-label" for="appNameInput">App name</label>
+        <input id="appNameInput" maxlength="60" autocomplete="off" placeholder="Audrey's Clothing App" />
+        <div class="stack-actions settings-actions"><button class="primary" type="button" id="saveAppNameBtn">Save name</button><button class="soft-btn" type="button" id="resetAppNameBtn">Use Audrey's default</button></div>
+        <p class="settings-note">Current name: <strong id="currentAppName">Audrey's Clothing App</strong></p>
+      </div>
+      <div class="settings-card portfolio-settings-card">
+        <h3>Portfolio folders</h3>
+        <p>Reorder all Portfolio tabs here. All and Favorites are protected system tabs, so they can be moved but not renamed or deleted.</p>
+        <div id="portfolioFolderEditor" class="folder-editor"></div>
+        <div class="folder-add-row"><input id="newPortfolioFolder" maxlength="24" placeholder="New folder name"><button class="soft-btn" type="button" id="addPortfolioFolderBtn">＋ Add</button></div>
+      </div>
+      <div class="settings-card journal-order-settings-card">
+        <h3>Journal layout</h3>
+        <p>Choose the order of the four main Journal sections. Your preferred order is saved with this closet.</p>
+        <div id="journalOrderEditor" class="journal-order-editor"></div>
+      </div>
+      <div class="settings-card">
+        <h3>Data</h3>
+        <p>Your closet is stored on this device in Safari. Export a backup whenever you want.</p>
+        <div class="stack-actions"><button class="soft-btn" id="exportBtn">Export backup</button><label class="soft-btn file-label">Import backup<input type="file" id="importFile" accept="application/json" /></label></div>
+      </div>
+      <div class="settings-card">
+        <h3>Smart photo scan</h3>
+        <p>Color and simple pattern detection happen on-device. Brand/size text detection is attempted online when supported. “How acquired” cannot be reliably inferred from a photo, so the app leaves it for you to choose.</p>
+      </div>
+      <div class="settings-card danger-zone">
+        <h3>Reset</h3><p>Erase all local closet data on this device.</p><button class="danger-btn" id="resetBtn">Erase app data</button>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav">
+    <button class="active" data-nav="catalog"><span>▦</span>Closet</button>
+    <button data-nav="outfits"><span>✣</span>Board</button>
+    <button data-nav="portfolio"><span>▤</span>Portfolio</button>
+    <button data-nav="journal"><span>◷</span>Journal</button>
+    <button data-nav="wishlist"><span>♡</span>Wishlist</button>
+  </nav>
+
+  <dialog id="itemDialog" class="sheet-dialog">
+    <form method="dialog" id="itemForm">
+      <div class="item-detail-scroll">
+      <div class="sheet-head item-head"><div><p class="script">closet piece</p><h2 id="itemDialogTitle">Add a piece</h2></div><button type="button" id="closeItemDialogBtn" class="close-btn" aria-label="Close">×</button></div>
+      <input type="hidden" id="itemId" />
+      <div id="itemSwipeZone" class="item-swipe-zone">
+        <div id="itemReviewSummary" class="item-review-summary hidden">
+          <p class="item-review-kicker">closet card</p>
+          <h3 id="itemReviewTitle">Clothing item</h3>
+          <p id="itemReviewMeta">Type · Color · Brand</p>
+        </div>
+        <div id="itemCardUtilityActions" class="item-card-utility-actions hidden">
+          <button type="button" id="smartScanIconBtn" class="item-card-icon hidden" aria-label="Smart scan photo" title="Smart scan"><span class="scan-corners">⌗</span><span class="scan-sparkle">✦</span></button>
+          <div id="reviewPhotoMenuWrap" class="review-photo-menu-wrap hidden"><button type="button" id="reviewPhotoMenuBtn" class="item-card-icon" aria-label="Photo tools" title="Photo tools">📷</button><div id="reviewPhotoMenu" class="review-photo-menu hidden" role="menu"><button type="button" id="reviewStudioBtn" role="menuitem">Edit in Photo Studio</button><label role="menuitem">Take new photo<input type="file" id="reviewItemPhoto" accept="image/*" capture="environment" /></label><label role="menuitem">Choose from library<input type="file" id="reviewItemPhotoLibrary" accept="image/*" /></label><button type="button" id="reviewRestoreOriginalBtn" class="hidden" role="menuitem">Restore original photo</button></div></div>
+        </div>
+        <div class="item-photo-stage">
+          <div class="photo-preview-wrap item-photo-large"><img id="itemPhotoPreview" alt="Item preview" /><div class="photo-placeholder" id="photoPlaceholder">photo</div></div>
+          <button type="button" id="itemSwipePrevBtn" class="item-swipe-arrow item-swipe-arrow-left hidden" aria-label="Previous closet piece">‹</button>
+          <button type="button" id="itemSwipeNextBtn" class="item-swipe-arrow item-swipe-arrow-right hidden" aria-label="Next closet piece">›</button>
+        </div>
+        <div id="itemSwipeHint" class="item-swipe-hint hidden"><span>‹</span> Swipe photo to browse your closet <span>›</span></div>
+      </div>
+      <div id="newPiecePhotoActions" class="new-piece-photo-actions">
+        <label class="soft-btn file-label new-piece-upload" id="uploadPhotoLabel">Upload photo<input type="file" id="itemPhotoLibrary" accept="image/*" /></label>
+        <label class="primary file-label new-piece-camera" id="takePhotoLabel">Take photo<input type="file" id="itemPhoto" accept="image/*" capture="environment" /></label>
+      </div>
+      <div class="scan-status item-photo-status" id="scanStatus"></div>
+      <div class="hidden" aria-hidden="true">
+        <button type="button" id="photoStudioBtn" tabindex="-1">Photo Studio</button>
+        <button type="button" id="restoreOriginalPhotoBtn" tabindex="-1">Original photo</button>
+      </div>
+      <div id="itemReviewDetails" class="item-review-details hidden" aria-live="polite"></div>
+      <div id="itemEditFields">
+      <div class="form-grid">
+        <label>Category<select id="itemCategory" required></select></label>
+        <label>Type<select id="itemType" required></select></label>
+        <label class="brand-field-label">Brand<input id="itemBrand" placeholder="Brand" autocomplete="off" aria-autocomplete="list" aria-controls="brandSuggestions" /><div id="brandSuggestions" class="brand-suggestions hidden" role="listbox" aria-label="Brand suggestions"></div></label>
+        <label>Size<select id="itemSize"></select></label>
+        <label id="itemFitLabel" class="context-attribute hidden">Fit<select id="itemFit"></select></label>
+        <label id="itemStyleLabel" class="context-attribute hidden">Style<select id="itemStyle"></select></label>
+        <label>Color<select id="itemColor"></select></label>
+        <label>Pattern<select id="itemPattern"><option>Solid</option><option>Stripe</option><option>Plaid</option><option>Floral/Print</option><option>Graphic</option><option>Colorblock</option><option>Other</option></select></label>
+        <label>Acquired<select id="itemAcquired"></select></label>
+        <label>Season<select id="itemSeason"><option>All-season</option><option>Winter</option><option>Spring</option><option>Summer</option><option>Fall</option></select></label>
+      </div>
+      <label class="full-label">Notes<textarea id="itemNotes" placeholder="Fit, styling notes, sentimental story…"></textarea></label>
+      </div>
+      <div id="itemArchiveNotice" class="item-archive-notice hidden"><strong>Archived piece</strong><span>Hidden from the normal Closet, but preserved in Journal history and saved outfits.</span></div>
+      <button type="button" id="permanentDeleteItemBtn" class="permanent-delete-btn item-permanent-delete hidden">Permanently delete…</button>
+      </div>
+      <div class="sheet-actions item-sheet-actions"><button type="button" id="cancelItemBtn" class="soft-btn">Cancel</button><button type="button" class="danger-text hidden" id="deleteItemBtn">Remove from Closet</button><button type="submit" value="default" class="primary" id="saveItemBtn">Save piece</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="smartScanReviewDialog" class="sheet-dialog smart-scan-review-dialog">
+    <div class="smart-scan-review-shell">
+      <div class="sheet-head"><div><p class="script">smart scan</p><h2>Apply detected details?</h2></div><button type="button" id="closeSmartScanReviewBtn" class="close-btn" aria-label="Close">×</button></div>
+      <p class="smart-scan-review-intro">Choose which detected attributes you want to apply. Existing catalog details are never changed unless you select them here.</p>
+      <div id="smartScanReviewFields" class="smart-scan-review-fields"></div>
+      <div class="sheet-actions smart-scan-review-actions"><button type="button" class="soft-btn" id="cancelSmartScanReviewBtn">Cancel</button><button type="button" class="primary" id="applySmartScanReviewBtn">Apply selected</button></div>
+    </div>
+  </dialog>
+
+  <dialog id="photoStudioDialog" class="sheet-dialog studio-dialog studio-v138">
+    <div class="studio-shell">
+      <div class="sheet-head studio-head"><div><p class="script">photo studio</p><h2 data-i18n="studio.title">Clean up the garment</h2></div><button class="close-btn" id="studioCloseBtn">×</button></div>
+      <div class="studio-template" id="studioTemplateHint">CENTER ITEM</div>
+      <div class="studio-canvas-wrap">
+        <canvas id="studioCanvas"></canvas><div class="studio-guide"><i></i></div>
+        <div class="studio-zoom-controls" aria-label="Editing zoom">
+          <button type="button" id="studioZoomOut" title="Zoom out">−</button><button type="button" id="studioZoomReset" title="Reset zoom">100%</button><button type="button" id="studioZoomIn" title="Zoom in">＋</button>
+        </div>
+      </div>
+      <div class="studio-toolbar studio-toolbar-fixed" role="toolbar" aria-label="Photo editing tools">
+        <button type="button" class="studio-action studio-move-toggle" id="studioMoveToggle"><span>✥</span><span data-i18n="studio.adjust">Adjust</span></button>
+        <button type="button" class="studio-action" id="studioUndo" disabled><span>↶</span><span data-i18n="studio.undo">Undo</span></button>
+        <button type="button" class="studio-action" id="studioRedo" disabled><span>↷</span><span data-i18n="studio.redo">Redo</span></button>
+        <button type="button" class="studio-action brush-btn" data-brush="restore"><span>↶</span><span data-i18n="studio.restore">Restore</span></button>
+        <button type="button" class="studio-action brush-btn" data-brush="erase"><span>⌫</span><span data-i18n="studio.erase">Erase</span></button>
+      </div>
+      <div class="studio-controls-scroll">
+      <div class="studio-context-controls">
+        <div id="studioViewHint" class="studio-move-hint" data-i18n="studio.noTool">No tool selected. The garment is locked; drag with one finger to pan and pinch with two fingers to zoom.</div>
+        <label id="studioBrushControl" class="studio-brush-control hidden">Brush <span id="studioBrushValue">26</span><input id="studioBrush" type="range" min="6" max="70" value="26"></label>
+        <div id="studioMoveHint" class="studio-move-hint hidden">Drag to reposition. Pinch to resize and gently twist to rotate.</div>
+        <div id="studioToolInstruction" class="studio-tool-instruction hidden" aria-live="polite"></div>
+      </div>
+      <details class="studio-cutout-tools" open>
+        <summary><span data-i18n="studio.cutout">Cutout</span><small data-i18n="studio.cutoutHelp">Quick background removal</small></summary>
+        <div class="studio-cutout-body">
+          <div class="studio-tabs"><button type="button" class="studio-mode active" data-mode="original" data-i18n="studio.original">Original</button><button type="button" class="studio-mode" data-mode="quick" data-i18n="studio.quick">Quick</button><button type="button" class="studio-mode" data-mode="clean" data-i18n="studio.clean">Clean</button></div>
+          <label class="studio-edge-control"><span data-i18n="studio.sensitivity">Sensitivity</span> <input id="studioEdge" type="range" min="25" max="80" value="45"></label>
+        </div>
+      </details>
+      <details class="studio-adjust-tools">
+        <summary><span data-i18n="studio.adjustments">Adjustments</span><small data-i18n="studio.adjustmentsHelp">Tone and detail</small></summary>
+        <div class="studio-adjust-grid">
+          <label class="studio-adjust-control"><span data-i18n="studio.exposure">Exposure</span><strong id="studioExposureValue">0</strong><input id="studioExposure" type="range" min="-40" max="40" value="0"></label>
+          <label class="studio-adjust-control"><span data-i18n="studio.contrast">Contrast</span><strong id="studioContrastValue">0</strong><input id="studioContrast" type="range" min="-40" max="40" value="0"></label>
+          <label class="studio-adjust-control"><span data-i18n="studio.highlights">Highlights</span><strong id="studioHighlightsValue">0</strong><input id="studioHighlights" type="range" min="-50" max="50" value="0"></label>
+        </div>
+        <div class="studio-adjust-actions"><button type="button" class="soft-btn" id="studioResetAdjustments"><span data-i18n="studio.resetAdjustments">Reset adjustments</span></button></div>
+      </details>
+      <details class="studio-more-tools">
+        <summary data-i18n="studio.more">More options</summary>
+        <div class="studio-more-grid"><button type="button" class="soft-btn" id="studioCenter">◎ <span data-i18n="studio.center">Center</span></button><button type="button" class="soft-btn" id="studioFit">↔ <span data-i18n="studio.fit">Fit</span></button><button type="button" class="soft-btn" id="studioResetAll">↺ <span data-i18n="studio.resetAll">Reset all photo edits</span></button></div>
+        <div class="studio-bg-row"><span data-i18n="studio.background">Background</span><button type="button" class="studio-bg active" data-bg="transparent" data-i18n="studio.transparent">Transparent</button><button type="button" class="studio-bg" data-bg="cream" data-i18n="studio.cream">Cream</button><button type="button" class="studio-bg" data-bg="paper" data-i18n="studio.paper">Paper</button><button type="button" class="studio-bg" id="studioCustomBgBtn" data-bg="custom" data-i18n="studio.color">Color</button></div>
+        <div class="studio-bg-palette hidden" id="studioBgPalette" aria-label="Background color palette"></div>
+      </details>
+      <p class="scan-status studio-status" id="studioStatus" data-i18n="studio.noTool">No tool selected. The garment is locked; drag with one finger to pan and pinch with two fingers to zoom.</p>
+      </div>
+      <div class="sheet-actions studio-save-actions"><button type="button" class="soft-btn" id="studioCancelBtn" data-i18n="studio.cancel">Cancel</button><button type="button" class="primary" id="studioApply" data-i18n="studio.usePhoto">Use this photo</button></div>
+    </div>
+  </dialog>
+
+
+  <dialog id="quickCaptureDialog" class="sheet-dialog quick-capture-dialog">
+    <div class="quick-capture-shell">
+      <div class="sheet-head"><div><p class="script">capture first</p><h2>Quick Capture</h2></div><button type="button" class="close-btn" id="closeQuickCaptureBtn" aria-label="Close">×</button></div>
+      <p class="quick-capture-intro">Capture the item first. Label and price-tag photos are optional; review any detected details before anything is saved.</p>
+      <div id="quickCaptureAlert" class="quick-capture-alert hidden" role="alert" aria-live="polite"></div>
+      <div id="quickCaptureSessionNote" class="quick-capture-session-note"></div>
+      <div class="quick-capture-slots">
+        <label class="quick-capture-slot primary-slot"><span class="quick-capture-slot-copy"><strong>1 · Item</strong><small>Main Wishlist / Board photo</small></span><div class="quick-capture-preview"><img id="quickCaptureItemPreview" alt="Item capture"><span id="quickCaptureItemPlaceholder">Take photo</span></div><input type="file" id="quickCaptureItemPhoto" accept="image/*" capture="environment"></label>
+        <label class="quick-capture-slot"><span class="quick-capture-slot-copy"><strong>2 · Label</strong><small>Brand, size, material or style code</small></span><div class="quick-capture-preview"><img id="quickCaptureLabelPreview" alt="Label capture"><span id="quickCaptureLabelPlaceholder">Optional</span></div><input type="file" id="quickCaptureLabelPhoto" accept="image/*" capture="environment"></label>
+        <label class="quick-capture-slot"><span class="quick-capture-slot-copy"><strong>3 · Price tag</strong><small>Price, barcode, QR or SKU</small></span><div class="quick-capture-preview"><img id="quickCapturePricePreview" alt="Price tag capture"><span id="quickCapturePricePlaceholder">Optional</span></div><input type="file" id="quickCapturePricePhoto" accept="image/*" capture="environment"></label>
+      </div>
+      <p id="quickCaptureStatus" class="scan-status">Take the item photo first. Label and price-tag photos are optional.</p>
+      <div class="sheet-actions quick-capture-actions"><button type="button" class="soft-btn" id="quickCaptureCancelBtn">Cancel</button><button type="button" class="primary" id="quickCaptureAnalyzeBtn">Review suggestions</button></div>
+    </div>
+  </dialog>
+
+  <dialog id="quickCaptureReviewDialog" class="sheet-dialog quick-capture-review-dialog">
+    <div class="quick-capture-review-shell">
+      <div class="sheet-head"><div><p class="script">review the scan</p><h2>Use these details?</h2></div><button type="button" class="close-btn" id="closeQuickCaptureReviewBtn" aria-label="Close">×</button></div>
+      <p class="quick-capture-intro">Check the attributes you want to apply, or edit any suggestion first. Nothing updates the Wishlist until you save the wish.</p>
+      <div id="quickCaptureReviewFields" class="quick-capture-review-fields"></div>
+      <p id="quickCaptureBarcodeNote" class="quick-capture-barcode-note"></p>
+      <div class="sheet-actions quick-capture-review-actions"><button type="button" class="soft-btn" id="quickCaptureReviewCancelBtn">Back</button><button type="button" class="primary" id="quickCaptureApplyBtn">Continue to wish</button></div>
+    </div>
+  </dialog>
+
+  <dialog id="wishDialog" class="sheet-dialog wish-detail-dialog">
+    <form method="dialog" id="wishForm">
+      <div class="wish-detail-scroll">
+        <div class="sheet-head wish-head">
+          <div class="wish-head-copy"><p class="script" id="wishDialogKicker">future find</p><h2 id="wishDialogTitle">Add a wish</h2></div>
+          <div class="wish-head-actions">
+            <div id="wishCardUtilityActions" class="item-card-utility-actions wish-header-utility-actions hidden">
+              <button type="button" id="wishSmartScanBtn" class="item-card-icon hidden" aria-label="Smart scan photo" title="Smart scan"><span class="scan-corners">⌗</span><span class="scan-sparkle">✦</span></button>
+              <div id="wishPhotoMenuWrap" class="review-photo-menu-wrap hidden"><button type="button" id="wishPhotoMenuBtn" class="item-card-icon" aria-label="Photo tools" title="Photo tools">📷</button><div id="wishPhotoMenu" class="review-photo-menu hidden" role="menu"><button type="button" id="wishStudioBtn" role="menuitem">Edit in Photo Studio</button><label role="menuitem">Take new photo<input type="file" id="wishCameraPhoto" accept="image/*" capture="environment" /></label><label role="menuitem">Choose from library<input type="file" id="wishLibraryPhoto" accept="image/*" /></label><button type="button" id="wishRestoreOriginalBtn" class="hidden" role="menuitem">Restore original photo</button></div></div>
+            </div>
+            <button type="button" id="closeWishDialogBtn" class="close-btn" aria-label="Close wishlist item">×</button>
+          </div>
+        </div>
+        <input type="hidden" id="wishId" />
+        <div class="wish-photo-stage">
+          <div class="photo-preview-wrap wish-photo-large"><img id="wishPhotoPreview" alt="Wishlist item preview" /><div class="photo-placeholder" id="wishPhotoPlaceholder">photo</div></div>
+        </div>
+        <div id="newWishPhotoActions" class="new-piece-photo-actions">
+          <label class="soft-btn file-label new-piece-upload">Upload photo<input type="file" id="wishPhotoLibrary" accept="image/*" /></label>
+          <label class="primary file-label new-piece-camera">Take photo<input type="file" id="wishPhoto" accept="image/*" capture="environment" /></label>
+        </div>
+        <div class="scan-status item-photo-status" id="wishScanStatus"></div>
+        <div id="wishReviewDetails" class="item-review-details wish-review-details hidden" aria-live="polite"></div>
+        <div id="wishEditFields">
+          <div class="wish-section-heading"><p class="wish-section-label">Garment</p><div id="wishEditDesire" class="wish-desire-picker" aria-label="How much do you want this item?"></div></div>
+          <div class="form-grid">
+            <label>Item<input id="wishName" required placeholder="Striped cardigan" /></label><label class="brand-field-label">Brand<input id="wishBrand" placeholder="Brand" autocomplete="off" aria-autocomplete="list" aria-controls="wishBrandSuggestions" /><div id="wishBrandSuggestions" class="brand-suggestions hidden" role="listbox" aria-label="Brand suggestions"></div></label>
+            <label>Category<select id="wishCategory"></select></label><label>Type<select id="wishType"></select></label>
+            <label>Size<select id="wishSize"></select></label><label id="wishFitLabel">Fit<select id="wishFit"></select></label>
+            <label id="wishStyleLabel">Style<select id="wishStyle"></select></label><label>Color<select id="wishColor"></select></label>
+            <label>Pattern<select id="wishPattern"></select></label><label>Season<select id="wishSeason"></select></label>
+          </div>
+          <p class="wish-section-label">Shopping</p>
+          <div class="form-grid">
+            <label>Price<input id="wishPrice" inputmode="decimal" placeholder="$45" /></label><label>Currency<select id="wishCurrency"><option value="USD">USD</option><option value="EUR">EUR</option><option value="GBP">GBP</option><option value="CAD">CAD</option><option value="JPY">JPY</option><option value="TWD">TWD</option></select></label>
+            <label class="brand-field-label">Store<input id="wishStore" placeholder="Store or seller" autocomplete="off" aria-autocomplete="list" aria-controls="wishStoreSuggestions" /><div id="wishStoreSuggestions" class="brand-suggestions hidden" role="listbox" aria-label="Store suggestions"></div></label><label class="wish-session-field">Shopping session<div class="wish-session-control"><select id="wishShoppingSession"><option value="">None</option></select><button type="button" class="text-btn" id="newShoppingSessionFromWishBtn">New</button></div></label><label class="wish-link-field">Link<input id="wishLink" type="url" inputmode="url" autocomplete="url" placeholder="https://…" /></label>
+          </div>
+          <label class="full-label">Notes<textarea id="wishNotes"></textarea></label>
+        </div>
+      </div>
+      <div class="sheet-actions wish-sheet-actions"><button type="button" id="cancelWishBtn" class="soft-btn">Cancel</button><button type="button" class="danger-text hidden" id="deleteWishBtn">Remove</button><button type="button" class="soft-btn hidden" id="purchaseWishBtn">Acquired</button><button type="submit" id="saveWishBtn" value="default" class="primary">Save wish</button></div>
+    </form>
+    <div class="wish-rating-toast" id="wishRatingToast" role="status" aria-live="polite"></div>
+  </dialog>
+
+
+  <dialog id="shoppingSessionsDialog" class="sheet-dialog shopping-sessions-dialog">
+    <div class="shopping-sessions-shell">
+      <header class="shopping-sessions-header">
+        <div class="sheet-head"><div><p class="script">shopping together</p><h2>Shopping sessions</h2></div><button type="button" class="close-btn" id="closeShoppingSessionsBtn" aria-label="Close">×</button></div>
+        <p class="shopping-session-help"><strong>Create a shopping session to track items on your wishlist together.</strong><span>New wishes can automatically be added to your current session.</span></p>
+      </header>
+      <div class="shopping-sessions-body-scroll">
+        <div id="shoppingSessionsList" class="shopping-sessions-list"></div>
+        <form id="shoppingSessionForm" class="shopping-session-form">
+          <input type="hidden" id="shoppingSessionId" />
+          <p class="wish-section-label">Session details</p>
+          <label class="full-label">Name<input id="shoppingSessionName" required placeholder="Thrift Day" /></label>
+          <label class="full-label shopping-session-date-label">Date<div class="shopping-session-date-shell"><input id="shoppingSessionDate" type="date" required /></div></label>
+          <label class="full-label shopping-session-store-label">Store<input id="shoppingSessionStore" placeholder="Store or shopping area" autocomplete="off" aria-autocomplete="list" aria-controls="shoppingSessionStoreSuggestions" /><div id="shoppingSessionStoreSuggestions" class="brand-suggestions hidden" role="listbox" aria-label="Store suggestions"></div></label>
+          <label class="full-label">Location <small>optional</small><input id="shoppingSessionLocation" placeholder="San Ramon, CA" /></label>
+        </form>
+      </div>
+      <footer class="shopping-session-form-actions">
+        <button type="button" class="soft-btn" id="returnToWishlistBtn">Return to Wishlist</button>
+        <button type="button" class="soft-btn" id="cancelShoppingSessionEditBtn">Clear</button>
+        <button type="submit" form="shoppingSessionForm" class="primary" id="shoppingSessionSaveBtn">Save session</button>
+      </footer>
+    </div>
+  </dialog>
+
+  <dialog id="purchaseWishDialog" class="sheet-dialog purchase-wish-dialog">
+    <form id="purchaseWishForm">
+      <div class="sheet-head"><div><p class="script">wishlist to closet</p><h2>Add this piece to your Closet</h2></div><button type="button" class="close-btn" id="closePurchaseWishBtn" aria-label="Close">×</button></div>
+      <p class="purchase-wish-summary" id="purchaseWishSummary"></p>
+      <input type="hidden" id="purchaseWishId" />
+      <div class="purchase-wish-fields">
+        <label>Acquired date<div class="purchase-date-shell"><input type="date" id="purchaseWishDate" required /></div></label>
+        <label>How acquired<select id="purchaseWishAcquired"></select></label>
+        <div id="purchaseWishPriceFields" class="purchase-price-fields">
+          <label>Price paid <span class="optional-note">optional</span><input id="purchaseWishPrice" inputmode="decimal" placeholder="$45" /></label>
+          <label>Currency<select id="purchaseWishCurrency"><option value="USD">USD</option><option value="EUR">EUR</option><option value="GBP">GBP</option><option value="CAD">CAD</option><option value="JPY">JPY</option><option value="TWD">TWD</option></select></label>
+        </div>
+        <p id="purchaseWishPriceNote" class="purchase-price-note hidden">No price needed for this acquisition type. The original Wishlist price is still kept with the item's history.</p>
+      </div>
+      <p class="scan-status">The photo and garment details will carry into the Closet. You can edit the piece there afterward.</p>
+      <div class="sheet-actions"><button type="button" class="soft-btn" id="cancelPurchaseWishBtn">Cancel</button><button type="submit" class="primary">Move to Closet</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="acquisitionMomentDialog" class="sheet-dialog acquisition-moment-dialog">
+    <div class="acquisition-moment-card">
+      <button type="button" class="close-btn acquisition-moment-close" id="closeAcquisitionMomentBtn" aria-label="Close">×</button>
+      <p class="script">wish granted</p>
+      <div class="acquisition-moment-heart" aria-hidden="true">♥</div>
+      <h2>Made it to the Closet</h2>
+      <div class="acquisition-moment-photo" id="acquisitionMomentPhoto"></div>
+      <h3 id="acquisitionMomentTitle">New closet piece</h3>
+      <div class="acquisition-moment-rating" id="acquisitionMomentRating" aria-label="Wishlist rating"></div>
+      <p class="acquisition-moment-meta" id="acquisitionMomentMeta"></p>
+      <p class="acquisition-moment-wait hidden" id="acquisitionMomentWait"></p>
+      <div class="acquisition-moment-actions">
+        <button type="button" class="soft-btn" id="acquisitionMomentContinueBtn">Back to Wishlist</button>
+        <button type="button" class="primary" id="acquisitionMomentViewBtn">View in Closet</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="wearDialog" class="sheet-dialog wear-dialog">
+    <form id="wearForm">
+      <div class="sheet-head"><div><p class="script">today's look</p><h2 id="wearDialogTitle">Log what you wore</h2></div><button type="button" class="close-btn" id="closeWearBtn">×</button></div>
+      <label class="wear-date-label">Date<input type="date" id="wearDate" required /></label>
+      <div class="wear-category-tabs" id="wearCategoryTabs"></div>
+      <div class="wear-selection-summary"><span id="wearSelectedCount">0 selected</span><button type="button" class="text-btn" id="clearWearSelectionBtn">Clear</button></div>
+      <div class="wear-picker" id="wearPicker"></div>
+      <div id="wearDateConflict" class="wear-date-conflict hidden" role="alertdialog" aria-modal="true" aria-labelledby="wearDateConflictTitle">
+        <div class="wear-date-conflict-card">
+          <p class="script">already logged</p>
+          <h3 id="wearDateConflictTitle">This day already has an outfit</h3>
+          <p><span id="wearDateConflictDate"></span> already contains a Wear Log. What would you like to do?</p>
+          <button type="button" class="soft-btn" id="wearDateConflictOpen">Open existing day</button>
+          <button type="button" class="primary" id="wearDateConflictReplace">Replace with current selection</button>
+          <button type="button" class="text-btn" id="wearDateConflictCancel">Cancel</button>
+        </div>
+      </div>
+      <div class="sheet-actions journal-edit-actions"><button type="button" class="soft-btn" id="cancelWearBtn">Cancel</button><button type="button" class="danger-text hidden" id="deleteWearBtn">Delete day</button><button type="submit" class="primary">Save journal</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="journalDetailDialog" class="sheet-dialog journal-detail-dialog">
+    <div class="journal-detail-scroll">
+      <div class="sheet-head"><div><p class="script" id="journalDetailKicker">wear log</p><h2 id="journalDetailTitle">Journal day</h2></div><button type="button" class="close-btn" id="closeJournalDetailBtn">×</button></div>
+      <div class="journal-detail-rating">
+        <div class="journal-rating-control">
+          <span class="journal-rating-label">Rate this look</span>
+          <div class="journal-rating-stars" id="journalDetailRatingStars" role="radiogroup" aria-label="Rate this look from one to five stars">
+            <button type="button" class="journal-rating-star" data-rating="1" aria-label="1 star" aria-checked="false" role="radio">☆</button>
+            <button type="button" class="journal-rating-star" data-rating="2" aria-label="2 stars" aria-checked="false" role="radio">☆</button>
+            <button type="button" class="journal-rating-star" data-rating="3" aria-label="3 stars" aria-checked="false" role="radio">☆</button>
+            <button type="button" class="journal-rating-star" data-rating="4" aria-label="4 stars" aria-checked="false" role="radio">☆</button>
+            <button type="button" class="journal-rating-star" data-rating="5" aria-label="5 stars" aria-checked="false" role="radio">☆</button>
+          </div>
+          <small id="journalDetailRatingText" class="journal-rating-text">Not rated yet</small>
+        </div>
+        <div class="journal-favorite-control">
+          <span class="journal-rating-label">Favorite</span>
+          <button type="button" id="journalDetailFavoriteBtn" class="journal-star-btn" aria-label="Favorite this day">☆</button>
+        </div>
+      </div>
+      <section class="journal-detail-notes-block journal-notes-panel" id="journalDetailNotesPanel">
+        <button type="button" class="journal-notes-toggle" id="journalDetailNotesToggle" aria-expanded="false" aria-controls="journalDetailNotesBody">
+          <span>Notes</span><small id="journalDetailNotesSummary">Add a note</small><span class="journal-notes-toggle-icon">＋</span>
+        </button>
+        <div class="journal-notes-body hidden" id="journalDetailNotesBody">
+          <textarea id="journalDetailNotesInput" aria-label="Notes" placeholder="School, weekend, weather, styling notes, or anything you want to remember…"></textarea>
+          <button type="button" class="soft-btn journal-save-notes-btn" id="saveJournalDetailNotesBtn">Save notes</button>
+        </div>
+      </section>
+      <div id="journalDetailItems" class="journal-detail-items"></div>
+    </div>
+    <div class="sheet-actions journal-detail-actions"><button type="button" class="soft-btn" id="cancelJournalDetailBtn">Cancel</button><button type="button" class="danger-text" id="deleteJournalDetailBtn">Delete</button><button type="button" class="primary" id="editJournalDetailBtn">Edit</button></div>
+  </dialog>
+
+  <dialog id="journalItemPreviewDialog" class="sheet-dialog journal-item-preview-dialog">
+    <div class="journal-item-preview-scroll">
+      <div class="sheet-head"><div><p class="script">journal piece</p><h2 id="journalItemPreviewTitle">Piece details</h2></div><button type="button" class="close-btn" id="closeJournalItemPreviewBtn">×</button></div>
+      <div class="journal-item-preview-photo" id="journalItemPreviewPhoto"></div>
+      <div class="journal-item-preview-details" id="journalItemPreviewDetails"></div>
+    </div>
+    <div class="sheet-actions journal-item-preview-actions"><button type="button" class="soft-btn" id="backJournalItemPreviewBtn">Back to day</button><button type="button" class="primary" id="editJournalItemPreviewBtn">Edit</button></div>
+  </dialog>
+
+  <dialog id="journalRangeDialog" class="sheet-dialog journal-range-dialog">
+    <div class="sheet-head"><div><p class="script">wear log range</p><h2>Choose dates</h2></div><button type="button" class="close-btn" id="closeJournalRangeBtn">×</button></div>
+    <p class="journal-range-help">Tap a start date, then an end date. Tap an earlier day to restart the range.</p>
+    <div class="journal-range-calendar">
+      <div class="journal-calendar-head">
+        <button type="button" class="soft-btn journal-calendar-nav" id="journalCalendarPrev" aria-label="Previous month">‹</button>
+        <strong id="journalCalendarMonthLabel"></strong>
+        <button type="button" class="soft-btn journal-calendar-nav" id="journalCalendarNext" aria-label="Next month">›</button>
+      </div>
+      <div class="journal-calendar-weekdays" aria-hidden="true"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>
+      <div id="journalCalendarGrid" class="journal-calendar-grid"></div>
+    </div>
+    <div id="journalRangeDraftSummary" class="journal-range-draft-summary">Choose a start date</div>
+    <div class="sheet-actions journal-range-actions"><button type="button" class="text-btn" id="clearJournalRangeBtn">Clear</button><button type="button" class="soft-btn" id="cancelJournalRangeBtn">Cancel</button><button type="button" class="primary" id="applyJournalRangeBtn" disabled>Apply</button></div>
+  </dialog>
+
+  <dialog id="journalStatDialog" class="sheet-dialog journal-detail-dialog journal-stat-dialog">
+    <div class="journal-stat-scroll">
+      <div class="sheet-head"><div><p class="script">wear insights</p><h2 id="journalStatTitle">Details</h2></div><button type="button" class="close-btn" id="closeJournalStatBtn">×</button></div>
+      <p id="journalStatSummary" class="outfit-note"></p>
+      <div id="journalStatItems" class="journal-detail-items"></div>
+    </div>
+  </dialog>
+
+  <dialog id="outfitViewDialog" class="sheet-dialog outfit-view-dialog">
+    <div class="outfit-view-scroll">
+      <div class="sheet-head outfit-view-head"><div><p class="script">saved look</p><h2 id="viewOutfitName"></h2><small id="viewOutfitFolder" class="outfit-view-folder"></small></div><div class="outfit-view-head-actions"><button type="button" class="outfit-view-favorite" id="favoriteViewedOutfitBtn" aria-label="Add to favorites" aria-pressed="false">☆</button><button type="button" class="close-btn" id="closeViewedOutfitBtn">×</button></div></div>
+      <div id="viewOutfitBoard" class="board snapshot"></div>
+      <section class="outfit-view-copy">
+        <p id="viewOutfitNotes" class="outfit-note"></p>
+        <details class="outfit-items-panel">
+          <summary><span>Items in this look</span><small id="viewOutfitItemsSummary"></small></summary>
+          <div id="viewOutfitItems" class="portfolio-item-list"></div>
+        </details>
+      </section>
+    </div>
+    <div class="sheet-actions outfit-view-actions"><button class="danger-text" id="deleteOutfitBtn">Delete</button><button class="soft-btn" id="shareViewedOutfitBtn">↗ Share</button><button class="soft-btn" id="duplicateViewedOutfitBtn">⧉ Duplicate</button><button class="primary" id="editViewedOutfitBtn">Edit on Board</button></div>
+  </dialog>
+
+
+  <dialog id="portfolioItemPreviewDialog" class="sheet-dialog portfolio-item-preview-dialog">
+    <div class="portfolio-item-preview-scroll">
+      <div class="sheet-head"><div><p class="script" id="portfolioItemPreviewKicker">portfolio piece</p><h2 id="portfolioItemPreviewTitle">Piece details</h2></div><button type="button" class="close-btn" id="closePortfolioItemPreviewBtn">×</button></div>
+      <div class="portfolio-item-preview-photo" id="portfolioItemPreviewPhoto"></div>
+      <div class="journal-item-preview-details" id="portfolioItemPreviewDetails"></div>
+    </div>
+    <div class="sheet-actions portfolio-item-preview-actions"><button type="button" class="primary" id="backPortfolioItemPreviewBtn">Back to look</button></div>
+  </dialog>
+
+  <dialog id="shareChoiceDialog" class="sheet-dialog share-choice-dialog">
+    <div class="sheet-head"><div><p class="script">share your look</p><h2>What should the image include?</h2></div><button type="button" class="close-btn" id="shareChoiceCloseBtn">×</button></div>
+    <p class="share-choice-copy">Choose a clean lookbook image or add the wardrobe details underneath it.</p>
+    <div class="share-choice-list">
+      <button type="button" class="share-choice-btn" data-share-mode="look"><strong>Look only</strong><small>Design board and title</small></button>
+      <button type="button" class="share-choice-btn" data-share-mode="items"><strong>Look + item details</strong><small>Add a compact list of the unique pieces in the look</small></button>
+      <button type="button" class="share-choice-btn" data-share-mode="itemsNotes"><strong>Look + items + notes</strong><small>Include item details, available item notes, and saved look notes</small></button>
+    </div>
+  </dialog>
+
+  <dialog id="boardConflictDialog" class="sheet-dialog board-conflict-dialog">
+    <div class="sheet-head"><div><p class="script">design board</p><h2>Keep your current board?</h2></div><button type="button" class="close-btn" id="boardConflictCloseBtn">×</button></div>
+    <p id="boardConflictMessage" class="board-conflict-message">There is already a look on the Design Board.</p>
+    <div class="board-conflict-actions">
+      <button type="button" class="primary" id="boardConflictSaveBtn">Save current & continue</button>
+      <button type="button" class="soft-btn" id="boardConflictReplaceBtn">Replace current board</button>
+      <button type="button" class="text-btn" id="boardConflictCancelBtn">Cancel</button>
+    </div>
+  </dialog>
+
+  <dialog id="outfitSaveDialog" class="sheet-dialog compact-save-dialog">
+    <div class="sheet-head"><div><p class="script">file this look</p><h2>Save to portfolio</h2></div><button type="button" class="close-btn" id="closeOutfitSaveBtn">×</button></div>
+    <p class="save-dialog-copy">Choose where this outfit should live. You can change your portfolio folders anytime in Preferences.</p>
+    <label class="full-label">Portfolio folder<select id="outfitFolder" aria-label="Portfolio folder"></select></label>
+    <div class="sheet-actions"><button type="button" class="soft-btn" id="cancelOutfitSaveBtn">Cancel</button><button type="button" class="primary" id="confirmSaveOutfitBtn">Save here</button></div>
+  </dialog>
+
+  <dialog id="sharePreviewDialog" class="sheet-dialog share-preview-dialog">
+    <div class="sheet-head"><div><p class="script">share your look</p><h2 id="sharePreviewTitle">My outfit</h2></div><button type="button" class="close-btn" id="closeSharePreviewBtn">×</button></div>
+    <p class="share-preview-help">Your board has been turned into a regular image first. This two-step approach works more reliably from an iPhone Home Screen app.</p>
+    <div class="share-preview-frame"><img id="sharePreviewImage" alt="Outfit board image preview"></div>
+    <p class="scan-status share-preview-status" id="sharePreviewStatus">Image ready.</p>
+    <div class="sheet-actions share-preview-actions"><button type="button" class="soft-btn" id="openShareImageBtn">Open image</button><button type="button" class="primary" id="shareNowBtn">↗ Share now</button></div>
+  </dialog>
+
+  <div class="toast" id="toast"></div>
+  <script src="app.js?v=13.21-dev12"></script>
+  <script src="share-render-v13.21-dev12.js?v=13.21-dev12"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('./sw.js?v=13.21-dev12', { updateViaCache: 'none' })
+          .then(function (registration) { return registration.update(); })
+          .catch(function (error) { console.error('Service worker registration failed', error); });
+      });
+    }
+  </script>
+</body>
+</html>

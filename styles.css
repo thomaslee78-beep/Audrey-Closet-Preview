@@ -1,0 +1,2302 @@
+:root{
+  --olive:#66715a;--olive-dark:#3f4937;--burgundy:#7d3547;--coffee:#6c5142;--turq:#4d8e8a;--mustard:#c3a04b;--cream:#f3eee1;--paper:#fbf8ef;--ink:#292820;--sage:#a8b09a;--peach:#c77d65;--line:#d8d0bc;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --sans:"Avenir Next","Gill Sans",Avenir,system-ui,-apple-system,sans-serif;
+  --script:"Snell Roundhand","Segoe Script","Bradley Hand",cursive;
+}
+*{box-sizing:border-box}html{background:var(--cream);min-height:100%;min-height:100dvh;overflow-x:hidden}body{margin:0;font-family:var(--sans);color:var(--ink);background:linear-gradient(180deg,#f7f0df 0,#f9f6ed 28%,#f4eddd 100%);min-height:100vh;min-height:100dvh;padding-bottom:calc(84px + env(safe-area-inset-bottom));overflow-x:hidden}.paper-grain{pointer-events:none;position:fixed;inset:0;opacity:.16;mix-blend-mode:multiply;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.08'/%3E%3C/svg%3E");z-index:99}.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:max(14px,env(safe-area-inset-top)) 18px 11px;background:rgba(247,240,223,.91);backdrop-filter:blur(18px);border-bottom:1px solid rgba(108,81,66,.12)}.eyebrow{font-size:10px;letter-spacing:.28em;font-weight:800;color:var(--burgundy)}h1,h2,h3,p{margin-top:0}.topbar h1{font-family:var(--serif);font-weight:500;font-size:24px;margin:1px 0 0}.topbar h1 span{font-family:var(--script);font-weight:400;color:var(--olive);font-size:27px}.icon-btn{width:40px;height:40px;border-radius:50%;border:1px solid var(--coffee);background:var(--paper);font-size:25px;color:var(--burgundy)}main{max-width:850px;margin:0 auto}.screen{display:none;padding:16px 14px 30px}.screen.active{display:block}.hero-card{position:relative;overflow:hidden;background:var(--olive);color:#fff;border-radius:26px;padding:22px;display:flex;gap:12px;align-items:flex-end;justify-content:space-between;box-shadow:0 10px 22px rgba(68,55,37,.11)}.hero-card:after{content:"";position:absolute;width:120px;height:120px;right:-31px;top:-31px;border-radius:50%;background:repeating-linear-gradient(45deg,rgba(255,255,255,.13) 0 7px,transparent 7px 15px)}.script{font-family:var(--script);font-size:22px;color:var(--mustard);margin-bottom:2px}.hero-card .script{color:#eedb9c}.hero-card h2,.page-head h2{font-family:var(--serif);font-weight:500;font-size:30px;margin:0 0 7px}.muted{color:rgba(255,255,255,.8);font-size:13px;max-width:420px;margin:0}.primary,.soft-btn,.text-btn,.danger-btn,.danger-text{font:inherit;border:0;cursor:pointer}.primary{background:var(--burgundy);color:white;border-radius:16px;padding:12px 15px;font-weight:750;box-shadow:inset 0 0 0 1px rgba(255,255,255,.13)}.hero-card .primary{background:#f6e8bd;color:var(--olive-dark);z-index:2;white-space:nowrap}.soft-btn{background:#e8dfca;color:var(--coffee);padding:10px 13px;border-radius:13px;border:1px solid rgba(108,81,66,.15);font-weight:700}.text-btn,.danger-text{background:transparent;color:var(--burgundy);padding:9px}.danger-btn{padding:11px 14px;border-radius:12px;background:#8c2f3a;color:#fff}.category-strip{display:flex;gap:8px;overflow:auto;padding:15px 1px 7px;scrollbar-width:none}.category-chip{min-width:106px;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:10px 12px;text-align:left;color:var(--coffee)}.category-chip strong{display:block;font-family:var(--serif);font-size:17px;color:var(--ink)}.category-chip span{font-size:11px}.category-chip.active{background:var(--turq);color:white;border-color:transparent}.category-chip.active strong{color:white}.toolbar{display:flex;gap:8px;margin:10px 0}.searchbox{flex:1;background:rgba(255,255,255,.65);border:1px solid var(--line);border-radius:14px;display:flex;align-items:center;gap:8px;padding:0 11px}.searchbox input,.form-grid input,.form-grid select,.full-label textarea,.board-controls input,.board-controls textarea,.sheet-dialog input,.sheet-dialog select,.sheet-dialog textarea{font:inherit;color:var(--ink);border:1px solid var(--line);background:#fffdf7;border-radius:12px;padding:11px;width:100%;outline:none}.searchbox input{border:0;background:transparent;padding:11px 0}.filter-panel{display:grid;grid-template-columns:repeat(3,1fr) auto;gap:7px;background:#efe6d5;border-radius:15px;padding:9px;margin-bottom:9px}.filter-panel select{min-width:0;border:1px solid var(--line);border-radius:10px;padding:8px;background:#fffaf0}.hidden{display:none!important}.section-title{display:flex;justify-content:space-between;align-items:baseline;margin:18px 2px 9px}.section-title h3{font-family:var(--serif);font-size:22px;font-weight:500;margin:0}.section-title span{font-size:11px;color:#7d7468}.closet-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.item-card{background:rgba(255,252,243,.93);border:1px solid var(--line);border-radius:19px;overflow:hidden;box-shadow:0 4px 11px rgba(65,52,37,.07)}.item-card .thumb{aspect-ratio:1/1.16;background:linear-gradient(140deg,#e7dfcd,#f8f3e8);position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}.item-card img{width:100%;height:100%;object-fit:contain}.item-card .count-badge{position:absolute;top:8px;right:8px;background:rgba(47,45,36,.78);color:#fff;border-radius:20px;padding:4px 7px;font-size:10px}.item-card .card-body{padding:10px}.item-card h4{font-family:var(--serif);font-size:17px;font-weight:600;margin:0 0 3px}.item-card p{font-size:11px;color:#71675c;margin:0}.swatch{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;border:1px solid rgba(0,0,0,.12)}.empty-state{text-align:center;padding:38px 22px;color:#776c5e}.empty-state h3{font-family:var(--serif);font-size:22px;color:var(--ink);margin-bottom:5px}.empty-state p{font-size:13px;line-height:1.5}.empty-state.compact{padding-top:24px}.hanger{font-family:var(--serif);font-size:48px;transform:rotate(90deg);height:55px;color:var(--olive)}.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;margin:3px 1px 13px}.page-head .script{margin-bottom:-4px}.board-shell{display:grid;gap:10px}.board{height:420px;position:relative;overflow:hidden;border-radius:22px;border:2px solid #d4c7ad;background-color:#efe9d9;background-image:linear-gradient(rgba(108,81,66,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(108,81,66,.055) 1px,transparent 1px);background-size:24px 24px;box-shadow:inset 0 0 45px rgba(108,81,66,.08)}.board:before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(135deg,transparent 70%,rgba(125,53,71,.08) 70% 73%,transparent 73%),linear-gradient(45deg,transparent 85%,rgba(77,142,138,.1) 85%)}.board-tip{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;font-family:var(--serif);font-size:20px;color:#9a8d7b;text-align:center;pointer-events:none}.board-tip small{font-family:var(--sans);font-size:11px;margin-top:5px}.board-piece{position:absolute;width:132px;height:156px;touch-action:none;user-select:none;cursor:grab;filter:drop-shadow(0 5px 6px rgba(50,42,30,.17))}.board-piece img{width:100%;height:100%;object-fit:contain;pointer-events:none}.board-piece .remove-board-piece{position:absolute;right:0;top:0;width:24px;height:24px;border:0;border-radius:50%;background:#643543;color:#fff}.board-controls{display:grid;gap:7px}.board-controls textarea{min-height:70px}.inline-actions{display:flex;gap:7px}.tabs-small{display:flex;gap:5px;margin:16px 0 7px}.tabs-small button{border:1px solid var(--line);background:#f8f2e4;border-radius:16px;padding:7px 12px;font:inherit;font-size:12px}.tabs-small button.active{background:var(--coffee);color:white}.piece-tray{display:flex;overflow:auto;gap:8px;padding:3px 1px 8px;min-height:108px}.tray-piece{width:82px;min-width:82px;text-align:center}.tray-piece .mini-photo{height:78px;background:#fffaf0;border:1px solid var(--line);border-radius:14px;display:flex;align-items:center;justify-content:center;overflow:hidden}.tray-piece img{max-width:100%;max-height:100%;object-fit:contain}.tray-piece small{font-size:9px;display:block;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.saved-outfits{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.outfit-card{background:#fffaf0;border:1px solid var(--line);border-radius:17px;padding:9px}.outfit-mini{height:130px;background:#ede5d5;border-radius:12px;position:relative;overflow:hidden}.outfit-mini img{position:absolute;width:66px;height:78px;object-fit:contain}.outfit-card h4{font-family:var(--serif);font-size:16px;margin:8px 2px 0}.outfit-card p{font-size:10px;color:#776c5e;margin:2px}.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.stat-card{background:#fffaf0;border:1px solid var(--line);border-radius:17px;padding:13px}.stat-card span,.stat-card small{display:block;font-size:10px;color:#847869}.stat-card strong{display:block;font-family:var(--serif);font-size:24px;font-weight:500;margin:3px 0;color:var(--burgundy)}.chart-card{background:#fffaf0;border:1px solid var(--line);border-radius:19px;padding:10px;margin-top:10px}.chart-card canvas{width:100%;height:auto}.journal-list{display:grid;gap:7px}.journal-row{display:flex;gap:10px;align-items:center;background:#fffaf0;border:1px solid var(--line);border-radius:15px;padding:9px}.journal-date{width:49px;height:49px;background:var(--olive);color:white;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center}.journal-date strong{font-family:var(--serif);font-size:20px;line-height:1}.journal-date small{font-size:9px}.journal-thumbs{display:flex;flex:1;overflow:hidden}.journal-thumbs img{width:43px;height:43px;object-fit:contain;background:#eee5d5;border-radius:9px;margin-left:-7px;border:2px solid #fffaf0}.journal-thumbs img:first-child{margin-left:0}.journal-row p{font-size:10px;color:#7b7065;margin:0;max-width:90px}.wishlist-grid{display:grid;grid-template-columns:1fr;gap:8px}.wish-card{width:100%;min-width:0;display:grid;grid-template-columns:86px minmax(0,1fr) auto;align-items:center;gap:11px;background:#fffaf0;border:1px solid var(--line);border-radius:17px;padding:8px;overflow:hidden;box-shadow:0 3px 10px rgba(65,52,37,.055);cursor:pointer;-webkit-tap-highlight-color:transparent}.wish-card:active{transform:scale(.995)}.wish-photo{width:86px;height:92px;border-radius:12px;background:linear-gradient(140deg,#e7dfcd,#f6f0e3);display:flex;align-items:center;justify-content:center;overflow:hidden;color:#9b8c79;font-size:24px}.wish-photo img{width:100%;height:100%;object-fit:contain}.wish-body{min-width:0;padding:2px 0}.wish-body h4{font-family:var(--serif);margin:0 0 3px;font-size:18px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.wish-body p{font-size:11px;color:#786e61;margin:2px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.wish-body .wish-type{color:#5f584f}.wish-body .wish-store{color:#86796a}.wish-side{align-self:stretch;min-width:68px;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:8px;padding:4px 3px 4px 4px}.wish-side .price{color:var(--burgundy);font-weight:800;font-size:14px;white-space:nowrap}.wish-desire{font-size:10px;color:var(--olive-dark);white-space:nowrap}.wish-chevron{font-size:23px;line-height:1;color:#a19584;margin-top:auto}.wish-link-mark{font-size:10px;color:var(--turq);font-weight:750}.wishlist-grid .wish-card:focus-visible{outline:3px solid rgba(77,142,138,.35);outline-offset:2px}@media(max-width:380px){.wish-card{grid-template-columns:76px minmax(0,1fr) auto;gap:9px}.wish-photo{width:76px;height:84px}.wish-side{min-width:60px}.wish-body h4{font-size:17px}}.settings-card{background:#fffaf0;border:1px solid var(--line);border-radius:18px;padding:15px;margin-bottom:10px}.settings-card h3{font-family:var(--serif);font-size:21px;margin-bottom:5px}.settings-card p{font-size:12px;line-height:1.5;color:#70665a}.stack-actions{display:flex;gap:7px;flex-wrap:wrap}.file-label{display:inline-flex;align-items:center;justify-content:center}.file-label input{display:none}.danger-zone{border-color:#d8b2b2}.bottom-nav{position:fixed!important;z-index:1000;inset:auto 0 0 0!important;width:100%;height:auto;min-height:76px;padding-bottom:max(env(safe-area-inset-bottom),4px);background:#f8f2e4;border-top:1px solid rgba(108,81,66,.18);display:flex;justify-content:space-around;transform:translate3d(0,0,0);-webkit-transform:translate3d(0,0,0);backface-visibility:hidden;-webkit-backface-visibility:hidden;will-change:transform;isolation:isolate;contain:layout paint}.bottom-nav button{flex:1;border:0;background:transparent;color:#7a6e60;font:inherit;font-size:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}.bottom-nav button span{font-size:21px;line-height:1}.bottom-nav button.active{color:var(--burgundy);font-weight:800}.sheet-dialog{width:min(720px,calc(100% - 16px));max-height:92vh;max-height:92dvh;overflow:auto;-webkit-overflow-scrolling:touch;border:0;border-radius:24px 24px 12px 12px;padding:17px;background:#f7f0df;color:var(--ink);box-shadow:0 22px 70px rgba(36,30,22,.3)}.sheet-dialog::backdrop{background:rgba(39,32,25,.42);backdrop-filter:blur(2px)}.sheet-head{display:flex;justify-content:space-between;align-items:flex-start}.sheet-head h2{font-family:var(--serif);font-weight:500;font-size:27px;margin:0 0 12px}.sheet-head .script{font-size:19px;margin-bottom:-3px}.close-btn{border:0;background:#e7ddc8;width:36px;height:36px;border-radius:50%;font-size:25px;color:var(--coffee)}.photo-capture{display:grid;grid-template-columns:140px 1fr;gap:10px;margin-bottom:12px}.compact-photo{grid-template-columns:110px 1fr;align-items:center}.photo-preview-wrap{aspect-ratio:1/1.1;background:#e9e1d2;border:1px dashed #bcae96;border-radius:16px;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}.photo-preview-wrap img{width:100%;height:100%;object-fit:contain;display:none}.photo-placeholder{font-family:var(--script);color:#988b79;font-size:20px}.photo-actions{display:flex;flex-direction:column;gap:7px;align-items:stretch}.scan-status{font-size:10px;color:#74695d;min-height:28px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.form-grid label,.full-label,.sheet-dialog>form>label{font-size:10px;font-weight:750;color:#756a5c;letter-spacing:.02em}.form-grid input,.form-grid select,.full-label textarea{margin-top:4px}.full-label{display:block;margin-top:8px}.full-label textarea{min-height:74px;resize:vertical}.sheet-actions{display:flex;justify-content:flex-end;align-items:center;gap:7px;margin-top:12px}.wear-picker{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;max-height:390px;overflow:auto;margin:10px 0}.wear-option{border:1px solid var(--line);background:#fffaf0;border-radius:13px;padding:5px;position:relative}.wear-option.selected{outline:3px solid var(--turq);outline-offset:-3px}.wear-option img{width:100%;height:90px;object-fit:contain}.wear-option small{display:block;font-size:9px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.snapshot{height:350px}.outfit-note{font-size:13px;line-height:1.5;color:#6d6256;margin:12px 2px}.toast{position:fixed;left:50%;bottom:92px;transform:translate(-50%,20px);opacity:0;background:#342f28;color:white;border-radius:18px;padding:10px 14px;font-size:12px;z-index:100;transition:.2s;pointer-events:none}.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(min-width:680px){.closet-grid{grid-template-columns:repeat(4,1fr)}.wishlist-grid{grid-template-columns:1fr}.board-shell{grid-template-columns:1fr 230px}.board{height:520px}.saved-outfits{grid-template-columns:repeat(3,1fr)}.screen{padding-left:22px;padding-right:22px}.bottom-nav{left:50%;right:auto;width:680px;transform:translate3d(-50%,0,0);-webkit-transform:translate3d(-50%,0,0);border-radius:20px 20px 0 0}}
+@media(max-width:410px){.hero-card{padding:18px}.hero-card h2,.page-head h2{font-size:27px}.filter-panel{grid-template-columns:1fr 1fr}.filter-panel .text-btn{grid-column:span 2}.photo-capture{grid-template-columns:112px 1fr}.board{height:390px}}
+
+/* Outfit Board creative studio v3 */
+.board-shell>div:first-child{min-width:0}.board{isolation:isolate}.board.drawing{touch-action:none;cursor:crosshair}.board-piece{width:auto;height:auto;box-sizing:border-box;transform-origin:center center;touch-action:none;user-select:none;cursor:grab;filter:drop-shadow(0 5px 6px rgba(50,42,30,.17))}.board-piece.selected{outline:2px dashed rgba(125,53,71,.72);outline-offset:4px}.board-piece.selected:after{content:"";position:absolute;inset:-7px;border:1px solid rgba(255,250,240,.75);border-radius:10px;pointer-events:none}.board-object{width:100%;height:100%;display:flex;align-items:center;justify-content:center;pointer-events:none}.board-object>img{width:100%;height:100%;object-fit:contain;pointer-events:none}.piece-fallback{font-family:var(--serif);text-align:center;padding:8px}.resize-handle{display:none;position:absolute;right:-12px;bottom:-12px;width:31px;height:31px;border-radius:50%;border:2px solid #fffaf0;background:var(--burgundy);color:white;font-size:13px;align-items:center;justify-content:center;box-shadow:0 2px 7px rgba(0,0,0,.18);touch-action:none}.board-piece.selected .resize-handle{display:flex}.board-text{font-family:var(--script);font-size:28px;line-height:1.05;text-align:center;color:var(--burgundy);padding:5px;overflow-wrap:anywhere}.board-sticker{font-size:58px;line-height:1;filter:drop-shadow(0 2px 2px rgba(0,0,0,.12))}.board-shape{width:100%;height:100%;box-sizing:border-box}.shape-circle{border:6px solid var(--turq);border-radius:50%;background:rgba(77,142,138,.08)}.shape-line{height:8px;margin:auto;border-radius:8px;background:var(--burgundy);transform:rotate(-4deg)}.shape-tape{background:rgba(198,163,78,.42);border:1px solid rgba(126,101,40,.2);clip-path:polygon(4% 10%,96% 0,100% 89%,3% 100%)}.doodle-svg{width:100%;height:100%;overflow:visible}.doodle-svg polyline{stroke:var(--coffee);stroke-width:4;stroke-linecap:round;stroke-linejoin:round}.board-editbar{display:flex;gap:5px;overflow-x:auto;padding:8px 2px 3px;opacity:.48;transition:.18s}.board-editbar.has-selection{opacity:1}.board-editbar button{white-space:nowrap;border:1px solid var(--line);background:#fffaf0;border-radius:14px;padding:7px 9px;font:inherit;font-size:11px;color:var(--coffee)}.board-editbar .danger-mini{color:var(--burgundy);font-size:17px;padding:4px 11px}.creative-tools{background:rgba(255,250,240,.72);border:1px solid var(--line);border-radius:17px;padding:9px;display:grid;gap:8px}.tool-row{display:grid;grid-template-columns:1fr auto;gap:6px}.tool-row input{min-width:0}.sticker-row,.shape-row{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}.sticker-row button,.shape-row button{border:1px solid #d5c8b0;background:#f8f2e4;border-radius:12px;min-width:38px;min-height:36px;padding:5px 8px;font:inherit;color:var(--coffee)}.sticker-row button{font-size:20px}.shape-row button{font-size:10px;white-space:nowrap}.shape-row button.active{background:var(--coffee);color:#fff}.board-help{font-size:9px!important;line-height:1.35;color:#7b7064;margin:0}.snapshot-piece{position:absolute;transform-origin:center center;display:flex;align-items:center;justify-content:center}.snapshot-piece img{width:100%;height:100%;object-fit:contain}.snapshot-piece .board-text{font-size:24px}.snapshot-piece .board-sticker{font-size:48px}.snapshot-piece .doodle-svg polyline{stroke-width:3}.mini-deco,.mini-sticker{position:absolute;max-width:100px;overflow:hidden;white-space:nowrap}.mini-deco{font-family:var(--script);font-size:12px;color:var(--burgundy)}.mini-sticker{font-size:20px}
+@media(max-width:410px){.board-editbar button{font-size:10px;padding:6px 8px}.board-text{font-size:24px}.board-sticker{font-size:50px}}
+
+.settings-label{display:block;font-size:10px;font-weight:800;color:#756a5c;letter-spacing:.03em;margin:10px 0 4px}.settings-card input{font:inherit;color:var(--ink);border:1px solid var(--line);background:#fffdf7;border-radius:12px;padding:11px;width:100%;outline:none}.settings-card input:focus{border-color:var(--turq);box-shadow:0 0 0 3px rgba(77,142,138,.12)}.settings-actions{margin-top:9px}.settings-note{margin:9px 1px 0!important;font-size:10px!important}.settings-note strong{color:var(--burgundy)}
+/* v6 Photo Studio */
+.studio-dialog{max-width:620px}.studio-intro{font-size:12px;color:#74695d;margin:-3px 0 8px;line-height:1.45}.studio-template{text-align:center;font-size:10px;letter-spacing:.09em;font-weight:800;color:var(--olive);margin-bottom:6px}.studio-canvas-wrap{width:min(100%,430px);aspect-ratio:1;margin:auto;position:relative;border-radius:18px;overflow:hidden;background:linear-gradient(45deg,#eee7d9 25%,transparent 25%),linear-gradient(-45deg,#eee7d9 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#eee7d9 75%),linear-gradient(-45deg,transparent 75%,#eee7d9 75%);background-size:24px 24px;background-position:0 0,0 12px,12px -12px,-12px 0;background-color:#faf6ec;border:1px solid var(--line);touch-action:none}.studio-canvas-wrap canvas{width:100%;height:100%;display:block;touch-action:none}.studio-guide{position:absolute;inset:7%;border:1.5px dashed rgba(102,113,90,.55);border-radius:28%;pointer-events:none}.studio-guide:before,.studio-guide:after{content:"";position:absolute;background:rgba(102,113,90,.24)}.studio-guide:before{width:1px;top:8%;bottom:8%;left:50%}.studio-guide:after{height:1px;left:8%;right:8%;top:50%}.studio-tabs,.studio-tool-row,.studio-bg-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}.studio-tabs button,.studio-bg-row button{border:1px solid var(--line);background:#fff9ed;border-radius:18px;padding:7px 10px;font:inherit;font-size:11px;color:#655b50}.studio-tabs button.active,.studio-bg-row button.active,.brush-btn.active{background:var(--coffee);color:white;border-color:var(--coffee)}.studio-controls{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:9px}.studio-controls label{background:#efe6d5;border-radius:12px;padding:7px;font-size:10px;font-weight:750;color:#756a5c}.studio-controls label span{float:right;font-weight:500}.studio-controls input{width:100%;margin-top:6px}.studio-bg-row{align-items:center}.studio-bg-row>span{font-size:10px;font-weight:800;color:#756a5c;margin-right:2px}@media(max-width:410px){.studio-controls{grid-template-columns:1fr}.studio-canvas-wrap{width:100%}}
+
+#shareOutfitBtn{white-space:nowrap}.inline-actions{flex-wrap:wrap}.inline-actions .primary{flex:1 1 140px}
+
+/* v8 reliable iPhone outfit sharing */
+.share-preview-dialog{max-width:560px}.share-preview-help{font-size:12px;line-height:1.45;color:#74695d;margin:-3px 0 10px}.share-preview-frame{width:min(100%,420px);margin:0 auto;background:#e9e1d2;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 8px 24px rgba(50,42,30,.12)}.share-preview-frame img{display:block;width:100%;height:auto;aspect-ratio:9/10;object-fit:contain;background:#f7f0df}.share-preview-status{margin-top:9px;min-height:auto;font-size:11px}.share-preview-actions{justify-content:space-between}.share-preview-actions .primary{min-width:130px}.hidden{display:none!important}
+/* v9 outfit browser + portfolio */
+.outfit-category-filter{display:flex;gap:7px;overflow-x:auto;padding:2px 1px 8px;scrollbar-width:none}.outfit-category-filter button{flex:0 0 auto;border:1px solid var(--line);background:#fffaf0;color:var(--coffee);border-radius:18px;padding:8px 11px;font:inherit;font-size:11px;font-weight:700}.outfit-category-filter button.active{background:var(--olive);color:#fff;border-color:var(--olive)}.outfit-category-filter span{margin-left:5px;opacity:.65;font-size:9px}.piece-tray{min-height:148px;gap:10px}.tray-piece{width:108px;min-width:108px;border:0;background:transparent;color:var(--ink);padding:0}.tray-piece .mini-photo{height:112px;border-radius:16px;padding:4px;box-shadow:0 3px 9px rgba(65,52,37,.07)}.tray-piece small{font-size:11px;font-weight:700;margin-top:5px}.tray-piece em{display:block;font-style:normal;font-size:8px;color:#8b7d6c;margin-top:1px}.tray-empty{font-size:12px;color:#786f61;padding:30px 8px}.portfolio-tabs{display:flex;gap:7px;overflow-x:auto;padding:3px 1px 12px;scrollbar-width:none}.portfolio-tab{position:relative;flex:0 0 auto;min-width:92px;border:1px solid #cdbf9f;border-bottom:3px solid #b6a77f;background:#e9dfc7;color:var(--coffee);border-radius:12px 12px 5px 5px;padding:10px 12px 8px;font:inherit;font-family:var(--serif);font-size:14px;text-align:left}.portfolio-tab:before{content:"";position:absolute;left:8px;top:-6px;width:35px;height:7px;border:1px solid #cdbf9f;border-bottom:0;background:#e9dfc7;border-radius:6px 6px 0 0}.portfolio-tab.active{background:#fffaf0;color:var(--burgundy);transform:translateY(-2px)}.portfolio-tab.active:before{background:#fffaf0}.portfolio-tab span{display:block;font-family:var(--sans);font-size:8px;opacity:.6;margin-top:2px}.outfit-card{position:relative;padding-top:28px}.favorite-outfit{position:absolute;right:8px;top:5px;z-index:2;border:0;background:transparent;font-size:23px;color:#a1937e}.favorite-outfit.active{color:#9b742a}.folder-label{position:absolute;left:9px;top:9px;font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:#7c6d58}.edit-cue{display:block;color:var(--burgundy);font-size:9px;margin:5px 2px 1px}.portfolio-empty{grid-column:1/-1;padding:30px;text-align:center;border:1px dashed var(--line);border-radius:16px;color:#857969;background:rgba(255,250,240,.5)}
+
+/* v10 phone-first board + standalone portfolio */
+.top-actions{display:flex;gap:7px;align-items:center}.settings-icon{font-size:18px}.board-page-head{margin-bottom:9px}.board-picker-card{background:rgba(255,250,240,.78);border:1px solid var(--line);border-radius:20px;padding:10px;margin-bottom:11px;box-shadow:0 4px 12px rgba(65,52,37,.05)}.picker-head{display:flex;align-items:center;justify-content:space-between;margin:1px 2px 4px}.picker-head strong{font-family:var(--serif);font-size:18px;font-weight:600}.picker-head span{font-size:9px;color:#817565;text-transform:uppercase;letter-spacing:.08em}.board-picker-card .tabs-small{margin:7px 0 7px}.piece-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px!important;overflow-y:auto!important;overflow-x:hidden!important;max-height:405px;padding:2px!important;scroll-snap-type:y proximity;-webkit-overflow-scrolling:touch}.piece-grid .tray-piece{width:auto!important;min-width:0!important;text-align:center;scroll-snap-align:start}.piece-grid .tray-piece .mini-photo{height:auto!important;aspect-ratio:1/1.03;border-radius:16px!important;padding:3px!important;background:#fffdf8}.piece-grid .tray-piece small{font-size:10px!important;margin-top:4px!important}.piece-grid .tray-piece em{font-size:7px!important}.simplified-board{gap:9px}.decorate-toggle{width:100%;border:1px solid var(--line);background:#eee4d0;color:var(--burgundy);border-radius:15px;padding:10px 12px;font:inherit;font-weight:800;text-align:left;display:flex;align-items:center;justify-content:space-between}.decorate-toggle span{font-size:9px;color:#857968;font-weight:600}.decorate-toggle.active{background:#ded3bb}.save-look-fields{display:grid;gap:7px}.board-save-actions{flex-wrap:wrap}.board-save-actions .primary{flex:1}.board-editbar.hidden{display:none!important}.board-editbar{opacity:1!important}.portfolio-intro{font-size:12px;line-height:1.45;color:#756a5d;margin:-5px 2px 12px}.portfolio-summary{display:flex;justify-content:space-between;align-items:center;margin:0 2px 8px}.portfolio-summary span{font-size:11px;color:#7f7364}.portfolio-gallery{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.portfolio-card{padding:28px 8px 9px;box-shadow:0 4px 12px rgba(65,52,37,.06)}.portfolio-card .outfit-mini{height:auto;aspect-ratio:4/5;background-color:#eee7d7;background-image:linear-gradient(rgba(108,81,66,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(108,81,66,.045) 1px,transparent 1px);background-size:12px 12px}.portfolio-card .outfit-mini .portfolio-piece{position:absolute!important;object-fit:contain!important;max-width:none!important;max-height:none!important}.portfolio-card h4{font-size:17px;margin-top:8px}.portfolio-card p{font-size:9px}.portfolio-deco{position:absolute!important;display:flex;align-items:center;justify-content:center;overflow:hidden}.portfolio-shape{position:absolute;display:block}.portfolio-shape.shape-circle{border-width:2px}.portfolio-shape.shape-line{height:3px!important;top:auto}.folder-editor{display:grid;gap:7px;margin:10px 0}.folder-edit-row{display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center}.folder-edit-row input,.folder-add-row input{font:inherit;color:var(--ink);border:1px solid var(--line);background:#fffdf7;border-radius:11px;padding:10px;width:100%}.folder-row-actions{display:flex;gap:4px}.folder-row-actions button{width:34px;height:34px;border:1px solid var(--line);border-radius:10px;background:#eee4d0;color:var(--coffee);font-size:15px}.folder-row-actions button:disabled{opacity:.3}.folder-delete{color:var(--burgundy)!important}.folder-add-row{display:grid;grid-template-columns:1fr auto;gap:7px}.outfit-view-actions{flex-wrap:wrap}.outfit-view-actions .primary{margin-left:auto}
+@media(max-width:410px){.piece-grid{max-height:374px;gap:7px!important}.board-picker-card{padding:8px}.piece-grid .tray-piece small{font-size:9px!important}.portfolio-gallery{gap:8px}.portfolio-card{padding-left:6px;padding-right:6px}.bottom-nav button{font-size:8px}.bottom-nav button span{font-size:19px}.topbar{padding-left:14px;padding-right:14px}.topbar h1{font-size:22px}.icon-btn{width:37px;height:37px}}
+@media(min-width:680px){.piece-grid{grid-template-columns:repeat(5,minmax(0,1fr));max-height:330px}.simplified-board{grid-template-columns:1fr 230px}.portfolio-gallery{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+/* v11 board-first phone layout */
+.board-controls-top{margin:0 0 10px}.board-controls-top .decorate-toggle{background:rgba(238,228,208,.78)}
+.board-controls-top .creative-tools{margin-top:8px;padding:10px;border:1px solid var(--line);border-radius:16px;background:rgba(255,250,240,.78)}
+.board-first{margin-bottom:15px}.board-save-panel{padding-top:4px}.save-destination-hint{margin:-1px 2px 8px;font-size:9px;color:#8a7e6d;font-style:italic}
+.board-picker-bottom{margin-top:7px;margin-bottom:12px}.board-picker-bottom .piece-grid{max-height:none!important;overflow:visible!important;scroll-snap-type:none!important}
+.board-picker-bottom .outfit-category-filter{position:sticky;top:66px;z-index:8;background:rgba(247,240,223,.96);padding-top:7px;padding-bottom:8px;margin:0 -3px 3px;backdrop-filter:blur(10px)}
+.compact-save-dialog{width:min(440px,calc(100% - 22px))}.save-dialog-copy{font-size:12px;line-height:1.45;color:#756a5d;margin:0 2px 12px}.compact-save-dialog select{margin-top:5px;font:inherit;color:var(--ink);border:1px solid var(--line);background:#fffdf7;border-radius:12px;padding:12px;width:100%}
+@media(max-width:410px){.board-picker-bottom .piece-grid{max-height:none!important}.board-first{margin-bottom:13px}.board-controls-top{margin-bottom:8px}}
+@media(min-width:680px){.board-picker-bottom .piece-grid{grid-template-columns:repeat(5,minmax(0,1fr));max-height:none!important}.board-first{grid-template-columns:1fr 230px}.board-controls-top{max-width:none}}
+
+.studio-original-row{display:flex;align-items:center;gap:8px;margin-top:8px;padding:8px 10px;border:1px dashed var(--line);border-radius:12px;background:#fffaf0}.studio-original-row small{font-size:10px;line-height:1.25;color:#776c60;flex:1}
+
+
+/* v12.1 item review + iPhone navigation stability */
+.item-review-summary{margin:0 0 10px;padding:12px 14px;border:1px solid var(--line);border-radius:17px;background:linear-gradient(135deg,rgba(102,113,90,.12),rgba(195,160,75,.10))}
+.item-review-kicker{margin:0 0 1px;font-size:8px;letter-spacing:.16em;text-transform:uppercase;font-weight:850;color:var(--burgundy)}
+.item-review-summary h3{margin:0;font-family:var(--serif);font-weight:600;font-size:25px;line-height:1.05;color:var(--ink)}
+.item-review-summary p:last-child{margin:5px 0 0;font-size:11px;color:#71675c}
+.item-photo-stage{margin-bottom:13px;position:relative}.item-photo-large{width:100%;aspect-ratio:1/1;max-height:440px;border-style:solid;border-radius:20px;background:linear-gradient(140deg,#e7dfcd,#fbf7ee)}
+.item-photo-large img{padding:8px}
+.photo-edit-panel{margin-top:13px;padding:11px;border:1px solid var(--line);border-radius:17px;background:rgba(239,230,213,.68)}
+.photo-edit-heading{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:8px}.photo-edit-heading strong{font-family:var(--serif);font-size:17px;font-weight:600}.photo-edit-heading span{font-size:8px;color:#817565;text-align:right}
+.photo-actions-bottom{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.photo-actions-bottom .file-label{display:flex;align-items:center;justify-content:center;text-align:center}.photo-actions-bottom .soft-btn,.photo-actions-bottom .primary{min-height:42px}
+#itemDialog.editing-existing .item-photo-large{aspect-ratio:1/1.04}
+@media(max-width:410px){.item-review-summary h3{font-size:23px}.item-photo-large{max-height:none}.photo-actions-bottom{grid-template-columns:1fr 1fr}.photo-edit-heading{display:block}.photo-edit-heading span{display:block;text-align:left;margin-top:2px}.sheet-actions{position:sticky;bottom:0;z-index:3;margin:12px -17px -17px;padding:10px 17px max(10px,env(safe-area-inset-bottom));background:rgba(247,240,223,.98);border-top:1px solid rgba(108,81,66,.12)}}
+
+/* v12.2 — streamlined closet review */
+.photo-tools-disclosure{margin:-2px 0 14px;border:1px solid rgba(108,81,66,.16);border-radius:15px;background:rgba(251,248,239,.86);overflow:hidden}
+.photo-tools-disclosure summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 13px;cursor:pointer;color:var(--coffee);font-weight:800;user-select:none;-webkit-user-select:none}
+.photo-tools-disclosure summary::-webkit-details-marker{display:none}.photo-tools-disclosure summary:after{content:'＋';font-size:18px;color:var(--burgundy);margin-left:auto}.photo-tools-disclosure[open] summary:after{content:'−'}
+.photo-tools-disclosure summary small{font-size:9px;font-weight:600;color:#887b6c;margin-left:auto}.photo-tools-body{padding:0 11px 12px;border-top:1px solid rgba(108,81,66,.1)}.photo-tools-body>p{font-size:9px;color:#817565;margin:9px 1px 8px}
+.item-swipe-zone{touch-action:pan-y;transition:transform .2s ease,opacity .2s ease}.item-swipe-zone.swipe-next{animation:itemSwipeNext .22s ease}.item-swipe-zone.swipe-prev{animation:itemSwipePrev .22s ease}@keyframes itemSwipeNext{0%{transform:translateX(18px);opacity:.72}100%{transform:none;opacity:1}}@keyframes itemSwipePrev{0%{transform:translateX(-18px);opacity:.72}100%{transform:none;opacity:1}}
+.item-swipe-hint{display:none!important}
+#itemDialog{overflow:hidden;padding:0;max-height:94vh;max-height:94dvh}
+#itemDialog #itemForm{max-height:94vh;max-height:94dvh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:17px 17px 0;scroll-padding-bottom:82px}
+#itemDialog .item-sheet-actions{position:sticky;bottom:0;z-index:12;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:center;gap:10px;margin:18px -17px 0;padding:11px 17px max(11px,env(safe-area-inset-bottom));background:#f7f0df;border-top:1px solid rgba(108,81,66,.15);box-shadow:0 -7px 18px rgba(64,52,38,.07)}
+#itemDialog .item-sheet-actions button{width:100%;min-height:44px;display:flex;align-items:center;justify-content:center;text-align:center;margin:0}
+#itemDialog #cancelItemBtn{grid-column:1}#itemDialog #deleteItemBtn{grid-column:2;color:#8c2f3a}#itemDialog #saveItemBtn{grid-column:3}
+@media(max-width:410px){#itemDialog{width:calc(100% - 8px);border-radius:22px 22px 8px 8px}#itemDialog #itemForm{padding:14px 14px 0}#itemDialog .item-sheet-actions{margin:16px -14px 0;padding-left:14px;padding-right:14px;gap:7px}#itemDialog .item-sheet-actions button{padding-left:7px;padding-right:7px;font-size:12px}.photo-tools-disclosure summary{padding:10px 11px}.photo-tools-disclosure summary small{display:none}.item-photo-large{aspect-ratio:1/1.05}}
+
+
+/* v12.3 — catalog modal containment + photo-library import */
+body.item-dialog-open{position:fixed;left:0;right:0;width:100%;overflow:hidden;overscroll-behavior:none}
+#itemDialog::backdrop{background:rgba(45,38,31,.46);touch-action:none;overscroll-behavior:none}
+#itemDialog{overscroll-behavior:contain;touch-action:none}
+#itemDialog #itemForm{touch-action:pan-y;overscroll-behavior:contain;scrollbar-gutter:stable}
+#itemDialog .sheet-head,#itemDialog .item-sheet-actions,#itemDialog button,#itemDialog input,#itemDialog select,#itemDialog textarea,#itemDialog summary,#itemDialog label{touch-action:manipulation}
+#itemDialog .item-photo-stage,#itemDialog .item-swipe-zone{touch-action:pan-y}
+.photo-actions-bottom{grid-template-columns:repeat(2,minmax(0,1fr))}
+.photo-actions-bottom .file-label{position:relative;overflow:hidden}
+@supports(height:100dvh){#itemDialog{max-height:calc(100dvh - 8px)}#itemDialog #itemForm{max-height:calc(100dvh - 8px)}}
+
+/* v12.4 — closet preference ordering + iPhone form zoom stabilization */
+.item-card{touch-action:pan-y;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;transition:transform .16s ease,box-shadow .16s ease,opacity .16s ease}
+
+
+@media(max-width:768px){#itemDialog input,#itemDialog textarea,#itemDialog select{font-size:16px!important;line-height:1.3}#itemDialog input,#itemDialog select{min-height:44px}#itemDialog textarea{min-height:88px}}
+
+/* v12.5: iPhone-safe long-press closet reordering */
+.item-card{-webkit-touch-callout:none}
+
+
+/* v12.6 — smoother closet sorting */
+.item-card img{-webkit-user-drag:none!important;user-drag:none!important;-webkit-touch-callout:none!important;user-select:none!important;pointer-events:none}
+
+/* v12.7 — usability polish */
+.board-remove-handle{display:none;position:absolute;right:-12px;top:-12px;width:31px;height:31px;border-radius:50%;border:2px solid #fffaf0;background:var(--burgundy);color:#fff;font-size:20px;line-height:1;align-items:center;justify-content:center;box-shadow:0 2px 7px rgba(0,0,0,.18);touch-action:none;z-index:5;padding:0}
+.board-piece.selected .board-remove-handle{display:flex}
+#itemDialog .form-grid label,#itemDialog .full-label{font-weight:600;color:#665e55;letter-spacing:0}
+#itemDialog .form-grid input,#itemDialog .form-grid select,#itemDialog .full-label textarea{font-weight:400;color:#3f3a34;background:#fffdf8}
+#itemDialog .form-grid select{font-family:var(--sans)}
+
+/* v12.8: calm, no-reflow closet reorder preview */
+
+
+.item-card.closet-drop-target.drop-before:before,.item-card.closet-drop-target.drop-after:before{content:"";position:absolute;background:var(--turq);border-radius:5px;z-index:3;pointer-events:none}
+
+
+#undoBoardBtn:disabled{opacity:.35!important}
+#undoBoardBtn.undo-ready{border-color:rgba(77,142,138,.65);background:#e8f0e8}
+.board-editbar button{min-height:38px}
+.board-piece{will-change:left,top,width,height,transform}
+
+
+/* v12.9 — clearer closet reorder states + persistent board controls */
+
+
+.item-card.closet-drop-target.drop-before:before,.item-card.closet-drop-target.drop-after:before{background:var(--burgundy)!important}
+.board-editbar{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:8px;opacity:1!important}
+.board-editbar.hidden{display:grid!important}
+.board-editbar button:disabled{opacity:.34;filter:saturate(.35);cursor:default}
+#undoBoardBtn.undo-ready{opacity:1!important;filter:none!important}
+@media(max-width:430px){.board-editbar{grid-template-columns:repeat(4,minmax(0,1fr))}.board-editbar button{font-size:11px;padding:7px 4px}}
+
+
+/* v12.10 — long-press tap guard, full-card reorder outlines, gentler board pinch */
+
+
+/* v12.11 — clearer, calmer Closet reorder targeting */
+
+/* v13 Journal / Logbook */
+.journal-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 0 10px;padding:10px 12px;background:#efe6d5;border:1px solid var(--line);border-radius:16px}.journal-toolbar>div{display:flex;flex-direction:column}.wear-log-toggle{display:flex;align-items:center;gap:10px;min-width:0;border:0;background:transparent;padding:0;font:inherit;color:inherit;text-align:left;cursor:pointer}.wear-log-toggle>span:first-child{display:flex;flex-direction:column;min-width:0}.wear-log-toggle-icon{font-size:20px;line-height:1;color:var(--burgundy);font-weight:700}.journal-toolbar strong{font-family:var(--serif);font-size:19px;font-weight:600}.journal-toolbar small{font-size:10px;color:#7b7065}.journal-toolbar select{max-width:145px;border:1px solid var(--line);border-radius:12px;padding:8px;background:#fffaf0;font:inherit;font-size:12px}.journal-row-button{width:100%;font:inherit;color:inherit;text-align:left;cursor:pointer}.journal-row{min-height:92px;padding:10px 11px}.journal-row-main{display:flex;align-items:center;gap:10px;min-width:0;flex:1}.journal-thumbs{flex:0 0 auto;max-width:156px}.journal-thumbs img{width:58px;height:58px;border-radius:11px;margin-left:-12px}.journal-row-copy{display:flex;flex-direction:column;min-width:0;gap:4px}.journal-row-copy strong{font-family:var(--serif);font-size:15px;font-weight:600}.journal-row-copy small{font-size:10px;color:#786d61;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:145px}.journal-chevron{font-size:26px;color:#9b8d7d}.stat-action{border:1px solid var(--line);font:inherit;color:inherit;text-align:left;cursor:pointer}.journal-insights-more{margin-top:10px}.journal-insights-more>summary{list-style:none;background:#efe6d5;border:1px solid var(--line);border-radius:14px;padding:10px 12px;font-family:var(--serif);font-size:16px;cursor:pointer}.journal-insights-more>summary::-webkit-details-marker{display:none}.journal-insights-more>summary:after{content:'＋';float:right;color:var(--burgundy)}.journal-insights-more[open]>summary:after{content:'−'}.wear-category-tabs{display:flex;gap:6px;overflow-x:auto;padding:8px 0 6px;scrollbar-width:none}.wear-category-tabs::-webkit-scrollbar{display:none}.wear-category-tabs button{flex:0 0 auto;border:1px solid var(--line);background:#fffaf0;border-radius:18px;padding:7px 11px;font:inherit;font-size:11px}.wear-category-tabs button.active{background:var(--coffee);color:white;border-color:var(--coffee)}.wear-selection-summary{display:flex;align-items:center;justify-content:space-between;padding:2px 2px 4px;color:#756a5d;font-size:11px}.wear-picker{max-height:46dvh;grid-template-columns:repeat(3,1fr);gap:8px}.wear-option{min-height:142px;display:flex;flex-direction:column;align-items:stretch;text-align:left;overflow:hidden}.wear-option img,.wear-placeholder{height:102px;width:100%;object-fit:contain;background:#f3ebdc;border-radius:10px}.wear-placeholder{display:flex;align-items:center;justify-content:center;font-size:28px;color:#9c8e7a}.wear-option strong{font-family:var(--serif);font-size:12px;font-weight:600;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.wear-option small{font-size:9px;text-align:left}.journal-feedback-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end;margin-top:9px}.journal-feedback-row label{font-size:10px;font-weight:650;color:#756a5c}.journal-feedback-row select{display:block;margin-top:4px;width:100%;border:1px solid var(--line);border-radius:12px;padding:9px;background:#fffaf0;font:inherit;font-size:16px}.favorite-toggle{display:flex!important;align-items:center;gap:5px;background:#fffaf0;border:1px solid var(--line);border-radius:12px;padding:9px 10px;white-space:nowrap}.favorite-toggle input{width:18px;height:18px}.journal-edit-actions{justify-content:space-between}.journal-detail-feedback{display:inline-flex;background:#efe6d5;border-radius:16px;padding:7px 10px;font-size:11px;color:var(--burgundy);margin-bottom:10px}.journal-detail-items{display:grid;gap:8px}.journal-detail-item{width:100%;display:grid;grid-template-columns:92px 1fr;gap:11px;align-items:center;background:#fffaf0;border:1px solid var(--line);border-radius:15px;padding:8px;font:inherit;color:inherit;text-align:left}.journal-detail-item img,.journal-detail-item>.wear-placeholder{width:92px;height:100px;object-fit:contain;background:#eee5d5;border-radius:11px}.journal-detail-item div{min-width:0;display:flex;flex-direction:column;gap:4px}.journal-detail-item strong{font-family:var(--serif);font-size:16px;font-weight:600}.journal-detail-item small{font-size:10px;color:#786d61}.stat-detail-item{cursor:default}.wear-dialog{overscroll-behavior:contain}
+@media(max-width:390px){.wear-picker{grid-template-columns:repeat(2,1fr)}.journal-thumbs{max-width:120px}.journal-thumbs img{width:52px;height:52px}.journal-row-copy small{max-width:120px}}
+
+/* v13.1 — journal detail containment, detail rating, and future planning */
+body.journal-detail-open{position:fixed;left:0;right:0;width:100%;overflow:hidden;overscroll-behavior:none}
+#journalDetailDialog::backdrop{background:rgba(45,38,31,.46);touch-action:none;overscroll-behavior:none}
+#journalDetailDialog{overflow:hidden;padding:0;max-height:94vh;max-height:94dvh;overscroll-behavior:contain;touch-action:none}
+#journalDetailDialog .journal-detail-scroll{max-height:calc(94dvh - 72px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;padding:17px 17px 24px;scroll-padding-bottom:88px}
+#journalDetailDialog .journal-detail-actions{position:sticky;bottom:0;z-index:20;display:grid;grid-template-columns:1fr .8fr 1fr;gap:8px;margin:0;padding:11px 17px max(11px,env(safe-area-inset-bottom));background:#f7f0df;border-top:1px solid rgba(108,81,66,.15);box-shadow:0 -7px 18px rgba(64,52,38,.07)}
+#journalDetailDialog .journal-detail-actions button{width:100%;min-height:44px;display:flex;align-items:center;justify-content:center}
+.journal-detail-rating{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:start;margin:2px 0 10px;padding:11px 12px;background:#efe6d5;border:1px solid var(--line);border-radius:16px}
+.journal-rating-control{min-width:0}.journal-rating-label{display:block;font-size:10px;font-weight:700;color:#756a5c;margin-bottom:5px}.journal-rating-stars{display:flex;align-items:center;gap:3px;min-height:34px}.journal-rating-star{appearance:none;-webkit-appearance:none;border:0;background:transparent;padding:0 1px;font:inherit;font-size:27px;line-height:1;color:#9f927d;cursor:pointer;touch-action:manipulation}.journal-rating-star.active{color:#a97922}.journal-rating-text{display:block;margin-top:5px;font-size:10px;color:#756a5c;min-height:14px}.journal-favorite-control{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;min-width:54px}.journal-favorite-control .journal-star-btn{margin-top:0}
+.journal-star-btn{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:#fffaf0;color:var(--burgundy);font-size:27px;line-height:1}.journal-star-btn.active{background:#f3df9e;color:#7d3547;border-color:#c7a951}
+.planned-journal-section{margin-bottom:13px}.planned-section-title{margin-top:8px}.journal-row-planned{border-color:rgba(77,142,138,.45);background:#f2faf7}.journal-date-planned{background:var(--turq)}.planned-badge{display:inline-block;margin-left:5px;padding:2px 5px;border-radius:7px;background:rgba(77,142,138,.13);color:var(--turq);font-family:var(--sans);font-size:8px;font-weight:850;letter-spacing:.08em;vertical-align:2px}
+@supports(height:100dvh){#journalDetailDialog{max-height:calc(100dvh - 8px)}#journalDetailDialog .journal-detail-scroll{max-height:calc(100dvh - 82px)}}
+
+/* v13.2 — journal planning collapse, modal containment, and notes-in-detail */
+.planned-section-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid rgba(77,142,138,.35);background:#f2faf7;border-radius:16px;padding:11px 13px;font:inherit;color:inherit;text-align:left;cursor:pointer}.planned-section-toggle>span:first-child{display:flex;flex-direction:column;gap:2px}.planned-section-toggle strong{font-family:var(--serif);font-size:17px;font-weight:600}.planned-section-toggle small{font-size:10px;color:#637d78}.planned-toggle-icon{font-size:20px;color:var(--turq);font-weight:700}.planned-journal-list{margin-top:8px}
+body.journal-stat-open{position:fixed;left:0;right:0;width:100%;overflow:hidden;overscroll-behavior:none}
+#journalStatDialog::backdrop{background:rgba(45,38,31,.46);touch-action:none;overscroll-behavior:none}
+#journalStatDialog{overflow:hidden;padding:0;max-height:94vh;max-height:94dvh;overscroll-behavior:contain;touch-action:none}
+#journalStatDialog .journal-stat-scroll{max-height:94dvh;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;padding:17px 17px 24px}
+.journal-detail-notes-block{margin:4px 0 13px;padding:10px 11px;background:#fffaf0;border:1px solid var(--line);border-radius:16px}.journal-detail-notes-block label{display:block;font-size:10px;font-weight:700;color:#756a5c;margin-bottom:5px}.journal-detail-notes-block textarea{width:100%;min-height:76px;resize:vertical;border:1px solid var(--line);border-radius:12px;background:#fbf6eb;color:var(--ink);padding:9px 10px;font:400 16px/1.35 var(--sans);box-sizing:border-box}.journal-save-notes-btn{margin-top:7px;width:100%}
+@supports(height:100dvh){#journalStatDialog{max-height:calc(100dvh - 8px)}#journalStatDialog .journal-stat-scroll{max-height:calc(100dvh - 8px)}}
+
+
+/* v13.3 — journal log/edit modal containment + centered date */
+body.wear-dialog-open{position:fixed;left:0;right:0;width:100%;overflow:hidden;overscroll-behavior:none}
+#wearDialog::backdrop{background:rgba(45,38,31,.46);touch-action:none;overscroll-behavior:none}
+#wearDialog{overflow:hidden;padding:0;max-height:94vh;max-height:94dvh;overscroll-behavior:contain;touch-action:none}
+#wearDialog #wearForm{max-height:94vh;max-height:94dvh;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;padding:17px 17px 0;scroll-padding-bottom:88px}
+#wearDialog .journal-edit-actions{position:sticky;bottom:0;z-index:20;margin:16px -17px 0;padding:11px 17px max(11px,env(safe-area-inset-bottom));background:#f7f0df;border-top:1px solid rgba(108,81,66,.15);box-shadow:0 -7px 18px rgba(64,52,38,.07)}
+#wearDialog .wear-date-label{display:block;text-align:center;margin:2px auto 4px;font-size:11px;font-weight:700;color:#756a5c}
+#wearDialog #wearDate{display:block;width:min(230px,100%);margin:5px auto 0;text-align:center;text-align-last:center;font-size:16px}
+#wearDialog #wearDate::-webkit-date-and-time-value{text-align:center;min-width:100%}
+#wearDialog .sheet-head,#wearDialog .journal-edit-actions,#wearDialog button,#wearDialog input,#wearDialog label{touch-action:manipulation}
+@supports(height:100dvh){#wearDialog{max-height:calc(100dvh - 8px)}#wearDialog #wearForm{max-height:calc(100dvh - 8px)}}
+
+/* v13.4-dev2 journal detail cleanup */
+.journal-detail-feedback.hidden{display:none}
+.journal-notes-details{padding:0;overflow:hidden}
+.journal-notes-details>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 12px;cursor:pointer;font-family:var(--serif);font-size:15px;font-weight:600;color:var(--ink);touch-action:manipulation}
+.journal-notes-details>summary::-webkit-details-marker{display:none}
+.journal-notes-details>summary:after{content:'＋';color:var(--burgundy);font-family:var(--sans);font-size:17px;font-weight:500}
+.journal-notes-details[open]>summary:after{content:'−'}
+.journal-notes-details>summary small{margin-left:auto;font-family:var(--sans);font-size:10px;font-weight:400;color:#84786a}
+.journal-notes-body{padding:0 10px 10px}
+.journal-notes-details textarea{margin-top:0}
+
+
+/* v13.4-dev4 — reliable wear-log + notes collapse, duplicate rating cleanup */
+.wear-log-header{margin-bottom:7px}
+.wear-log-header .wear-log-toggle{width:100%;justify-content:space-between}
+.wear-log-content{display:grid;gap:8px;margin-bottom:10px}
+.wear-log-filter-row{display:flex;justify-content:flex-end;padding:0 2px}
+.wear-log-filter-row select{max-width:160px;border:1px solid var(--line);border-radius:12px;padding:8px;background:#fffaf0;font:inherit;font-size:12px;color:var(--ink)}
+.journal-notes-panel{padding:0!important;overflow:hidden}
+.journal-notes-toggle{width:100%;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:9px;border:0;background:transparent;padding:11px 12px;font:inherit;color:inherit;text-align:left;cursor:pointer;touch-action:manipulation}
+.journal-notes-toggle>span:first-child{font-family:var(--serif);font-size:15px;font-weight:600}
+.journal-notes-toggle small{justify-self:end;font-size:10px;color:#84786a}
+.journal-notes-toggle-icon{font-size:17px;color:var(--burgundy)}
+.journal-notes-panel .journal-notes-body{padding:0 10px 10px}
+
+
+/* v13.6 — Today's Look + safe journal item preview */
+.today-journal-section{margin:4px 0 13px;padding:10px;border:1px solid rgba(125,53,71,.25);background:#fff8e8;border-radius:18px}.today-section-title{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 2px 8px}.today-section-title strong{font-family:var(--serif);font-size:19px;font-weight:600;color:var(--burgundy)}.today-section-title small{font-size:10px;color:#887765}.today-journal-list .journal-row{border-color:rgba(125,53,71,.24);background:#fffdf6}
+body.journal-item-preview-open{position:fixed;left:0;right:0;width:100%;overflow:hidden;overscroll-behavior:none}
+#journalItemPreviewDialog::backdrop{background:rgba(45,38,31,.46);touch-action:none;overscroll-behavior:none}
+#journalItemPreviewDialog{overflow:hidden;padding:0;max-height:94vh;max-height:94dvh;overscroll-behavior:contain;touch-action:none}
+#journalItemPreviewDialog .journal-item-preview-scroll{max-height:calc(94dvh - 72px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;padding:17px 17px 24px;scroll-padding-bottom:88px}
+.journal-item-preview-photo{display:flex;align-items:center;justify-content:center;min-height:230px;background:#eee5d5;border:1px solid var(--line);border-radius:18px;overflow:hidden;margin-bottom:12px}.journal-item-preview-photo img{width:100%;height:300px;object-fit:contain}.journal-preview-placeholder{font-size:48px;color:#9c8e7a}.journal-item-preview-details{display:grid;gap:0;background:#fffaf0;border:1px solid var(--line);border-radius:16px;overflow:hidden}.journal-preview-detail-row{display:grid;grid-template-columns:minmax(90px,.7fr) minmax(0,1.3fr);gap:12px;align-items:start;padding:10px 12px;border-bottom:1px solid rgba(108,81,66,.12)}.journal-preview-detail-row:last-child{border-bottom:0}.journal-preview-detail-row span{font-size:10px;color:#817568;text-transform:uppercase;letter-spacing:.05em}.journal-preview-detail-row strong{font-size:13px;font-weight:500;overflow-wrap:anywhere}.journal-item-preview-actions{position:sticky;bottom:0;z-index:20;display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0;padding:11px 17px max(11px,env(safe-area-inset-bottom));background:#f7f0df;border-top:1px solid rgba(108,81,66,.15);box-shadow:0 -7px 18px rgba(64,52,38,.07)}.journal-item-preview-actions button{width:100%;min-height:44px}
+@supports(height:100dvh){#journalItemPreviewDialog{max-height:calc(100dvh - 8px)}#journalItemPreviewDialog .journal-item-preview-scroll{max-height:calc(100dvh - 82px)}}
+
+
+/* v13.7-dev2 — closet lifecycle / archive support */
+.include-archived-toggle{display:flex;align-items:center;gap:7px;width:max-content;margin:-5px 0 11px 2px;font-size:11px;font-weight:700;color:#766b5e;cursor:pointer;user-select:none;-webkit-user-select:none}
+.include-archived-toggle input{width:17px;height:17px;accent-color:var(--turq);margin:0}
+.item-card-archived{opacity:.72}.item-card-archived .thumb{filter:saturate(.72)}
+.archived-badge{position:absolute;left:7px;bottom:7px;background:rgba(67,62,53,.86);color:#fffaf0;border-radius:999px;padding:4px 7px;font-size:8px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}
+.item-archive-notice{display:flex;flex-direction:column;gap:2px;margin:10px 0 4px;padding:10px 12px;border:1px solid rgba(77,142,138,.32);border-radius:14px;background:rgba(77,142,138,.09)}
+.item-archive-notice strong{font-family:var(--serif);font-size:16px}.item-archive-notice span{font-size:10px;line-height:1.35;color:#6f675d}
+.permanent-delete-btn{display:block;width:100%;margin:10px 0 2px;border:0;background:transparent;color:#8c2f3a;text-decoration:underline;text-underline-offset:3px;font:700 10px var(--sans);padding:7px;cursor:pointer}
+#itemDialog #deleteItemBtn.reactivate-item{color:var(--olive-dark);background:rgba(102,113,90,.12);border-radius:12px}
+
+/* v13.7-dev2 — archived filter placement + destructive action containment */
+.filter-panel .filter-archived-toggle{margin:0;align-self:center;padding:7px 2px}.photo-tools-body .permanent-delete-btn{margin:10px 0 0;padding:10px 6px 2px;border-top:1px solid rgba(140,47,58,.16);text-align:left}
+
+/* v13.8-dev1 — Photo Studio editing engine */
+.studio-v138{padding:0;overflow:hidden;max-height:96dvh;width:min(680px,96vw)}
+.studio-v138 .studio-shell{display:flex;flex-direction:column;max-height:96dvh;overflow:hidden;background:var(--paper,#fbf6eb)}
+.studio-v138 .studio-head{padding:14px 16px 6px;margin:0;flex:0 0 auto}
+.studio-v138 .studio-template{margin:0 16px 6px;flex:0 0 auto}
+.studio-v138 .studio-canvas-wrap{width:min(calc(100vw - 28px),520px);height:min(calc(100vw - 28px),520px);max-height:52dvh;flex:0 1 auto;min-height:230px}
+.studio-v138 .studio-canvas-wrap canvas{cursor:crosshair}
+.studio-zoom-controls{position:absolute;right:8px;top:8px;display:flex;gap:3px;z-index:5;background:rgba(255,250,240,.9);padding:3px;border-radius:12px;border:1px solid rgba(120,105,88,.25);backdrop-filter:blur(5px)}
+.studio-zoom-controls button{min-width:34px;height:32px;border:0;border-radius:9px;background:transparent;color:var(--coffee);font:700 14px var(--sans);padding:0 7px}
+#studioZoomReset{min-width:48px;font-size:10px}
+.studio-cutout-bar{margin:7px 12px 0;padding:7px 9px;border:1px solid var(--line);border-radius:13px;background:#fffaf0;display:flex;align-items:center;gap:7px;flex-wrap:wrap;flex:0 0 auto}
+.studio-cutout-bar>span{font-size:10px;font-weight:800;color:#756a5c}.studio-cutout-bar .studio-tabs{margin:0;flex:1;min-width:230px}.studio-cutout-bar .studio-tabs button{padding:6px 8px}
+.studio-edge-control{width:100%;font-size:9px;font-weight:700;color:#756a5c;display:flex;align-items:center;gap:8px}.studio-edge-control input{flex:1}
+.studio-context-controls{min-height:42px;margin:5px 12px 0;display:flex;align-items:center;flex:0 0 auto}
+.studio-brush-control{width:100%;display:grid;grid-template-columns:auto auto 1fr;gap:7px;align-items:center;padding:5px 9px;border-radius:11px;background:#efe6d5;font-size:10px;font-weight:750;color:#756a5c}.studio-brush-control input{width:100%;margin:0}.studio-brush-control span{font-weight:500}
+.studio-move-hint{width:100%;padding:7px 10px;border-radius:11px;background:#e8f0e8;color:#536554;font-size:10px;font-weight:650;text-align:center}
+.studio-toolbar{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:6px 10px 8px;background:rgba(251,246,235,.97);border-top:1px solid var(--line);border-bottom:1px solid var(--line);position:sticky;bottom:0;z-index:8;flex:0 0 auto}
+.studio-action{border:1px solid var(--line);background:#fffaf0;border-radius:11px;min-height:48px;padding:4px 2px;font:700 9px var(--sans);color:#655b50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}.studio-action span{font-size:17px;line-height:1}.studio-action.active{background:var(--coffee);color:#fff;border-color:var(--coffee)}.studio-action:disabled{opacity:.35}.studio-move-toggle.active{background:var(--turq);border-color:var(--turq)}
+.studio-more-tools{margin:5px 12px 0;border:1px solid var(--line);border-radius:11px;background:#fffaf0;flex:0 0 auto}.studio-more-tools summary{padding:7px 10px;font-size:10px;font-weight:800;color:#756a5c;cursor:pointer}.studio-more-tools[open] summary{border-bottom:1px solid var(--line)}.studio-more-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:7px 8px 0}.studio-more-tools .studio-bg-row{padding:0 8px 8px;margin-top:7px}
+.studio-status{margin:5px 12px 2px;min-height:14px;flex:0 0 auto}.studio-save-actions{padding:6px 10px max(8px,env(safe-area-inset-bottom));margin:0;flex:0 0 auto;background:var(--paper,#fbf6eb)}
+@media(max-height:700px){.studio-v138 .studio-canvas-wrap{max-height:44dvh;min-height:190px}.studio-edge-control{display:none}.studio-context-controls{min-height:34px}.studio-action{min-height:42px}}
+
+/* v13.8-dev1.1 — Photo Studio interaction fixes */
+.studio-v138 .studio-canvas-wrap.studio-view-mode canvas{cursor:zoom-in}
+.studio-v138 .studio-canvas-wrap.studio-brush-mode canvas{cursor:crosshair}
+.studio-v138 .studio-canvas-wrap.studio-object-move-mode canvas{cursor:move}
+
+
+/* v13.8-dev1.2 — preserve edited photo, placement guide alignment, scrollable studio */
+.studio-v138 .studio-shell{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:0}
+.studio-v138 .studio-head{position:sticky;top:0;z-index:12;background:var(--paper,#fbf6eb)}
+.studio-v138 .studio-toolbar{position:relative;bottom:auto}
+.studio-v138 .studio-save-actions{position:sticky;bottom:0;z-index:14;border-top:1px solid var(--line);box-shadow:0 -5px 14px rgba(70,55,40,.08)}
+.studio-v138 .studio-more-tools{margin-bottom:6px}
+
+/* v13.8-dev1.3 — full canvas, compact cutout panel, pan/zoom board viewport */
+.studio-v138 .studio-shell{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.studio-v138 .studio-canvas-wrap{
+  width:min(calc(100vw - 20px),620px);
+  height:auto;
+  aspect-ratio:1/1;
+  max-height:none;
+  min-height:0;
+  flex:0 0 auto;
+  margin:0 auto 4px;
+  background:#e9e3d8;
+}
+.studio-v138 .studio-canvas-wrap canvas{width:100%;height:100%;display:block}
+.studio-v138 .studio-guide{display:none}
+@media(max-height:700px){.studio-v138 .studio-canvas-wrap{max-height:none;min-height:0}}
+.studio-cutout-tools{margin:6px 12px 0;border:1px solid var(--line);border-radius:11px;background:#fffaf0;flex:0 0 auto}
+.studio-cutout-tools summary{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 10px;cursor:pointer;color:#756a5c}
+.studio-cutout-tools summary span{font-size:10px;font-weight:800}
+.studio-cutout-tools summary small{font-size:9px;font-weight:600;color:#948777}
+.studio-cutout-tools[open] summary{border-bottom:1px solid var(--line)}
+.studio-cutout-body{padding:6px 8px 7px}
+.studio-cutout-tools .studio-tabs{margin:0;display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.studio-cutout-tools .studio-tabs button{padding:6px 5px;font-size:10px;min-height:32px}
+.studio-cutout-tools .studio-edge-control{margin-top:6px;font-size:9px;padding:0 2px}
+
+/* v13.8-dev1.4 — Photo Studio cosmetic cleanup */
+.studio-context-controls{min-height:36px;margin:6px 12px 5px}
+.studio-brush-control{min-height:34px;padding:7px 10px;gap:8px;border-radius:11px}
+.studio-move-hint{min-height:34px;display:flex;align-items:center;justify-content:center;padding:7px 10px}
+.studio-cutout-tools summary span{display:flex;align-items:center;gap:5px}
+.studio-cutout-tools summary::marker,.studio-more-tools summary::marker{color:var(--burgundy);font-size:11px}
+.studio-cutout-tools summary::-webkit-details-marker,.studio-more-tools summary::-webkit-details-marker{color:var(--burgundy)}
+.studio-bg-palette{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:1px 8px 10px}
+.studio-bg-palette.hidden{display:none}
+.studio-bg-swatch{width:100%;aspect-ratio:1/1;max-width:34px;justify-self:center;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px rgba(92,77,63,.28);background:var(--swatch);padding:0;cursor:pointer}
+.studio-bg-swatch.active{box-shadow:0 0 0 2px var(--burgundy)}
+
+/* v13.8-dev1.8 — disclosure consistency, reusable palettes, legacy cutout safety */
+.studio-cutout-tools>summary,.studio-more-tools>summary{list-style:none;position:relative;padding-left:27px}
+.studio-cutout-tools>summary::-webkit-details-marker,.studio-more-tools>summary::-webkit-details-marker{display:none}
+.studio-cutout-tools>summary::before,.studio-more-tools>summary::before{content:'▸';position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--burgundy);font-size:11px;line-height:1;transition:transform .14s ease}
+.studio-cutout-tools[open]>summary::before,.studio-more-tools[open]>summary::before{transform:translateY(-50%) rotate(90deg)}
+.studio-cutout-tools.cutout-used .studio-edge-control{opacity:.45}
+.studio-cutout-tools .studio-mode:disabled{opacity:.38;filter:saturate(.5);cursor:not-allowed}
+.studio-bg-palette{display:flex;flex-direction:column;gap:8px;padding:3px 8px 11px}
+.studio-bg-palette.hidden{display:none}
+.studio-palette-row{display:grid;grid-template-columns:58px minmax(0,1fr);gap:6px;align-items:center}
+.studio-palette-label{font-size:8px;font-weight:800;color:#756a5c;text-transform:uppercase;letter-spacing:.05em}
+.studio-palette-swatches{display:grid;grid-template-columns:repeat(10,minmax(20px,1fr));gap:4px;align-items:center}
+.studio-bg-swatch{width:100%;max-width:28px;min-width:20px;aspect-ratio:1/1}
+.permanent-delete-btn{font-size:10px!important;line-height:1.15!important;-webkit-text-size-adjust:none;text-size-adjust:none}
+@media(orientation:portrait){.photo-tools-body .permanent-delete-btn{font-size:10px!important;line-height:1.15!important}}
+
+
+.studio-adjust-tools{margin:5px 12px 0;border:1px solid var(--line);border-radius:11px;background:#fffaf0;flex:0 0 auto}
+.studio-adjust-tools summary{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 10px;cursor:pointer;color:#756a5c;list-style:none;position:relative;padding-left:27px}
+.studio-adjust-tools summary span{font-size:10px;font-weight:800;display:flex;align-items:center;gap:5px}
+.studio-adjust-tools summary small{font-size:9px;font-weight:600;color:#948777}
+.studio-adjust-tools[open] summary{border-bottom:1px solid var(--line)}
+.studio-adjust-tools>summary::-webkit-details-marker{display:none}
+.studio-adjust-tools>summary::before{content:'▸';position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--burgundy);font-size:11px;line-height:1;transition:transform .14s ease}
+.studio-adjust-tools[open]>summary::before{transform:translateY(-50%) rotate(90deg)}
+.studio-adjust-grid{display:grid;grid-template-columns:1fr;gap:8px;padding:8px}
+.studio-adjust-control{display:grid;grid-template-columns:auto auto;gap:4px 8px;align-items:center;padding:7px 9px;border-radius:10px;background:#f4ecdd;color:#6f665a;font-size:10px;font-weight:700}
+.studio-adjust-control strong{justify-self:end;font-size:10px;color:#8a4b58}
+.studio-adjust-control input{grid-column:1/-1;width:100%;margin:0}
+.studio-adjust-actions{padding:0 8px 8px}
+.studio-adjust-actions .soft-btn{width:100%}
+
+
+/* v13.10-dev1.1 — Photo Studio layout refinement */
+.studio-v138 .studio-shell{overflow:hidden;height:min(96dvh,960px);max-height:96dvh}
+.studio-v138 .studio-head{position:relative;top:auto}
+.studio-v138 .studio-template{margin-bottom:4px}
+.studio-v138 .studio-canvas-wrap{flex:0 0 auto;position:relative;z-index:2}
+.studio-controls-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:8px}
+.studio-controls-scroll .studio-toolbar{position:relative;bottom:auto;top:auto}
+.studio-v138 .studio-save-actions{position:relative;bottom:auto;box-shadow:0 -5px 14px rgba(70,55,40,.08);z-index:6}
+@media (max-height:760px){
+  .studio-v138 .studio-canvas-wrap{width:min(calc(100vw - 24px),560px)}
+  .studio-controls-scroll{padding-bottom:6px}
+}
+
+
+/* v13.10-dev1.2 — fixed primary toolbar below photo */
+.studio-v138 .studio-toolbar-fixed{flex:0 0 auto;position:relative;z-index:5;margin:0;background:rgba(251,246,235,.99);box-shadow:0 3px 10px rgba(70,55,40,.05)}
+.studio-controls-scroll{border-top:1px solid rgba(120,105,88,.12)}
+.studio-controls-scroll .studio-context-controls{margin-top:7px}
+.studio-controls-scroll .studio-cutout-tools{margin-top:5px}
+
+
+/* v13.10-dev1.3 — Studio instructions + Journal/iPad layout fixes */
+.studio-context-controls{flex-wrap:wrap}
+.studio-tool-instruction{width:100%;margin-top:5px;padding:6px 9px;border-radius:9px;background:#f7f0e2;border:1px solid rgba(108,81,66,.12);color:#74695d;font-size:9px;line-height:1.35;text-align:left}
+.studio-brush-control + .studio-tool-instruction,.studio-move-hint + .studio-tool-instruction{margin-top:5px}
+.today-journal-list{width:100%;min-width:0;overflow:hidden}
+.today-journal-list .journal-row{width:100%;max-width:100%;min-width:0;overflow:hidden;margin:0}
+.today-journal-list .journal-row-main{min-width:0;max-width:100%;overflow:hidden}
+.today-journal-list .journal-thumbs{min-width:0;max-width:44%;overflow:hidden}
+.today-journal-list .journal-row-copy{min-width:0;overflow:hidden}
+.today-journal-list .journal-chevron{flex:0 0 auto}
+@media(min-width:680px){
+  .bottom-nav{left:50%!important;right:auto!important;width:min(680px,calc(100vw - 32px));max-width:calc(100vw - 32px);transform:translate3d(-50%,0,0)!important;-webkit-transform:translate3d(-50%,0,0)!important}
+}
+
+/* v13.11-dev1 — Portfolio foundation + detail */
+.outfit-view-dialog{padding:0;overflow:hidden;max-height:92dvh;width:min(620px,94vw);display:none;flex-direction:column}
+.outfit-view-dialog[open]{display:flex}
+.outfit-view-scroll{min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:16px 16px 6px}
+.outfit-view-head{margin-bottom:10px;align-items:flex-start}
+.outfit-view-head>div:first-child{min-width:0}
+.outfit-view-head h2{margin-bottom:1px;overflow-wrap:anywhere}
+.outfit-view-folder{display:block;color:#8b7d6d;font-size:10px;font-weight:750;letter-spacing:.04em;text-transform:uppercase}
+.outfit-view-head-actions{display:flex;align-items:center;gap:7px;flex:0 0 auto}
+.outfit-view-favorite{width:38px;height:38px;border-radius:50%;border:1px solid rgba(125,53,71,.28);background:#fffaf0;color:var(--burgundy);font-size:24px;line-height:1;display:grid;place-items:center;padding:0;cursor:pointer}
+.outfit-view-favorite.active{background:#f5e8b8;color:#8a6330;border-color:#d4b55e}
+.outfit-view-dialog .snapshot{width:100%;height:auto;aspect-ratio:390/420;min-height:0;max-height:none;margin:0 auto;border-radius:18px;overflow:hidden}
+.outfit-view-copy{padding:2px 1px 10px}
+.outfit-view-dialog .outfit-note{white-space:pre-wrap;overflow-wrap:anywhere;margin:10px 2px 9px;max-height:none;display:block}
+.outfit-items-panel{border:1px solid var(--line);background:#fffaf0;border-radius:14px;overflow:hidden;margin-top:9px}
+.outfit-items-panel summary{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;cursor:pointer;color:#685d51;font-size:11px;font-weight:800}
+.outfit-items-panel summary small{font-size:9px;color:#938573;font-weight:650;text-align:right}
+.outfit-items-panel[open] summary{border-bottom:1px solid var(--line)}
+.portfolio-item-list{display:grid;gap:5px;padding:7px}
+.portfolio-item-row{display:grid;grid-template-columns:48px minmax(0,1fr);gap:9px;align-items:center;padding:6px;border-radius:11px;background:#f5ecdc}
+.portfolio-item-row img,.portfolio-item-placeholder{width:48px;height:48px;border-radius:9px;object-fit:contain;background:#fffdf8;border:1px solid rgba(108,81,66,.11)}
+.portfolio-item-placeholder{display:grid;place-items:center;color:#9a8c79;font-family:var(--serif)}
+.portfolio-item-row strong{display:block;font-family:var(--serif);font-size:13px;font-weight:600;color:var(--ink);overflow-wrap:anywhere}
+.portfolio-item-row small{display:block;margin-top:2px;font-size:9px;color:#817565;overflow-wrap:anywhere}
+.portfolio-item-count{font-family:var(--sans);font-size:9px;color:var(--burgundy);font-weight:800}
+.portfolio-items-empty{font-size:10px;color:#817565;margin:5px;padding:8px}
+.outfit-view-dialog .outfit-view-actions{flex:0 0 auto;margin:0;padding:9px 12px max(10px,env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--paper,#fbf6eb);box-shadow:0 -5px 14px rgba(70,55,40,.07);display:grid;grid-template-columns:auto 1fr 1.25fr;gap:7px;align-items:center}
+.outfit-view-dialog .outfit-view-actions .primary,.outfit-view-dialog .outfit-view-actions .soft-btn{margin:0;width:100%;min-width:0}
+@media(min-width:700px){.outfit-view-dialog .snapshot{max-width:460px}.outfit-view-dialog .outfit-view-copy{max-width:520px;margin:0 auto;width:100%}}
+
+
+/* v13.11-dev2 — safe Board switching + duplicate look */
+.outfit-view-actions{display:grid;grid-template-columns:auto 1fr 1fr 1.15fr;gap:7px;align-items:center}
+.outfit-view-actions button{min-width:0}
+.board-conflict-dialog{width:min(480px,92vw)}
+.board-conflict-message{margin:4px 18px 14px;color:#6f665a;line-height:1.45;font-size:13px}
+.board-conflict-actions{display:grid;gap:8px;padding:0 16px 16px}
+.board-conflict-actions button{width:100%;min-height:44px}
+@media(max-width:520px){.outfit-view-actions{grid-template-columns:1fr 1fr}.outfit-view-actions .danger-text{grid-column:1/2}.outfit-view-actions #editViewedOutfitBtn{grid-column:1/-1}}
+
+/* v13.11-dev3 — Portfolio interaction and share refinements */
+.portfolio-card,.portfolio-card .outfit-mini,.outfit-view-dialog .snapshot{-webkit-touch-callout:none;user-select:none;-webkit-user-select:none}
+.portfolio-card img,.outfit-view-dialog .snapshot img{pointer-events:none;-webkit-touch-callout:none;user-select:none;-webkit-user-select:none}
+.outfit-view-dialog .snapshot-piece{pointer-events:none}
+.portfolio-item-row{width:100%;grid-template-columns:48px minmax(0,1fr) auto;border:0;text-align:left;font:inherit;color:inherit;cursor:pointer;-webkit-touch-callout:none}
+.portfolio-item-row img{pointer-events:none;-webkit-touch-callout:none;user-select:none;-webkit-user-select:none}
+.portfolio-item-chevron{font-size:25px;color:#a09280;padding:0 3px}
+.portfolio-item-preview-dialog{padding:0;overflow:hidden;max-height:94dvh;width:min(620px,94vw)}
+.portfolio-item-preview-scroll{max-height:calc(94dvh - 68px);overflow-y:auto;-webkit-overflow-scrolling:touch;padding:17px 17px 24px}
+.portfolio-item-preview-photo{display:flex;align-items:center;justify-content:center;min-height:230px;background:#eee5d5;border:1px solid var(--line);border-radius:18px;overflow:hidden;margin-bottom:12px;-webkit-touch-callout:none}
+.portfolio-item-preview-photo img{width:100%;height:300px;object-fit:contain;pointer-events:none;-webkit-touch-callout:none;user-select:none;-webkit-user-select:none}
+.portfolio-item-preview-actions{position:sticky;bottom:0;margin:0;padding:10px 17px max(11px,env(safe-area-inset-bottom));background:#f7f0df;border-top:1px solid rgba(108,81,66,.15)}
+.portfolio-item-preview-actions .primary{width:100%}
+.share-choice-dialog{max-width:520px}
+.share-choice-copy{font-size:12px;line-height:1.45;color:#74695d;margin:-3px 0 12px}
+.share-choice-list{display:grid;gap:9px}
+.share-choice-btn{width:100%;border:1px solid var(--line);background:#fffaf0;border-radius:16px;padding:13px 14px;text-align:left;color:var(--ink);font:inherit;cursor:pointer}
+.share-choice-btn strong{display:block;font-family:var(--serif);font-size:17px;font-weight:600}
+.share-choice-btn small{display:block;margin-top:3px;color:#796f62;font-size:10px;line-height:1.35}
+.share-choice-btn:active{background:#eee4d0}
+.share-preview-frame{max-height:66dvh;overflow:auto;-webkit-overflow-scrolling:touch}
+.share-preview-frame img{aspect-ratio:auto;height:auto;max-height:none;object-fit:contain}
+
+
+/* v13.11-dev4 — Portfolio drag reorder + share emoji rendering */
+.portfolio-reorder-hint{margin:-3px 3px 8px;font-size:9px;color:#8a7d6b;min-height:12px}
+.portfolio-card.portfolio-drag-source{opacity:.28;filter:saturate(.65)}
+.portfolio-drag-ghost{background:#fffaf0;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 18px 42px rgba(55,43,31,.28);opacity:.95;-webkit-touch-callout:none;user-select:none;transition:none!important}
+.portfolio-drag-ghost img{pointer-events:none;-webkit-user-drag:none}
+body.portfolio-reordering{touch-action:none;overflow-x:hidden!important}
+body.portfolio-reordering .bottom-nav{pointer-events:none}
+.portfolio-card.portfolio-drop-target{position:relative;z-index:2;opacity:.6;box-shadow:0 0 0 3px rgba(77,142,138,.62),0 8px 18px rgba(56,46,34,.12)!important}
+.portfolio-card.portfolio-drop-target:after{content:'DROP HERE';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);padding:6px 8px;border-radius:11px;background:rgba(54,91,88,.91);color:#fff;font-size:9px;font-weight:800;letter-spacing:.06em;pointer-events:none;white-space:nowrap;z-index:10}
+.portfolio-card.portfolio-drop-target.drop-before:before,.portfolio-card.portfolio-drop-target.drop-after:before{content:'';position:absolute;background:var(--turq);border-radius:5px;z-index:11;pointer-events:none;top:5%;bottom:5%;width:4px}
+.portfolio-card.portfolio-drop-target.drop-before:before{left:-5px}.portfolio-card.portfolio-drop-target.drop-after:before{right:-5px}
+.portfolio-drop-outline{position:fixed;display:none;pointer-events:none;z-index:4998;border:3px dashed rgba(77,142,138,.78);border-radius:18px;background:rgba(77,142,138,.06);box-sizing:border-box}
+.portfolio-drop-outline.visible{display:block}
+
+
+/* v13.11-dev4.1 — reorder interaction polish */
+.portfolio-card{-webkit-touch-callout:none;user-select:none;touch-action:pan-y}
+body.portfolio-reordering{overflow-x:hidden!important;overflow-y:auto!important;touch-action:none!important}
+.portfolio-drop-outline{position:fixed;display:none;pointer-events:none;z-index:5600;border:3px dashed rgba(125,53,71,.94);border-radius:18px;box-sizing:border-box;background:rgba(255,250,240,.06);filter:drop-shadow(0 2px 2px rgba(255,250,240,.9))}
+.portfolio-drop-outline.visible{display:block}
+.portfolio-drag-ghost{animation:reorderLift .16s ease-out both}
+.portfolio-card.portfolio-drop-target{animation:reorderTargetPulse .72s ease-in-out infinite alternate}
+.portfolio-drop-confirm{animation:reorderDropConfirm .34s ease-out both!important}
+@keyframes reorderLift{from{opacity:.72;transform:scale(.985)}to{opacity:.96}}
+@keyframes reorderTargetPulse{from{filter:saturate(.72);opacity:.45}to{filter:saturate(.9);opacity:.68}}
+@keyframes reorderDropConfirm{0%{transform:scale(.975);box-shadow:0 0 0 3px rgba(77,142,138,.55)}65%{transform:scale(1.018);box-shadow:0 0 0 4px rgba(77,142,138,.35)}100%{transform:scale(1);box-shadow:none}}
+
+
+/* v13.11-dev4.2 — reorder interaction polish */
+/* Keep drag ghosts at their finger-calculated transform. The earlier lift keyframe
+   animated transform itself, which could momentarily draw a card from the viewport origin. */
+.portfolio-drag-ghost{
+  animation:reorderLiftOpacity .16s ease-out both!important;
+  transform-origin:center center;
+}
+@keyframes reorderLiftOpacity{from{opacity:.76}to{opacity:.96}}
+
+/* Portfolio: original slot stays quietly in place while the floating card lifts. */
+.portfolio-card.portfolio-drag-source{
+  opacity:.30!important;
+  filter:saturate(.72)!important;
+  outline:none!important;
+  box-shadow:none!important;
+}
+.portfolio-drag-ghost{
+  border:1px solid rgba(120,105,88,.24)!important;
+  box-shadow:0 20px 44px rgba(55,43,31,.30)!important;
+}
+
+/* Closet: match the calmer Portfolio drag language. No turquoise frame around the
+   source or floating card; the destination gets the two-layer turquoise + burgundy cue. */
+
+
+
+/* v13.11-dev4.5 — canonical Closet reorder styles + fixed drag overlay */
+.item-card{touch-action:pan-y;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.item-card img{-webkit-user-drag:none!important;user-drag:none!important;-webkit-touch-callout:none!important;user-select:none!important;pointer-events:none}
+body.closet-reordering{overflow-x:hidden!important;overflow-y:auto!important;touch-action:none!important}
+body.closet-reordering .bottom-nav{pointer-events:none}
+.closet-grid-reordering .item-card{transition:none!important;animation:none!important}
+.item-card.closet-drag-source{position:relative!important;opacity:.30!important;filter:saturate(.72)!important;outline:none!important;box-shadow:none!important}
+.item-card.closet-drag-source::before{display:none!important}
+.closet-drag-overlay{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;pointer-events:none!important;overflow:visible!important;z-index:5500!important;transform:none!important;contain:none!important}.closet-drag-ghost{position:absolute!important;background:#fffaf0;border:1px solid rgba(120,105,88,.24)!important;border-radius:19px;overflow:hidden;box-sizing:border-box!important;opacity:.96!important;box-shadow:0 20px 44px rgba(55,43,31,.30)!important;transition:none!important;animation:reorderLiftOpacity .16s ease-out both!important;transform-origin:top left!important;-webkit-touch-callout:none!important;user-select:none!important}
+.closet-drag-ghost img{pointer-events:none!important;-webkit-user-drag:none!important}
+.item-card.closet-drop-target{position:relative!important;z-index:2!important;opacity:.60!important;filter:none!important;outline:none!important;box-shadow:0 0 0 3px rgba(77,142,138,.62),0 8px 18px rgba(56,46,34,.12)!important;animation:reorderTargetPulse .72s ease-in-out infinite alternate}
+.item-card.closet-drop-target::after{display:none!important}
+.item-card.closet-drop-target.drop-before::before,.item-card.closet-drop-target.drop-after::before{display:none!important}
+.closet-drop-outline{position:absolute;display:none;pointer-events:none;z-index:2;border:3px dashed rgba(125,53,71,.94)!important;border-radius:19px!important;box-sizing:border-box;background:rgba(255,250,240,.06)!important;filter:drop-shadow(0 2px 2px rgba(255,250,240,.9))!important}
+.closet-drop-outline.visible{display:block}
+.closet-drop-confirm{animation:reorderDropConfirm .34s ease-out both!important}
+
+
+/* v13.11-dev5 — Portfolio folder order + detail lock */
+.system-folder-row input[readonly]{background:#f0eadf;color:#756a5c;font-weight:800}
+.system-folder-lock{width:34px;height:34px;border:1px solid var(--line);border-radius:10px;background:#f3ecdf;color:#8b7d6d;display:grid;place-items:center;font-size:13px}
+.outfit-view-scroll{overflow-y:hidden;overscroll-behavior:none}
+.outfit-view-scroll.allow-detail-scroll{overflow-y:auto;overscroll-behavior:contain}
+.outfit-view-dialog .outfit-view-actions{position:relative;z-index:5}
+
+
+/* v13.11-dev5.1 — Portfolio modal background lock + expandable cue */
+body.portfolio-modal-open{position:fixed;left:0;right:0;width:100%;overflow:hidden;overscroll-behavior:none;touch-action:none}
+#outfitViewDialog,#portfolioItemPreviewDialog{overscroll-behavior:contain}
+.outfit-items-panel>summary{list-style:none;position:relative;padding-left:30px}
+.outfit-items-panel>summary::-webkit-details-marker{display:none}
+.outfit-items-panel>summary::before{content:'▸';position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--burgundy);font-size:12px;line-height:1;transition:transform .14s ease}
+.outfit-items-panel[open]>summary::before{transform:translateY(-50%) rotate(90deg)}
+
+
+/* v13.11-dev6 — Portfolio discovery */
+.portfolio-discovery-bar{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:7px;align-items:center;margin:8px 0 5px}
+.portfolio-search-wrap{display:flex;align-items:center;gap:8px;min-width:0;border:1px solid var(--line);background:rgba(255,255,255,.65);border-radius:14px;padding:0 11px;color:#887b6b}.portfolio-search-wrap span{font-size:18px;line-height:1}.portfolio-search-wrap input{min-width:0;width:100%;border:0;background:transparent;padding:11px 0;font:inherit;font-size:16px!important;line-height:1.2;color:var(--coffee);outline:none;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+.portfolio-search-wrap span{font-size:18px;line-height:1}.portfolio-search-wrap input{min-width:0;width:100%;border:0;background:transparent;padding:10px 0;font:600 12px var(--sans);color:var(--coffee);outline:none}
+.portfolio-item-filter-btn{white-space:nowrap;padding:9px 10px}.portfolio-selected-filters{display:flex;gap:6px;overflow-x:auto;padding:3px 0 5px;scrollbar-width:none}.portfolio-selected-filters::-webkit-scrollbar{display:none}.portfolio-selected-filters.hidden{display:none}
+.portfolio-filter-chip{display:grid;grid-template-columns:28px auto auto;align-items:center;gap:6px;flex:0 0 auto;max-width:220px;border:1px solid rgba(82,130,126,.34);background:#eef5f2;border-radius:999px;padding:3px 7px 3px 3px;color:#536554;font:700 10px var(--sans)}.portfolio-filter-chip img{width:28px;height:28px;border-radius:50%;object-fit:cover;background:#eee6d8}.portfolio-filter-chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.portfolio-filter-chip b{font-size:14px;font-weight:600}
+.portfolio-item-filter-panel{margin:4px 0 9px;border:1px solid var(--line);border-radius:14px;background:#efe6d5;padding:9px}.portfolio-item-filter-panel.hidden{display:none}.portfolio-filter-picker-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}.portfolio-filter-picker-head>div{min-width:0}.portfolio-filter-picker-head strong{display:block;font:700 12px var(--serif);color:var(--coffee)}.portfolio-filter-picker-head small{display:block;font-size:9px;color:#887b6b;text-align:left;margin-top:2px;line-height:1.3}.portfolio-filter-clear{flex:0 0 auto;padding:2px 4px;font-size:11px}
+.portfolio-filter-item-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;max-height:270px;overflow:auto;overscroll-behavior:contain}.portfolio-filter-item{position:relative;display:flex;flex-direction:column;gap:3px;min-width:0;border:1px solid var(--line);background:#fff;border-radius:11px;padding:5px;color:#655b50;text-align:left}.portfolio-filter-item.selected{border-color:var(--turq);box-shadow:0 0 0 2px rgba(82,130,126,.28);background:#eef5f2}.portfolio-filter-item img,.portfolio-filter-placeholder{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:8px;background:#eee6d8;display:flex;align-items:center;justify-content:center}.portfolio-filter-item>span:not(.portfolio-filter-placeholder){font-size:9px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.portfolio-filter-item small{font-size:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#8b7d6e}.portfolio-filter-empty{grid-column:1/-1;text-align:center;color:#887b6b;font-size:11px;padding:12px}
+@media(max-width:560px){.portfolio-discovery-bar{grid-template-columns:minmax(0,1fr) auto}.portfolio-filter-item-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+
+/* v13.12-dev1 — Closet review photo controls */
+#itemDialog .item-head{align-items:flex-start}
+.item-head-actions{display:flex;align-items:center;gap:7px;margin-left:auto;position:relative}
+.item-head-icon{width:38px;height:38px;min-width:38px;border:1px solid rgba(108,81,66,.2);border-radius:12px;background:#fffaf0;color:var(--coffee);display:inline-flex;align-items:center;justify-content:center;padding:0;font-size:18px;line-height:1;box-shadow:0 2px 8px rgba(70,55,40,.06)}
+.item-head-icon:active{transform:translateY(1px);background:#f2e7d5}
+#smartScanIconBtn{position:relative;font-family:var(--sans);font-size:15px}
+#smartScanIconBtn .scan-corners{font-size:19px;line-height:1;transform:rotate(45deg);opacity:.82}
+#smartScanIconBtn .scan-sparkle{position:absolute;right:5px;top:4px;font-size:10px;color:var(--burgundy)}
+.review-photo-menu-wrap{position:relative}
+.review-photo-menu{position:absolute;right:0;top:44px;z-index:30;width:200px;padding:6px;background:#fffaf0;border:1px solid rgba(108,81,66,.22);border-radius:13px;box-shadow:0 12px 28px rgba(60,48,35,.2)}
+.review-photo-menu button,.review-photo-menu label{display:flex;align-items:center;width:100%;min-height:40px;padding:9px 10px;border:0;border-radius:9px;background:transparent;color:#554d44;font:650 12px var(--sans);text-align:left;cursor:pointer}
+.review-photo-menu button:active,.review-photo-menu label:active{background:#efe5d3}
+.review-photo-menu input{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important}
+#itemDialog.editing-existing .photo-tools-disclosure{display:none}
+#itemDialog:not(.editing-existing) .review-photo-menu-wrap{display:none}
+#itemDialog .item-permanent-delete{display:block;margin:10px 0 0;padding:9px 4px 2px;border:0;background:transparent;color:#8c2f3a;font-size:10px;text-align:left}
+#itemDialog .item-permanent-delete.hidden{display:none}
+.smart-scan-review-dialog{padding:0;width:min(430px,calc(100vw - 22px));overflow:hidden}
+.smart-scan-review-shell{padding:16px;background:var(--paper,#fbf6eb)}
+.smart-scan-review-intro{font-size:11px;line-height:1.45;color:#756a5c;margin:0 0 10px}
+.smart-scan-review-fields{display:flex;flex-direction:column;gap:7px}
+.smart-scan-field{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;padding:9px 10px;border:1px solid rgba(108,81,66,.16);border-radius:11px;background:#fffaf0}
+.smart-scan-field input{width:18px;height:18px;margin:0}
+.smart-scan-field-copy{min-width:0}.smart-scan-field-copy strong{display:block;font-size:11px;color:#5d554b}.smart-scan-field-copy span{display:block;font-size:10px;color:#8a7c6c;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.smart-scan-review-actions{margin:14px 0 0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:410px){.item-head-actions{gap:5px}.item-head-icon{width:36px;height:36px;min-width:36px}.review-photo-menu{right:-38px}}
+
+
+/* v13.12-dev1.1 — Closet review photo controls + picker return fixes */
+.item-swipe-zone{position:relative}
+.item-card-utility-actions{position:absolute;top:8px;right:8px;z-index:12;display:flex;align-items:center;gap:6px}
+.item-card-icon{width:38px;height:38px;min-width:38px;border:1px solid rgba(108,81,66,.2);border-radius:12px;background:rgba(255,250,240,.94);color:var(--coffee);display:inline-flex;align-items:center;justify-content:center;padding:0;font-size:18px;line-height:1;box-shadow:0 3px 10px rgba(70,55,40,.12);backdrop-filter:blur(5px)}
+.item-card-icon:active{transform:translateY(1px);background:#f2e7d5}
+.item-card-utility-actions .review-photo-menu{right:0;top:44px}
+#itemDialog.picker-returning{visibility:visible!important;opacity:1!important}
+#photoStudioBtn:disabled,#reviewStudioBtn:disabled{opacity:.4;pointer-events:none}
+@media(max-width:410px){.item-card-utility-actions{top:7px;right:7px;gap:5px}.item-card-icon{width:36px;height:36px;min-width:36px}.item-card-utility-actions .review-photo-menu{right:0}}
+
+
+/* v13.12-dev1.2 — photo overlay controls + native picker return hardening */
+#itemDialog .item-photo-stage .item-card-utility-actions{top:12px;right:12px;z-index:18}
+#itemDialog .item-photo-stage .review-photo-menu{z-index:40}
+#itemDialog .item-photo-stage .item-card-icon{background:rgba(255,250,240,.9);box-shadow:0 4px 14px rgba(55,45,34,.18)}
+@media(max-width:410px){#itemDialog .item-photo-stage .item-card-utility-actions{top:10px;right:10px}}
+
+
+/* v13.12-dev1.4 — floating Closet review + restored simple swipe transition */
+#itemDialog.editing-existing .item-review-summary{border:0;background:transparent;padding:8px 4px 10px;border-radius:0}
+#itemDialog.editing-existing .item-photo-large{border:0;box-shadow:0 10px 24px rgba(61,49,35,.10);background:linear-gradient(140deg,rgba(231,223,205,.86),rgba(251,247,238,.94))}
+#itemDialog.editing-existing .item-swipe-zone{overflow:visible}
+@media (prefers-reduced-motion:reduce){.item-swipe-zone.swipe-next,.item-swipe-zone.swipe-prev{animation-duration:.01ms!important}}
+
+
+/* v13.12-dev1.5 — Closet review background + subtle queue arrows */
+#itemDialog.editing-existing .item-photo-large{background:#f7f0df}
+#itemDialog .item-photo-stage{position:relative}
+.item-swipe-arrow{position:absolute;bottom:10px;z-index:17;width:34px;height:34px;border-radius:50%;border:1px solid rgba(108,81,66,.18);background:rgba(247,240,223,.74);color:rgba(108,81,66,.72);font:500 25px/1 var(--serif);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(61,49,35,.08);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);padding:0;opacity:.82;-webkit-touch-callout:none;user-select:none;-webkit-user-select:none}
+.item-swipe-arrow:active{transform:scale(.94);opacity:1}
+.item-swipe-arrow-left{left:10px}.item-swipe-arrow-right{right:10px}
+.item-swipe-arrow.hidden{display:none}
+@media(max-width:410px){.item-swipe-arrow{width:32px;height:32px;bottom:8px}.item-swipe-arrow-left{left:8px}.item-swipe-arrow-right{right:8px}}
+
+
+/* v13.12-dev1.6 — seamless Closet photo surface + larger review controls */
+#itemDialog.editing-existing .item-photo-large{
+  background:transparent;
+  box-shadow:none;
+}
+#itemDialog.editing-existing .item-photo-stage{
+  background:transparent;
+}
+#itemDialog .item-photo-stage .item-card-icon{
+  width:48px;
+  height:48px;
+  min-width:48px;
+  font-size:23px;
+  border-radius:15px;
+}
+#smartScanIconBtn .scan-corners{font-size:24px}
+#smartScanIconBtn .scan-sparkle{font-size:13px;right:6px;top:5px}
+.item-swipe-arrow{
+  width:43px;
+  height:43px;
+  font-size:31px;
+  bottom:10px;
+}
+@media(max-width:410px){
+  #itemDialog .item-photo-stage .item-card-icon{width:45px;height:45px;min-width:45px}
+  .item-swipe-arrow{width:40px;height:40px;font-size:29px;bottom:8px}
+}
+
+
+/* v13.12-dev1.7 — review-card utility placement */
+#itemDialog.editing-existing .item-review-summary{position:relative;padding-right:104px}
+#itemDialog.editing-existing .item-card-utility-actions{
+  position:absolute;
+  top:8px;
+  right:8px;
+  z-index:22;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+#itemDialog.editing-existing .item-card-icon{
+  width:43px;
+  height:43px;
+  min-width:43px;
+  font-size:21px;
+  border-radius:14px;
+}
+#itemDialog.editing-existing #smartScanIconBtn .scan-corners{font-size:22px}
+#itemDialog.editing-existing #smartScanIconBtn .scan-sparkle{font-size:12px;right:6px;top:5px}
+#itemDialog.editing-existing .item-card-utility-actions .review-photo-menu{right:0;top:47px}
+#itemDialog:not(.editing-existing) .item-card-utility-actions{position:absolute;top:8px;right:8px;z-index:22}
+@media(max-width:410px){
+  #itemDialog.editing-existing .item-review-summary{padding-right:94px}
+  #itemDialog.editing-existing .item-card-icon{width:41px;height:41px;min-width:41px;font-size:20px}
+  #itemDialog.editing-existing .item-card-utility-actions{top:7px;right:6px;gap:5px}
+}
+.portfolio-filter-item img,.portfolio-filter-chip img{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;pointer-events:none}
+.portfolio-filter-item,.portfolio-filter-chip{-webkit-touch-callout:none}
+.portfolio-tab-drag-source{opacity:.38;transform:translateY(-2px) scale(.985)}
+.portfolio-tab-drag-ghost{opacity:.96!important;box-shadow:0 12px 24px rgba(73,57,38,.22)!important;transform:translateY(-3px) scale(1.025)!important;transition:none!important}
+.portfolio-tab-drop-target{outline:2px dashed var(--turq)!important;outline-offset:3px;box-shadow:0 0 0 2px rgba(138,75,88,.42),0 5px 12px rgba(73,57,38,.10)!important}
+.portfolio-tab-reordering #portfolioTabs{cursor:grabbing}
+.portfolio-tab{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+
+/* v13.12-dev2 — Journal edit/date safety */
+#wearDialog .wear-date-label.wear-date-locked{opacity:.78}
+#wearDialog #wearDate.date-locked{background:#eee7da;color:#756a5c;border-style:dashed}
+#journalDetailDialog #deleteJournalDetailBtn{font-size:12px}
+
+
+/* v13.12-dev2.1 — simplified new-piece photo actions + Portfolio favorite ring */
+.new-piece-photo-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0 4px}
+.new-piece-photo-actions.hidden{display:none}
+.new-piece-photo-actions .file-label{min-height:42px;display:flex;align-items:center;justify-content:center;margin:0}
+.item-photo-status{margin:4px 2px 10px;min-height:0}
+#itemDialog:not(.editing-existing) .review-photo-menu-wrap:not(.hidden){display:block}
+.favorite-outfit{width:32px;height:32px;right:7px;top:4px;border:1px solid rgba(125,53,71,.26);border-radius:50%;background:rgba(255,250,240,.92);display:grid;place-items:center;padding:0;font-size:20px;line-height:1;color:#a1937e;box-shadow:0 2px 7px rgba(70,55,40,.06)}
+.favorite-outfit.active{background:#f5e8b8;color:#9b742a;border-color:#d4b55e}
+.favorite-outfit:active{transform:scale(.96)}
+@media(max-width:410px){.new-piece-photo-actions{gap:7px}.favorite-outfit{width:31px;height:31px;font-size:19px}}
+
+
+/* v13.12-dev2.2 — Closet review footer + reorder threshold polish */
+#itemDialog .item-sheet-actions{border-radius:0 0 20px 20px;overflow:hidden}
+@media(max-width:410px){#itemDialog .item-sheet-actions{border-radius:0 0 18px 18px}}
+
+
+/* v13.12-dev2.3 — floating Closet review actions + earlier reorder target */
+#itemDialog .item-sheet-actions{
+  bottom:10px;
+  margin:18px 0 8px;
+  padding:10px 10px max(10px,env(safe-area-inset-bottom));
+  border:1px solid rgba(108,81,66,.14);
+  border-radius:18px;
+  box-shadow:0 8px 22px rgba(64,52,38,.12),0 -3px 12px rgba(64,52,38,.05);
+  background:rgba(247,240,223,.98);
+  backdrop-filter:blur(12px);
+}
+@media(max-width:410px){
+  #itemDialog .item-sheet-actions{
+    bottom:8px;
+    margin:16px 0 8px;
+    padding-left:9px;
+    padding-right:9px;
+    border-radius:16px;
+  }
+}
+
+
+/* v13.12-dev3 — local Brand suggestions */
+.brand-field-label{position:relative;overflow:visible}
+.brand-suggestions{position:absolute;left:0;right:0;top:calc(100% - 2px);z-index:30;background:#fffaf0;border:1px solid var(--line);border-radius:0 0 12px 12px;box-shadow:0 8px 18px rgba(70,55,40,.14);overflow:hidden}
+.brand-suggestions.hidden{display:none}
+.brand-suggestion{display:flex;width:100%;min-height:38px;align-items:center;text-align:left;padding:8px 11px;border:0;border-bottom:1px solid rgba(120,105,88,.12);background:transparent;color:var(--coffee);font:650 14px var(--sans)}
+.brand-suggestion:last-child{border-bottom:0}
+.brand-suggestion:active,.brand-suggestion:focus-visible{background:rgba(77,142,138,.10);outline:none}
+
+
+/* v13.12-dev2.4 / v13.12-dev3.1 — integrated Closet item detail card */
+#itemDialog{
+  padding:0;
+  overflow:hidden;
+  border-radius:22px;
+  background:#fbf6eb;
+  max-height:94dvh;
+}
+#itemDialog #itemForm{
+  display:flex;
+  flex-direction:column;
+  width:100%;
+  max-height:94dvh;
+  overflow:hidden;
+  padding:0;
+  border-radius:22px;
+  background:#fbf6eb;
+}
+#itemDialog .item-detail-scroll{
+  flex:1 1 auto;
+  min-height:0;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+  touch-action:pan-y;
+  padding:17px 17px 14px;
+  scroll-padding-bottom:18px;
+}
+#itemDialog .item-sheet-actions{
+  position:relative;
+  inset:auto;
+  flex:0 0 auto;
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  align-items:center;
+  gap:10px;
+  margin:0;
+  padding:11px 17px max(11px,env(safe-area-inset-bottom));
+  border:0;
+  border-top:1px solid rgba(108,81,66,.15);
+  border-radius:0 0 22px 22px;
+  box-shadow:0 -7px 18px rgba(64,52,38,.07);
+  background:#f7f0df;
+  backdrop-filter:none;
+  overflow:hidden;
+  z-index:12;
+}
+#itemDialog .item-sheet-actions button{margin:0;width:100%;min-height:44px}
+@media(max-width:410px){
+  #itemDialog{width:calc(100% - 8px);border-radius:20px}
+  #itemDialog #itemForm{border-radius:20px}
+  #itemDialog .item-detail-scroll{padding:14px 14px 12px}
+  #itemDialog .item-sheet-actions{padding:10px 14px max(10px,env(safe-area-inset-bottom));gap:7px;border-radius:0 0 20px 20px}
+}
+
+
+/* v13.12-dev4.0.1 — safer date collision handling */
+#wearForm{position:relative}
+.wear-date-conflict{position:absolute;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(43,37,31,.34);backdrop-filter:blur(2px);border-radius:inherit}
+.wear-date-conflict.hidden{display:none}
+.wear-date-conflict-card{width:min(360px,100%);background:#fffaf0;border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:0 14px 38px rgba(51,41,31,.2);display:grid;gap:9px}
+.wear-date-conflict-card .script{margin:0;color:var(--burgundy)}
+.wear-date-conflict-card h3{margin:0;font-family:var(--serif);font-size:20px;font-weight:600;color:var(--ink)}
+.wear-date-conflict-card p:not(.script){margin:0 0 3px;font-size:12px;line-height:1.45;color:#6f655a}
+.wear-date-conflict-card button{width:100%;min-height:43px}
+
+/* v13.12-dev4.1 — Journal section collapse + remembered layout preferences */
+.journal-section-block{margin:0 0 10px}
+.today-section-toggle,.wear-insights-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;border:0;background:transparent;padding:0;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.today-section-toggle>span:first-child,.wear-insights-toggle>span:first-child{display:flex;flex-direction:column;gap:2px;min-width:0}
+.today-section-toggle strong{font-family:var(--serif);font-size:19px;font-weight:600;color:var(--burgundy)}
+.today-section-toggle small{font-size:10px;color:#887765}
+.today-toggle-icon{font-size:20px;line-height:1;color:var(--burgundy);font-weight:700;flex:0 0 auto}
+.today-journal-content{margin-top:8px}
+.wear-insights-section{margin-top:8px}
+.wear-insights-toggle{border:1px solid var(--line);background:#efe6d5;border-radius:16px;padding:10px 12px}
+.wear-insights-toggle strong{font-family:var(--serif);font-size:19px;font-weight:600}
+.wear-insights-toggle small{font-size:10px;color:#7b7065}
+.wear-insights-toggle-icon{font-size:20px;line-height:1;color:var(--burgundy);font-weight:700;flex:0 0 auto}
+.wear-insights-content{padding-top:10px}
+
+/* v13.12-dev4.2 — Journal history filters and 10-entry scroll limits */
+.wear-log-filter-row{align-items:flex-start;gap:8px;flex-wrap:wrap}
+.journal-custom-range{display:flex;gap:6px;align-items:flex-end;flex-wrap:wrap}
+.journal-custom-range label{display:flex;flex-direction:column;gap:3px;font-size:9px;font-weight:750;color:#756a5c}
+.journal-custom-range input{min-width:132px;border:1px solid var(--line);border-radius:10px;padding:7px;background:#fffaf0;font:inherit;font-size:11px;color:var(--ink)}
+.journal-list.journal-scroll-limited{max-height:var(--journal-scroll-height,920px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding-right:3px;scrollbar-gutter:stable}
+.planned-journal-list.journal-scroll-limited{padding-bottom:2px}
+@media(max-width:520px){.journal-custom-range{width:100%;justify-content:flex-end}.journal-custom-range input{min-width:125px}}
+
+/* v13.12-dev4.2.1 — Journal range calendar + 7-entry vertical scroll limits */
+.wear-log-filter-row{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap;min-width:0}
+.journal-range-summary{margin-right:auto;min-width:0;font-size:11px;font-weight:750;color:#6d6257;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.journal-filter-btn{padding:7px 12px;font-size:12px;flex:0 0 auto}
+.journal-filter-btn.active-filter{border-color:rgba(77,142,138,.55);box-shadow:0 0 0 2px rgba(77,142,138,.10) inset}
+.journal-filter-panel{width:100%;display:flex;justify-content:flex-end;align-items:center;gap:8px;min-width:0}
+.journal-filter-panel select{max-width:180px;border:1px solid var(--line);border-radius:12px;padding:8px;background:#fffaf0;font:inherit;font-size:12px;color:var(--ink)}
+.journal-clear-filter-btn{font-size:11px;padding:6px 4px;white-space:nowrap}
+.journal-clear-filter-btn:disabled{opacity:.4;pointer-events:none}
+.journal-list.journal-scroll-limited{max-height:var(--journal-scroll-height,720px);overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior-y:contain;overscroll-behavior-x:none;touch-action:pan-y;-webkit-overflow-scrolling:touch;padding-right:3px;scrollbar-gutter:stable;max-width:100%}
+.journal-list.journal-scroll-limited>*{max-width:100%;box-sizing:border-box}
+.planned-journal-list.journal-scroll-limited{padding-bottom:2px}
+.journal-range-dialog{max-width:390px}
+.journal-range-help{margin:-2px 0 12px;color:#756a5c;font-size:11px;line-height:1.4}
+.journal-range-calendar{border:1px solid var(--line);border-radius:16px;background:#fffaf0;padding:10px}
+.journal-calendar-head{display:grid;grid-template-columns:42px 1fr 42px;align-items:center;gap:6px;margin-bottom:8px;text-align:center}
+.journal-calendar-head strong{font-family:var(--serif);font-size:17px;font-weight:600}
+.journal-calendar-nav{width:38px;height:34px;padding:0;border-radius:10px;font-size:22px;line-height:1}
+.journal-calendar-nav:disabled{opacity:.35}
+.journal-calendar-weekdays,.journal-calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
+.journal-calendar-weekdays{margin-bottom:4px}
+.journal-calendar-weekdays span{text-align:center;font-size:8px;font-weight:800;color:#8c8174;text-transform:uppercase;letter-spacing:.04em}
+.journal-calendar-blank{aspect-ratio:1}
+.journal-calendar-day{appearance:none;border:0;background:transparent;border-radius:10px;aspect-ratio:1;min-width:0;padding:0;font:inherit;font-size:12px;color:var(--ink);position:relative}
+.journal-calendar-day.today{box-shadow:0 0 0 1px rgba(115,47,69,.36) inset}
+.journal-calendar-day.in-range{background:rgba(77,142,138,.14);border-radius:5px}
+.journal-calendar-day.range-start,.journal-calendar-day.range-end{background:var(--turq);color:white;font-weight:800}
+.journal-calendar-day:disabled{opacity:.22}
+.journal-range-draft-summary{min-height:20px;margin:10px 2px 2px;text-align:center;font-size:11px;font-weight:700;color:#6d6257}
+.journal-range-actions{margin-top:8px}
+@media(max-width:380px){.journal-range-summary{font-size:10px}.journal-filter-panel select{max-width:155px}.journal-calendar-day{font-size:11px}}
+
+/* v13.12-dev4.2.2 — always-visible Wear Log filter + room for vertical scrollbar */
+.wear-log-filter-row{flex-wrap:nowrap;align-items:center}
+.journal-range-select{max-width:180px;min-width:0;border:1px solid var(--line);border-radius:12px;padding:8px;background:#fffaf0;font:inherit;font-size:12px;color:var(--ink);flex:0 1 auto}
+.journal-range-select.active-filter{border-color:rgba(77,142,138,.55);box-shadow:0 0 0 2px rgba(77,142,138,.10) inset}
+.journal-clear-filter-btn.hidden{display:none!important}
+.journal-list.journal-scroll-limited{padding-right:11px!important;width:100%;min-width:0;box-sizing:border-box}
+.journal-list.journal-scroll-limited>.journal-row{width:100%;max-width:100%;min-width:0}
+@media(max-width:390px){.journal-range-select{max-width:150px}.journal-range-summary{font-size:10px}}
+
+
+/* v13.12-dev4.2.3 — custom range interaction polish */
+.journal-range-dialog{max-width:410px;overflow:auto}
+.journal-range-dialog .journal-range-calendar,
+.journal-range-dialog .journal-calendar-head,
+.journal-range-dialog .journal-calendar-weekdays,
+.journal-range-dialog .journal-calendar-grid,
+.journal-range-dialog .journal-calendar-day{touch-action:manipulation;-webkit-user-select:none;user-select:none}
+.journal-range-dialog .journal-calendar-day{-webkit-tap-highlight-color:transparent}
+.journal-range-dialog .journal-range-actions{position:static!important;bottom:auto!important;z-index:auto!important;margin:14px 0 0!important;padding:0!important;background:transparent!important;border-top:0!important;box-shadow:none!important}
+.journal-range-dialog .journal-range-draft-summary{margin-top:12px;margin-bottom:0}
+@media(max-width:410px){
+  .journal-range-dialog{width:calc(100% - 12px);padding:15px 15px 12px;max-height:94dvh}
+  .journal-range-dialog .journal-range-actions{margin-top:15px!important;margin-bottom:0!important}
+}
+
+/* v13.12-dev4.3.1 — configurable Journal section order */
+.screen[data-screen="journal"] > [data-journal-section]{margin-top:0!important;margin-bottom:12px!important}
+.screen[data-screen="journal"] > [data-journal-section]:last-child{margin-bottom:0!important}
+.today-section-toggle,.planned-section-toggle,.wear-log-toggle,.wear-insights-toggle,
+.today-section-toggle strong,.today-section-toggle small,.planned-section-toggle strong,.planned-section-toggle small,
+.wear-log-toggle strong,.wear-log-toggle small,.wear-insights-toggle strong,.wear-insights-toggle small{
+  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
+}
+.journal-order-editor{display:grid;gap:7px;margin:10px 0 2px}
+.journal-order-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:9px 10px;border:1px solid var(--line);border-radius:12px;background:#fffdf7}
+.journal-order-name{font-family:var(--serif);font-size:16px;font-weight:600;color:var(--ink);min-width:0}
+.journal-order-actions{display:flex;gap:4px}
+.journal-order-actions button{width:36px;height:34px;border:1px solid var(--line);border-radius:10px;background:#eee4d0;color:var(--coffee);font-size:15px;font-weight:800}
+.journal-order-actions button:disabled{opacity:.3}
+
+/* v13.14-dev1 — Add Piece photo action polish */
+.new-piece-photo-actions .new-piece-upload{background:#f5edda;color:var(--olive-dark);border:1px solid rgba(63,73,55,.28);box-shadow:none}
+.new-piece-photo-actions .new-piece-upload:active{background:#e9dfc9}
+.new-piece-photo-actions .new-piece-camera{background:#74364a;color:#fff;border:1px solid rgba(80,34,48,.34);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12),0 3px 8px rgba(83,46,51,.10)}
+.new-piece-photo-actions .new-piece-camera:active{background:#653043}
+
+/* v13.14-dev2.2 — saved Closet pieces open in a scan-friendly review mode */
+#itemDialog .item-review-details{display:grid;gap:10px;margin:4px 0 10px}
+#itemDialog .item-review-details.hidden{display:none}
+#itemDialog .item-review-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px;border-top:1px solid rgba(108,81,66,.13)}
+#itemDialog .item-review-detail-row{display:grid;gap:2px;padding:10px 0;border-bottom:1px solid rgba(108,81,66,.13);min-width:0}
+#itemDialog .item-review-detail-row span,#itemDialog .item-review-notes>span{font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:#8a7c6e;font-weight:700}
+#itemDialog .item-review-detail-row strong{font-family:var(--serif);font-size:15px;line-height:1.25;color:var(--ink);font-weight:600;overflow-wrap:anywhere}
+#itemDialog .item-review-notes{display:grid;gap:4px;padding:3px 0 5px}
+#itemDialog .item-review-notes p{margin:0;font-size:13px;line-height:1.48;color:#51483f;white-space:pre-wrap}
+#itemDialog.item-review-mode #saveItemBtn{background:var(--burgundy)}
+#itemDialog.item-review-mode #cancelItemBtn{grid-column:auto}
+#itemDialog.item-review-mode .brand-suggestions{display:none!important}
+#itemDialog.item-review-mode .item-sheet-actions{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media(max-width:410px){#itemDialog .item-review-detail-grid{gap:0 12px}#itemDialog .item-review-detail-row strong{font-size:14px}}
+
+
+/* v13.14-dev2.2.2 — Catalog search reset + compact review browsing */
+.searchbox{position:relative}
+.searchbox input{min-width:0;padding-right:4px}
+.search-clear-btn{flex:0 0 auto;width:28px;height:28px;border:0;border-radius:50%;padding:0;background:rgba(108,81,66,.10);color:var(--coffee);font:600 20px/1 var(--sans);display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
+.search-clear-btn:active{background:rgba(108,81,66,.18);transform:scale(.96)}
+#itemDialog.item-review-mode .item-head{min-height:36px;justify-content:flex-end;margin:0 0 2px;padding:0}
+#itemDialog.item-review-mode .item-head>div{display:none}
+#itemDialog.item-review-mode .item-head .close-btn{width:34px;height:34px;min-width:34px;font-size:23px;position:relative;z-index:30}
+#itemDialog.item-review-mode .item-review-summary{padding-top:2px;padding-bottom:6px;margin-bottom:2px}
+#itemDialog.item-review-mode .item-photo-stage{margin-bottom:2px}
+#itemDialog.item-review-mode .item-photo-large{aspect-ratio:1.12/1;max-height:350px}
+#itemDialog.item-review-mode .item-review-details{gap:6px;margin:0 0 6px}
+#itemDialog.item-review-mode .item-review-detail-row{gap:1px;padding:7px 0}
+#itemDialog.item-review-mode .item-review-detail-row strong{line-height:1.18}
+#itemDialog.item-review-mode .item-review-notes{padding-top:1px}
+@media(max-width:410px){
+  #itemDialog.item-review-mode .item-head{min-height:34px;margin-bottom:0}
+  #itemDialog.item-review-mode .item-head .close-btn{width:32px;height:32px;min-width:32px;font-size:22px}
+  #itemDialog.item-review-mode .item-review-summary{padding-top:0;padding-bottom:4px;margin-bottom:0}
+  #itemDialog.item-review-mode .item-photo-stage{margin-bottom:0}
+  #itemDialog.item-review-mode .item-photo-large{aspect-ratio:1.14/1;max-height:315px}
+  #itemDialog.item-review-mode .item-review-details{margin-top:0;gap:4px}
+  #itemDialog.item-review-mode .item-review-detail-row{padding:6px 0}
+}
+
+/* v13.14-dev2.2.3 — stable saved-piece review card while swiping */
+#itemDialog.item-review-mode{
+  height:min(94dvh,780px);
+}
+#itemDialog.item-review-mode #itemForm{
+  height:100%;
+  max-height:none;
+}
+#itemDialog.item-review-mode .item-detail-scroll{
+  display:flex;
+  flex-direction:column;
+  min-height:0;
+  height:100%;
+  overflow:hidden;
+}
+#itemDialog.item-review-mode .item-head,
+#itemDialog.item-review-mode .item-swipe-zone,
+#itemDialog.item-review-mode .scan-status,
+#itemDialog.item-review-mode .item-archive-notice{
+  flex:0 0 auto;
+}
+#itemDialog.item-review-mode .item-photo-large{
+  width:100%;
+  height:min(315px,37dvh);
+  min-height:min(315px,37dvh);
+  max-height:min(315px,37dvh);
+  aspect-ratio:auto;
+}
+#itemDialog.item-review-mode .item-photo-large img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+}
+#itemDialog.item-review-mode .item-review-details{
+  flex:1 1 auto;
+  min-height:0;
+  overflow-y:auto;
+  overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+  touch-action:pan-y;
+  padding-right:2px;
+  scrollbar-gutter:stable;
+}
+#itemDialog.item-review-mode .item-review-detail-grid{
+  align-content:start;
+}
+@media(max-width:410px){
+  #itemDialog.item-review-mode{
+    height:calc(100dvh - 8px);
+    max-height:calc(100dvh - 8px);
+  }
+  #itemDialog.item-review-mode .item-photo-large{
+    height:min(300px,35dvh);
+    min-height:min(300px,35dvh);
+    max-height:min(300px,35dvh);
+  }
+}
+
+/* v13.14-dev3 — optional Fit + Style fields */
+#itemDialog .context-attribute.hidden{display:none}
+#itemDialog .context-attribute select{width:100%}
+
+/* v13.15-dev2.1 — Wishlist list polish */
+.wishlist-grid{display:grid;grid-template-columns:1fr;gap:0;background:#fffaf0;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 3px 10px rgba(65,52,37,.045)}
+.wish-card{width:100%;min-width:0;display:grid;grid-template-columns:78px minmax(0,1fr) auto;align-items:center;gap:11px;background:transparent;border:0;border-bottom:1px solid rgba(108,81,66,.14);border-radius:0;padding:8px 10px;overflow:hidden;box-shadow:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.wish-card:last-child{border-bottom:0}
+.wish-card:active{transform:none;background:rgba(108,81,66,.035)}
+.wish-photo{width:78px;height:82px;border-radius:11px}
+.wish-side{align-self:stretch;min-width:70px;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:6px;padding:3px 1px 3px 4px}
+.wish-side .price{color:var(--burgundy);font-weight:800;font-size:14px;white-space:nowrap}
+.wish-desire{display:inline-flex;align-items:center;gap:3px;font-size:11px;color:var(--burgundy);font-weight:750;white-space:nowrap}
+.wish-desire span{font-size:12px;line-height:1}
+.wish-chevron{font-size:21px;line-height:1;color:#a19584;margin-top:auto}
+.wish-link-mark{font-size:9px;color:var(--turq);font-weight:750}
+@media(max-width:380px){.wish-card{grid-template-columns:70px minmax(0,1fr) auto;gap:9px;padding-left:8px;padding-right:8px}.wish-photo{width:70px;height:76px}.wish-side{min-width:62px}}
+
+
+/* v13.15-dev2.2.1 — Wishlist interaction cleanup */
+.wishlist-grid{margin-left:-14px;margin-right:-14px;width:calc(100% + 28px);border-left:0;border-right:0;border-radius:0;box-shadow:none}
+.wish-card{border-radius:0;padding-left:14px;padding-right:14px}
+@media(min-width:880px){.wishlist-grid{margin-left:0;margin-right:0;width:100%;border-left:1px solid var(--line);border-right:1px solid var(--line)}}
+
+/* v13.15-dev2.2.1 — Wishlist iPhone cancel/focus hardening */
+@media(max-width:700px){
+  #wishDialog input:not([type="hidden"]),
+  #wishDialog select,
+  #wishDialog textarea{
+    font-size:16px!important;
+    -webkit-text-size-adjust:100%;
+    text-size-adjust:100%;
+  }
+  #wishDialog{overscroll-behavior:contain}
+}
+
+/* v13.15-dev3 — Wishlist review/edit detail */
+#wishDialog.wish-detail-dialog{overflow:hidden;padding:0}
+#wishDialog #wishForm{display:flex;flex-direction:column;max-height:92vh;max-height:92dvh;min-height:0}
+#wishDialog .wish-detail-scroll{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;min-height:0;padding:17px 17px 8px}
+#wishDialog .wish-photo-stage{position:relative;margin:0 0 7px}
+#wishDialog .wish-photo-large{width:100%;aspect-ratio:1.18/1;max-height:350px;border-radius:18px}
+#wishDialog .wish-photo-large img{width:100%;height:100%;object-fit:contain}
+#wishDialog .item-card-utility-actions{top:8px;right:8px}
+#wishDialog .wish-section-label{margin:12px 0 5px;font-size:9px;letter-spacing:.13em;text-transform:uppercase;font-weight:850;color:var(--burgundy)}
+#wishDialog .wish-review-details{display:grid;gap:9px;margin:0 0 5px}
+#wishDialog .wish-review-details.hidden{display:none}
+#wishDialog .wish-review-section{display:grid;gap:2px}
+#wishDialog .item-review-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px;border-top:1px solid rgba(108,81,66,.13)}
+#wishDialog .item-review-detail-row{display:grid;gap:2px;padding:8px 0;border-bottom:1px solid rgba(108,81,66,.13);min-width:0}
+#wishDialog .item-review-detail-row span,#wishDialog .item-review-notes>span{font-size:9px;letter-spacing:.07em;text-transform:uppercase;color:#8a7c6e;font-weight:700}
+#wishDialog .item-review-detail-row strong{font-family:var(--serif);font-size:14px;line-height:1.22;color:var(--ink);font-weight:600;overflow-wrap:anywhere}
+#wishDialog .item-review-notes{display:grid;gap:4px;padding:4px 0 7px}
+#wishDialog .item-review-notes p{margin:0;font-size:13px;line-height:1.45;color:#51483f;white-space:pre-wrap}
+#wishDialog .wish-sheet-actions{flex:0 0 auto;margin:0;padding:10px 17px max(10px,env(safe-area-inset-bottom));border-top:1px solid rgba(108,81,66,.13);background:rgba(247,240,223,.98);box-shadow:0 -4px 16px rgba(64,52,38,.05)}
+#wishDialog.wish-review-mode .wish-head{min-height:34px;margin:0 0 3px;justify-content:flex-end}
+#wishDialog.wish-review-mode .wish-head>div{display:none}
+#wishDialog.wish-review-mode .wish-head .close-btn{width:32px;height:32px;min-width:32px;font-size:22px}
+#wishDialog.wish-review-mode .wish-photo-large{aspect-ratio:1.2/1;max-height:320px}
+#wishDialog.wish-review-mode #deleteWishBtn{display:none!important}
+#wishDialog.wish-review-mode .wish-sheet-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#wishDialog.wish-review-mode #cancelWishBtn,#wishDialog.wish-review-mode #saveWishBtn{width:100%}
+#wishDialog.wish-edit-mode .wish-head{margin-bottom:5px}
+#wishDialog .new-piece-photo-actions{margin-bottom:7px}
+#wishDialog .review-photo-menu{z-index:45}
+@media(max-width:410px){
+  #wishDialog .wish-detail-scroll{padding:14px 14px 7px}
+  #wishDialog .wish-sheet-actions{padding-left:14px;padding-right:14px}
+  #wishDialog .wish-photo-large{max-height:315px}
+  #wishDialog.wish-review-mode .wish-photo-large{max-height:285px}
+  #wishDialog .item-review-detail-grid{gap:0 11px}
+  #wishDialog .item-review-detail-row{padding:7px 0}
+  #wishDialog input:not([type="hidden"]),#wishDialog select,#wishDialog textarea{font-size:16px!important}
+}
+
+
+/* v13.15-dev3.2 — Wishlist review header alignment */
+#wishDialog .wish-head{align-items:center;gap:10px;margin-bottom:7px}
+#wishDialog .wish-head-copy{min-width:0;flex:1}
+#wishDialog .wish-head-copy .script{margin:0 0 -2px;font-size:15px;line-height:1.1;color:var(--burgundy)}
+#wishDialog .wish-head-copy h2{margin:0;font-size:24px;line-height:1.08;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#wishDialog .wish-head-actions{display:flex;align-items:center;justify-content:flex-end;gap:6px;flex:none}
+#wishDialog .wish-head-actions .item-card-utility-actions{position:relative;inset:auto;display:flex;align-items:center;gap:5px;z-index:30}
+#wishDialog .wish-head-actions .item-card-icon{width:38px;height:38px;min-width:38px;border-radius:13px}
+#wishDialog .wish-head-actions .review-photo-menu{right:0;top:44px}
+#wishDialog.wish-review-mode .wish-head{min-height:44px;margin-bottom:7px;justify-content:space-between}
+#wishDialog.wish-review-mode .wish-head>div{display:flex}
+#wishDialog.wish-review-mode .wish-head-copy{display:block}
+#wishDialog.wish-review-mode .wish-head .close-btn{width:32px;height:32px;min-width:32px;font-size:22px}
+#wishDialog.wish-review-mode .wish-photo-stage{margin-top:0}
+@media(max-width:410px){
+  #wishDialog .wish-head{gap:7px}
+  #wishDialog .wish-head-copy .script{font-size:14px}
+  #wishDialog .wish-head-copy h2{font-size:21px}
+  #wishDialog .wish-head-actions{gap:4px}
+  #wishDialog .wish-head-actions .item-card-icon{width:36px;height:36px;min-width:36px}
+  #wishDialog .wish-head-actions .close-btn{width:32px;height:32px;min-width:32px}
+}
+
+/* v13.15-dev3.2 — Wishlist review photo/header polish */
+#wishDialog .wish-head{align-items:flex-start}
+#wishDialog .wish-head-copy{display:block}
+#wishDialog .wish-head-copy .script{display:block;margin:0 0 2px}
+#wishDialog .wish-head-copy h2{display:block;margin:0;max-width:100%}
+#wishDialog .wish-head-actions{align-self:flex-start}
+#wishDialog .wish-photo-stage{position:relative}
+#wishDialog .wish-photo-utility-actions{
+  position:absolute;
+  top:8px;
+  right:8px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  z-index:35;
+}
+#wishDialog .wish-photo-utility-actions .item-card-icon{width:38px;height:38px;min-width:38px;border-radius:13px}
+#wishDialog .wish-photo-utility-actions .review-photo-menu{right:0;top:44px}
+#wishDialog.wish-review-mode .wish-photo-large{
+  border:0!important;
+  box-shadow:none!important;
+  background:transparent!important;
+  outline:0!important;
+}
+#wishDialog.wish-review-mode .wish-photo-large::before,
+#wishDialog.wish-review-mode .wish-photo-large::after{display:none!important}
+#wishDialog.wish-review-mode .wish-photo-large img{background:transparent!important}
+@media(max-width:410px){
+  #wishDialog .wish-photo-utility-actions{top:6px;right:6px;gap:5px}
+  #wishDialog .wish-photo-utility-actions .item-card-icon{width:36px;height:36px;min-width:36px}
+}
+
+/* v13.15-dev3.3 — Wishlist review header + action polish */
+#wishDialog .wish-head-copy{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:flex-start!important;
+  justify-content:flex-start!important;
+  min-width:0;
+  flex:1 1 auto;
+}
+#wishDialog .wish-head-copy .script{
+  display:block!important;
+  width:100%;
+  margin:0 0 3px!important;
+}
+#wishDialog .wish-head-copy h2{
+  display:block!important;
+  width:100%;
+  margin:0!important;
+  clear:both;
+}
+#wishDialog .wish-head-actions{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:6px;
+  flex:0 0 auto;
+}
+#wishDialog .wish-header-utility-actions{
+  position:relative!important;
+  inset:auto!important;
+  display:flex;
+  align-items:center;
+  gap:5px;
+  z-index:35;
+}
+#wishDialog .wish-header-utility-actions .item-card-icon{
+  width:38px;
+  height:38px;
+  min-width:38px;
+  border-radius:13px;
+}
+#wishDialog .wish-header-utility-actions .review-photo-menu{
+  right:0;
+  top:44px;
+}
+#wishDialog .wish-photo-stage{position:relative}
+#wishDialog .wish-photo-utility-actions{display:none!important}
+#wishDialog.wish-edit-mode .wish-sheet-actions{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+  align-items:stretch;
+}
+#wishDialog.wish-edit-mode .wish-sheet-actions>#cancelWishBtn,
+#wishDialog.wish-edit-mode .wish-sheet-actions>#deleteWishBtn,
+#wishDialog.wish-edit-mode .wish-sheet-actions>#saveWishBtn{
+  width:100%;
+  min-width:0;
+  margin:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+@media(max-width:410px){
+  #wishDialog .wish-head-actions{gap:4px}
+  #wishDialog .wish-header-utility-actions{gap:4px}
+  #wishDialog .wish-header-utility-actions .item-card-icon{width:36px;height:36px;min-width:36px}
+  #wishDialog.wish-edit-mode .wish-sheet-actions{gap:7px}
+}
+
+/* v13.15-dev3.4 — shared Closet/Wishlist detail typography + action sizing */
+/* Keep the Wishlist review typography aligned with the saved Closet review. */
+#wishDialog .item-review-detail-row span,
+#wishDialog .item-review-notes>span{
+  font-size:10px;
+  letter-spacing:.07em;
+  text-transform:uppercase;
+  color:#8a7c6e;
+  font-weight:700;
+}
+#wishDialog .item-review-detail-row strong{
+  font-family:var(--serif);
+  font-size:15px;
+  line-height:1.25;
+  color:var(--ink);
+  font-weight:600;
+  overflow-wrap:anywhere;
+}
+#wishDialog .item-review-notes p{
+  margin:0;
+  font-size:13px;
+  line-height:1.48;
+  color:#51483f;
+  white-space:pre-wrap;
+}
+
+/* The Closet and Wishlist bottom action trays now share the same control rhythm. */
+#itemDialog .item-sheet-actions button,
+#wishDialog .wish-sheet-actions button{
+  width:100%;
+  min-width:0;
+  min-height:44px;
+  margin:0;
+  padding:10px 11px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  font-family:var(--sans);
+  font-size:13px;
+  line-height:1.15;
+  font-weight:700;
+  white-space:normal;
+}
+#itemDialog .item-sheet-actions .primary,
+#wishDialog .wish-sheet-actions .primary{font-weight:750}
+#itemDialog .item-sheet-actions .danger-text,
+#wishDialog .wish-sheet-actions .danger-text{font-weight:700}
+
+/* Review and edit use the same compact spacing so mode changes do not feel jumpy. */
+#wishDialog.wish-review-mode .wish-sheet-actions,
+#wishDialog.wish-edit-mode .wish-sheet-actions{
+  align-items:center;
+}
+
+@media(max-width:410px){
+  #wishDialog .item-review-detail-row strong{font-size:14px}
+  #itemDialog .item-sheet-actions button,
+  #wishDialog .wish-sheet-actions button{
+    min-height:44px;
+    padding:9px 7px;
+    font-size:12px;
+    line-height:1.12;
+  }
+}
+
+
+/* v13.15-dev4 — Wishlist desire + edit-field polish */
+/* Match the calmer Closet edit typography instead of bold form-entry text. */
+#wishDialog .form-grid label,#wishDialog .full-label{
+  font-weight:600;
+  color:#665e55;
+  letter-spacing:0;
+}
+#wishDialog .form-grid input,#wishDialog .form-grid select,#wishDialog .full-label textarea{
+  font-family:var(--sans);
+  font-weight:400;
+  color:#3f3a34;
+  background:#fffdf8;
+}
+#wishDialog .form-grid select{font-family:var(--sans)}
+
+#wishDialog .wish-section-heading{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin:12px 0 5px;
+}
+#wishDialog .wish-section-heading .wish-section-label{margin:0}
+#wishDialog .wish-desire-picker{margin-left:auto}
+#wishDialog .wish-desire-hearts{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:3px;
+  min-height:30px;
+}
+#wishDialog .wish-heart{
+  appearance:none;
+  -webkit-appearance:none;
+  border:0;
+  background:transparent;
+  color:#c8bcaa;
+  width:27px;
+  height:30px;
+  padding:0;
+  display:grid;
+  place-items:center;
+  font-family:var(--sans);
+  font-size:21px;
+  line-height:1;
+  cursor:pointer;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+  transition:transform .12s ease,color .12s ease;
+}
+#wishDialog .wish-heart.active{color:var(--burgundy)}
+#wishDialog .wish-heart:active{transform:scale(.88)}
+#wishDialog .wish-heart:focus-visible{outline:2px solid rgba(77,142,138,.45);outline-offset:1px;border-radius:8px}
+
+/* Review mode keeps the desire control directly beside the Garment heading below the photo. */
+#wishDialog.wish-review-mode .wish-review-section:first-child .wish-section-heading{margin-top:0}
+
+/* Keep iPhone entry fields consistent with Closet and prevent Safari focus zoom. */
+@media(max-width:768px){
+  #wishDialog .form-grid input,#wishDialog .form-grid select,#wishDialog .full-label textarea{
+    font-size:16px!important;
+    line-height:1.3;
+  }
+  #wishDialog .form-grid input,#wishDialog .form-grid select{min-height:44px}
+  #wishDialog .full-label textarea{min-height:88px}
+}
+@media(max-width:410px){
+  #wishDialog .wish-section-heading{gap:6px}
+  #wishDialog .wish-desire-hearts{gap:1px}
+  #wishDialog .wish-heart{width:25px;font-size:20px}
+}
+
+/* v13.15-dev4.1 — Wishlist desire hierarchy */
+.wish-side .wish-desire{order:1}
+.wish-side .price{order:2}
+.wish-side .wish-link-mark{order:3}
+.wish-side .wish-chevron{order:4}
+
+
+/* v13.15-dev4.2.1 — Wishlist detail spacing, photo consistency, rating feedback */
+/* Give the review title enough breathing room before the photo and allow longer item names to wrap cleanly. */
+#wishDialog .wish-head{
+  margin-bottom:10px;
+}
+#wishDialog .wish-head-copy h2{
+  white-space:normal!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  line-height:1.16;
+  max-height:2.32em;
+  display:-webkit-box!important;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  padding-bottom:1px;
+}
+#wishDialog .wish-photo-stage{margin-top:1px}
+
+/* Photo presentation stays identical in Review and Edit: no frame, no fill behind the garment. */
+#wishDialog .wish-photo-large,
+#wishDialog.wish-review-mode .wish-photo-large,
+#wishDialog.wish-edit-mode .wish-photo-large{
+  border:0!important;
+  box-shadow:none!important;
+  background:transparent!important;
+  outline:0!important;
+}
+#wishDialog .wish-photo-large::before,
+#wishDialog .wish-photo-large::after{display:none!important}
+#wishDialog .wish-photo-large img{background:transparent!important}
+
+@media(max-width:410px){
+  #wishDialog .wish-head{margin-bottom:9px}
+  #wishDialog .wish-head-copy h2{line-height:1.15;max-height:2.3em}
+}
+
+/* v13.15-dev4.2.2 — Exact-heart outline + in-dialog rating feedback */
+/* Outline the selected heart glyph itself rather than drawing a box around the button. */
+#wishDialog .wish-heart.selected{
+  border:0!important;
+  border-radius:0;
+  background:transparent!important;
+  -webkit-text-stroke:1.35px #d2ad42;
+  paint-order:stroke fill;
+  text-shadow:0 0 .01px #d2ad42;
+}
+#wishDialog .wish-heart.active:not(.selected){-webkit-text-stroke:0 transparent}
+
+/* A normal page toast sits behind an open modal dialog on iOS. Keep rating feedback
+   inside the Wishlist dialog's top layer so it is always visible above the controls. */
+#wishDialog{position:relative}
+#wishDialog .wish-rating-toast{
+  position:absolute;
+  z-index:80;
+  top:10px;
+  left:50%;
+  transform:translate(-50%,-8px);
+  max-width:calc(100% - 96px);
+  padding:9px 13px;
+  border-radius:16px;
+  background:rgba(52,47,40,.94);
+  color:#fff;
+  font-size:12px;
+  font-weight:700;
+  line-height:1.2;
+  text-align:center;
+  white-space:nowrap;
+  box-shadow:0 6px 18px rgba(36,30,22,.18);
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .18s ease,transform .18s ease;
+}
+#wishDialog .wish-rating-toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:410px){
+  #wishDialog .wish-rating-toast{top:8px;max-width:calc(100% - 76px);font-size:11.5px}
+}
+
+/* v13.15-dev5.1 — Wishlist ranking, Top 10, reorder, and larger desire controls */
+.wishlist-view-tabs{display:flex;gap:6px;margin:-3px 0 9px}
+.wishlist-view-tabs button{border:1px solid var(--line);background:#f8f2e4;color:var(--coffee);border-radius:15px;padding:7px 12px;font:inherit;font-size:12px;font-weight:700}
+.wishlist-view-tabs button.active{background:var(--coffee);border-color:var(--coffee);color:#fff}
+.wish-title-line{display:flex;align-items:baseline;gap:6px;min-width:0}
+.wish-title-line h4{min-width:0;flex:1}
+.wish-rank{font-size:10px;font-weight:850;color:var(--burgundy);flex:none}
+.wish-side{position:relative;padding-right:34px!important;min-width:104px}
+.wish-reorder-handle{position:absolute;right:2px;top:50%;transform:translateY(-50%);width:30px;height:42px;border:0;background:transparent;border-radius:10px;padding:10px 6px;display:flex;flex-direction:column;justify-content:center;gap:4px;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;cursor:grab}
+.wish-reorder-handle span{display:block;width:17px;height:2px;border-radius:2px;background:#8e8172;margin:0 auto}
+.wish-reorder-handle:active{background:rgba(108,81,66,.08);cursor:grabbing}
+.wishlist-top10-view .wish-side{padding-right:4px!important;min-width:70px}
+.wishlist-drag-source{opacity:.22!important}
+.wishlist-drag-ghost{position:fixed!important;z-index:2500!important;margin:0!important;pointer-events:none!important;opacity:.97!important;background:#fffaf0!important;border-top:1px solid var(--line)!important;border-bottom:1px solid var(--line)!important;box-shadow:0 12px 28px rgba(48,39,29,.2)!important;transform:scale(1.012);border-radius:0!important}
+.wishlist-drop-placeholder{border-top:3px solid var(--turq);background:rgba(77,142,138,.055);min-height:48px}
+body.wishlist-reordering{cursor:grabbing;-webkit-user-select:none;user-select:none}
+body.wishlist-reordering .wish-card{touch-action:none}
+.wish-side .wish-desire{font-size:11.5px;line-height:1.05;letter-spacing:.01em}
+#wishDialog .wish-heart{width:34px;height:36px;font-size:25px}
+#wishDialog .wish-heart.selected{-webkit-text-stroke:1.85px #d2ad42;text-shadow:0 0 .01px #d2ad42}
+@media(max-width:410px){
+  #wishDialog .wish-desire-hearts{gap:2px}
+  #wishDialog .wish-heart{width:32px;height:35px;font-size:24px}
+  .wish-side{min-width:96px;padding-right:32px!important}
+  .wishlist-top10-view .wish-side{min-width:62px;padding-right:2px!important}
+  .wish-reorder-handle{width:29px}
+}
+
+
+/* v13.15-dev5.1 — deliberate Wishlist reorder mode */
+.wishlist-list-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:-3px 0 9px}
+.wishlist-list-toolbar .wishlist-view-tabs{margin:0;min-width:0}
+.wishlist-reorder-toggle{border:1px solid rgba(108,81,66,.24);background:transparent;color:var(--coffee);border-radius:15px;padding:7px 11px;font:inherit;font-size:12px;font-weight:750;white-space:nowrap}
+.wishlist-reorder-toggle.active{background:var(--coffee);border-color:var(--coffee);color:#fff}
+.wishlist-view-tabs button:disabled{opacity:.38}
+/* Browsing stays clean. The grip only exists after the user explicitly enters Reorder. */
+.wishlist-grid:not(.wishlist-reorder-mode) .wish-reorder-handle{display:none!important}
+.wishlist-reorder-mode .wish-card{cursor:default;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.wishlist-reorder-mode .wish-body .wish-type,
+.wishlist-reorder-mode .wish-body>p:not(.wish-type),
+.wishlist-reorder-mode .wish-store{display:none!important}
+.wishlist-reorder-mode .wish-side>.wish-desire,
+.wishlist-reorder-mode .wish-side>.price,
+.wishlist-reorder-mode .wish-side>.wish-link-mark,
+.wishlist-reorder-mode .wish-side>.wish-chevron{display:none!important}
+.wishlist-reorder-mode .wish-side{min-width:38px!important;padding-right:34px!important}
+.wishlist-reorder-mode .wish-card{min-height:66px;padding-top:8px;padding-bottom:8px}
+.wishlist-reorder-mode .wish-body{align-self:center}
+.wishlist-reorder-mode .wish-title-line{align-items:center;gap:7px}
+.wish-reorder-desire{font-size:10.5px;line-height:1;color:var(--burgundy);font-weight:800;white-space:nowrap;opacity:.78}
+/* Subtle unboxed grip: small visible marks, generous invisible touch target. */
+.wishlist-reorder-mode .wish-reorder-handle{display:flex;right:0;width:34px;height:46px;padding:12px 8px;background:transparent!important;border:0!important;box-shadow:none!important;opacity:.72}
+.wishlist-reorder-mode .wish-reorder-handle span{width:15px;height:1.5px;background:#8b8175;border-radius:3px}
+.wishlist-reorder-mode .wish-reorder-handle:active{opacity:1;transform:translateY(-50%) scale(1.04)}
+.wishlist-reorder-mode .wish-photo{width:52px;height:52px}
+.wishlist-reorder-mode .wishlist-drop-placeholder{min-height:66px;border-top:2px solid var(--turq);background:rgba(77,142,138,.04)}
+.wishlist-drag-ghost .wish-side>.wish-desire,
+.wishlist-drag-ghost .wish-side>.price,
+.wishlist-drag-ghost .wish-side>.wish-link-mark,
+.wishlist-drag-ghost .wish-side>.wish-chevron{display:none!important}
+.wishlist-drag-ghost .wish-body .wish-type,
+.wishlist-drag-ghost .wish-body>p{display:none!important}
+@media(max-width:410px){
+  .wishlist-list-toolbar{gap:7px}
+  .wishlist-reorder-toggle{padding:7px 9px;font-size:11.5px}
+  .wishlist-reorder-mode .wish-card{min-height:62px}
+  .wishlist-reorder-mode .wish-photo{width:48px;height:48px}
+}
+
+/* Keep only one insertion-sized gap while the dragged source is represented by its placeholder. */
+.wishlist-reorder-mode .wishlist-drag-source{min-height:0!important;height:0!important;padding-top:0!important;padding-bottom:0!important;margin:0!important;border:0!important;overflow:hidden!important;opacity:0!important}
+
+
+/* v13.15-dev5.2 — Wishlist row hierarchy polish */
+/* Browse mode: desire belongs with the garment on the left; price and navigation stay anchored right. */
+.wish-body{min-width:0;align-self:center}
+.wish-body>.wish-desire{display:flex;align-items:center;justify-content:flex-start;margin:0 0 4px;color:var(--burgundy);font-size:13px;line-height:1;letter-spacing:.015em}
+.wish-body>.wish-desire span{font-size:14px;line-height:1}
+.wish-side{min-width:78px!important;padding:3px 0 3px 8px!important;align-items:flex-end!important;justify-content:center!important;gap:5px}
+.wish-side .price{font-size:17px!important;line-height:1.05;font-weight:850!important;text-align:right}
+.wish-side .wish-link-mark{text-align:right}
+.wish-side .wish-chevron{align-self:flex-end;margin-top:2px!important;margin-right:1px}
+/* Reorder mode keeps the same rating placement so priority remains easy to compare. */
+.wishlist-reorder-mode .wish-body>.wish-desire{display:flex!important;margin-bottom:4px;font-size:12px;opacity:.9}
+.wishlist-reorder-mode .wish-body>.wish-desire span{font-size:13px}
+.wishlist-reorder-mode .wish-body{align-self:center;text-align:left;padding-right:3px}
+.wishlist-reorder-mode .wish-title-line{justify-content:flex-start;align-items:center}
+.wishlist-reorder-mode .wish-side{min-width:38px!important;padding:0 34px 0 0!important}
+.wishlist-reorder-mode .wish-side>.price,
+.wishlist-reorder-mode .wish-side>.wish-link-mark,
+.wishlist-reorder-mode .wish-side>.wish-chevron{display:none!important}
+.wishlist-drag-ghost .wish-body>.wish-desire{display:flex!important;margin-bottom:4px}
+.wishlist-drag-ghost .wish-side>.price,
+.wishlist-drag-ghost .wish-side>.wish-link-mark,
+.wishlist-drag-ghost .wish-side>.wish-chevron{display:none!important}
+@media(max-width:410px){
+  .wish-body>.wish-desire{font-size:12.5px;margin-bottom:3px}
+  .wish-body>.wish-desire span{font-size:13.5px}
+  .wish-side{min-width:72px!important;padding-left:6px!important}
+  .wish-side .price{font-size:16px!important}
+  .wishlist-reorder-mode .wish-side{min-width:36px!important;padding-right:32px!important;padding-left:0!important}
+}
+
+
+/* v13.15-dev5.2.1 — Wishlist title/rating order + tighter reorder geometry */
+/* Keep desire directly beneath the item description/title in browse and reorder views. */
+.wish-body>.wish-desire{margin:3px 0 4px!important}
+/* When the thumbnail shrinks for ranking, shrink the grid column with it so text follows the photo left. */
+.wishlist-reorder-mode .wish-card{grid-template-columns:52px minmax(0,1fr) 38px!important;gap:8px!important}
+.wishlist-reorder-mode .wish-body{margin-left:0!important;padding-left:0!important}
+.wishlist-reorder-mode .wish-title-line{margin-left:0!important}
+.wishlist-reorder-mode .wish-body>.wish-desire{margin:3px 0 0!important}
+@media(max-width:410px){
+  .wishlist-reorder-mode .wish-card{grid-template-columns:48px minmax(0,1fr) 36px!important;gap:7px!important}
+}
+
+
+/* v13.15-dev5.3 — Wishlist reorder visual refinement */
+/* Reorder is an operation, not a primary button: keep the control light and text-only. */
+.wishlist-reorder-toggle{
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  border-radius:0!important;
+  padding:6px 2px!important;
+  color:#887b6c!important;
+  font-weight:500!important;
+  letter-spacing:.025em;
+}
+.wishlist-reorder-toggle.active{
+  border:0!important;
+  background:transparent!important;
+  color:var(--burgundy)!important;
+  font-weight:600!important;
+}
+.wishlist-reorder-toggle:focus-visible{outline:2px solid rgba(77,142,138,.35);outline-offset:3px;border-radius:4px!important}
+/* Price remains prominent by size/placement rather than bold weight. */
+.wish-side .price{font-weight:500!important}
+/* Floating row stays fully inside its measured bounds and feels lighter while moving. */
+.wishlist-drag-ghost{
+  box-sizing:border-box!important;
+  overflow:visible!important;
+  opacity:.90!important;
+  transform:scale(.995)!important;
+  box-shadow:0 10px 24px rgba(48,39,29,.16)!important;
+}
+.wishlist-drag-ghost .wish-photo{overflow:hidden!important}
+/* Keep the destination row visible beneath the moving item, but gently de-emphasize it. */
+.wishlist-reorder-mode .wish-card.wishlist-drop-target{
+  opacity:.58!important;
+  background:rgba(77,142,138,.045)!important;
+  border-top:2px solid rgba(77,142,138,.72)!important;
+  border-bottom:2px solid rgba(77,142,138,.72)!important;
+}
+/* Placeholder is now a quiet insertion cue; the target row itself carries the top/bottom frame. */
+.wishlist-reorder-mode .wishlist-drop-placeholder{
+  min-height:8px!important;
+  height:8px!important;
+  border-top:2px solid var(--turq)!important;
+  border-bottom:0!important;
+  background:transparent!important;
+}
+@media(max-width:410px){
+  .wishlist-reorder-toggle{font-size:11.5px!important;padding:6px 1px!important}
+}
+
+
+/* v13.15-dev5.4 — Wishlist review actions + reorder row geometry */
+/* Review now exposes Remove alongside Close/Edit, with the same balanced action rhythm as edit mode. */
+#wishDialog.wish-review-mode #deleteWishBtn{display:flex!important}
+#wishDialog.wish-review-mode .wish-sheet-actions{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:10px!important;
+}
+#wishDialog.wish-review-mode .wish-sheet-actions>#cancelWishBtn,
+#wishDialog.wish-review-mode .wish-sheet-actions>#deleteWishBtn,
+#wishDialog.wish-review-mode .wish-sheet-actions>#saveWishBtn{
+  width:100%!important;
+  min-width:0!important;
+  margin:0!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+}
+
+/* The floating ranking row must use the compact reorder geometry even after it is
+   cloned out of .wishlist-reorder-mode and appended directly to <body>. */
+.wishlist-drag-ghost{
+  display:grid!important;
+  grid-template-columns:44px minmax(0,1fr) 34px!important;
+  align-items:center!important;
+  gap:8px!important;
+  min-height:62px!important;
+  padding:7px 10px!important;
+}
+.wishlist-drag-ghost .wish-photo{
+  width:44px!important;
+  height:44px!important;
+  align-self:center!important;
+  justify-self:center!important;
+  border-radius:9px!important;
+}
+.wishlist-drag-ghost .wish-photo img{
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  display:block!important;
+}
+.wishlist-drag-ghost .wish-body{
+  min-width:0!important;
+  margin:0!important;
+  padding:0!important;
+  align-self:center!important;
+  text-align:left!important;
+}
+.wishlist-drag-ghost .wish-title-line{margin:0!important;align-items:center!important}
+.wishlist-drag-ghost .wish-body>.wish-desire{display:flex!important;margin:3px 0 0!important}
+.wishlist-drag-ghost .wish-side{
+  min-width:34px!important;
+  width:34px!important;
+  padding:0!important;
+  align-self:stretch!important;
+}
+@media(max-width:410px){
+  #wishDialog.wish-review-mode .wish-sheet-actions{gap:7px!important}
+  .wishlist-drag-ghost{
+    grid-template-columns:40px minmax(0,1fr) 32px!important;
+    min-height:58px!important;
+    gap:7px!important;
+    padding:7px 9px!important;
+  }
+  .wishlist-drag-ghost .wish-photo{width:40px!important;height:40px!important}
+  .wishlist-drag-ghost .wish-side{min-width:32px!important;width:32px!important}
+}
+
+/* v13.15-dev5.4.1 — keep the Wishlist source row anchored until a real drop target is chosen */
+.wishlist-reorder-mode .wishlist-drag-source{
+  min-height:62px!important;
+  height:auto!important;
+  padding:7px 10px!important;
+  margin:0!important;
+  border-top:1px solid var(--line)!important;
+  border-bottom:1px solid var(--line)!important;
+  overflow:visible!important;
+  opacity:.38!important;
+  background:rgba(255,250,240,.58)!important;
+}
+.wishlist-reorder-mode .wishlist-drop-placeholder[hidden]{display:none!important}
+.wishlist-reorder-mode .wishlist-drop-placeholder{
+  display:block;
+  min-height:7px!important;
+  height:7px!important;
+  margin:0!important;
+  border-top:2px solid var(--turq)!important;
+  border-bottom:0!important;
+  background:transparent!important;
+}
+
+/* v13.15-dev5.4.2 — stable Wishlist reorder geometry */
+/* Target feedback is painted with inset shadows, not borders, so it never changes
+   row dimensions while the drag crosses from one destination to another. */
+.wishlist-reorder-mode .wish-card.wishlist-drop-target{
+  box-sizing:border-box!important;
+  border-top:1px solid var(--line)!important;
+  border-bottom:1px solid var(--line)!important;
+  background:rgba(77,142,138,.045)!important;
+  opacity:.62!important;
+  transition:background .12s ease,opacity .12s ease,box-shadow .12s ease!important;
+}
+.wishlist-reorder-mode .wish-card.wishlist-drop-target.drop-before{
+  box-shadow:inset 0 2px 0 rgba(77,142,138,.78),inset 0 -1px 0 rgba(77,142,138,.26)!important;
+}
+.wishlist-reorder-mode .wish-card.wishlist-drop-target.drop-after{
+  box-shadow:inset 0 1px 0 rgba(77,142,138,.26),inset 0 -2px 0 rgba(77,142,138,.78)!important;
+}
+/* The source remains a fixed-height visual anchor; opacity changes only paint, not layout. */
+.wishlist-reorder-mode .wishlist-drag-source{
+  box-sizing:border-box!important;
+  transition:opacity .12s ease,background .12s ease!important;
+}
+/* No insertion spacer is needed during the gesture; keeping it out of layout removes the
+   repeated 7–8px reflow that caused rows below to jitter. */
+.wishlist-reorder-mode .wishlist-drop-placeholder{display:none!important}
+.wishlist-drag-ghost{will-change:top;contain:layout paint style}
+
+/* v13.15-dev6 — Wishlist lifecycle: removed/archive + purchased to Closet */
+#wishDialog.wish-review-mode .wish-sheet-actions{
+  grid-template-columns:repeat(auto-fit,minmax(68px,1fr))!important;
+}
+#wishDialog.wish-review-mode .wish-sheet-actions>#purchaseWishBtn{
+  width:100%!important;min-width:0!important;margin:0!important;display:flex;align-items:center;justify-content:center;text-align:center;
+}
+#wishDialog.wish-review-mode .wish-sheet-actions>#purchaseWishBtn.hidden{display:none!important}
+#wishDialog .wish-sheet-actions>#saveWishBtn.hidden{display:none!important}
+.wishlist-removed-view .wish-card{opacity:.82}
+.wishlist-removed-view .wish-card::after{content:'Removed';font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:#8b8175;position:absolute;right:34px;bottom:7px}
+.purchase-wish-dialog form{padding:18px 17px 0}
+.purchase-wish-dialog .purchase-wish-summary{margin:2px 0 14px;font-family:Georgia,serif;font-size:15px;color:var(--coffee);line-height:1.35}
+.purchase-wish-dialog .sheet-actions{margin:18px -17px 0;padding:10px 17px max(10px,env(safe-area-inset-bottom));display:grid;grid-template-columns:1fr 1fr;gap:9px;border-top:1px solid rgba(108,81,66,.13);background:rgba(247,240,223,.98)}
+@media(max-width:410px){
+  #wishDialog.wish-review-mode .wish-sheet-actions{gap:6px!important}
+  #wishDialog.wish-review-mode .wish-sheet-actions button{font-size:11.5px!important;padding-left:5px!important;padding-right:5px!important}
+  .purchase-wish-dialog form{padding-left:14px;padding-right:14px}
+  .purchase-wish-dialog .sheet-actions{margin-left:-14px;margin-right:-14px;padding-left:14px;padding-right:14px}
+}
+
+
+/* v13.15-dev6.1 — acquisition handoff cleanup */
+.purchase-wish-dialog .purchase-wish-fields{display:grid;grid-template-columns:1fr;gap:10px;margin-top:2px}
+.purchase-wish-dialog .purchase-wish-fields>label,.purchase-wish-dialog .purchase-price-fields label{display:block;font-size:10px;font-weight:750;color:#756a5c;letter-spacing:.02em}
+.purchase-wish-dialog .purchase-wish-fields input,.purchase-wish-dialog .purchase-wish-fields select{display:block;width:100%;margin-top:4px;min-height:44px;box-sizing:border-box}
+.purchase-wish-dialog .purchase-price-fields{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(92px,.75fr);gap:10px;align-items:end}
+.purchase-wish-dialog .optional-note{font-weight:500;color:#948777;letter-spacing:0}
+.purchase-wish-dialog .purchase-price-note{margin:0;padding:9px 10px;border-radius:12px;background:rgba(125,116,74,.07);color:#776c5f;font-size:10.5px;line-height:1.4}
+@media(max-width:520px){
+  .purchase-wish-dialog .purchase-price-fields{grid-template-columns:1fr}
+  .purchase-wish-dialog input,.purchase-wish-dialog select{font-size:16px!important}
+}
+
+/* v13.15-dev6.1.1 — acquisition handoff visual polish */
+.purchase-wish-dialog .purchase-wish-fields > label,
+.purchase-wish-dialog .purchase-price-fields > label{
+  min-width:0;
+}
+.purchase-wish-dialog .purchase-wish-fields input,
+.purchase-wish-dialog .purchase-wish-fields select,
+.purchase-wish-dialog .purchase-price-fields input,
+.purchase-wish-dialog .purchase-price-fields select{
+  width:100%;
+  min-width:0;
+  max-width:100%;
+  font-family:var(--sans);
+  font-weight:400!important;
+}
+.purchase-wish-dialog #purchaseWishDate{
+  width:100%;
+  min-width:0;
+  max-width:100%;
+  box-sizing:border-box;
+}
+.purchase-wish-dialog .sheet-actions button{
+  width:100%;
+  min-width:0;
+  min-height:42px;
+  padding:10px 8px;
+  font-size:12px;
+  line-height:1.2;
+  font-weight:700;
+  white-space:nowrap;
+}
+.purchase-wish-dialog .sheet-actions .primary{
+  font-size:12px;
+  font-weight:700;
+}
+
+/* v13.15-dev6.1.2 — keep native iOS date control inside the acquisition field width */
+.purchase-wish-dialog .purchase-wish-fields{
+  width:100%;
+  min-width:0;
+}
+.purchase-wish-dialog .purchase-wish-fields > label{
+  width:100%;
+  max-width:100%;
+  min-width:0;
+  overflow:hidden;
+  box-sizing:border-box;
+}
+.purchase-wish-dialog #purchaseWishDate{
+  display:block;
+  inline-size:100%;
+  width:100%;
+  min-inline-size:0;
+  min-width:0;
+  max-inline-size:100%;
+  max-width:100%;
+  box-sizing:border-box;
+}
+@media(max-width:520px){
+  .purchase-wish-dialog #purchaseWishDate{
+    inline-size:100%;
+    width:100%;
+    max-inline-size:100%;
+    max-width:100%;
+  }
+}
+
+/* v13.15-dev6.1.3 — restore full rounded date-field chrome and align iOS date value */
+.purchase-wish-dialog .purchase-wish-fields > label{
+  overflow:visible;
+}
+.purchase-wish-dialog #purchaseWishDate{
+  display:block;
+  width:calc(100% - 2px);
+  inline-size:calc(100% - 2px);
+  max-width:calc(100% - 2px);
+  max-inline-size:calc(100% - 2px);
+  min-width:0;
+  min-inline-size:0;
+  margin-inline:1px;
+  height:44px;
+  min-height:44px;
+  padding:10px 11px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#fffdf7;
+  color:var(--ink);
+  font-family:var(--sans);
+  font-weight:400!important;
+  line-height:1.2;
+  box-sizing:border-box;
+}
+.purchase-wish-dialog #purchaseWishDate::-webkit-date-and-time-value{
+  min-height:22px;
+  line-height:22px;
+  text-align:left;
+}
+@media(max-width:520px){
+  .purchase-wish-dialog #purchaseWishDate{
+    width:calc(100% - 2px);
+    inline-size:calc(100% - 2px);
+    max-width:calc(100% - 2px);
+    max-inline-size:calc(100% - 2px);
+    font-size:16px!important;
+  }
+}
+
+/* v13.15-dev6.1.4 — match Acquired date width to sibling fields and center the date value */
+.purchase-wish-dialog #purchaseWishDate{
+  width:100%;
+  inline-size:100%;
+  max-width:100%;
+  max-inline-size:100%;
+  margin-inline:0;
+  padding-left:11px;
+  padding-right:11px;
+  text-align:center;
+}
+.purchase-wish-dialog #purchaseWishDate::-webkit-date-and-time-value{
+  width:100%;
+  text-align:center;
+}
+.purchase-wish-dialog #purchaseWishDate::-webkit-datetime-edit{
+  width:100%;
+  text-align:center;
+}
+@media(max-width:520px){
+  .purchase-wish-dialog #purchaseWishDate{
+    width:100%;
+    inline-size:100%;
+    max-width:100%;
+    max-inline-size:100%;
+  }
+}
+
+
+/* v13.15-dev6.1.5 — normalize iOS date field width via a visual shell and tighten close control */
+.purchase-wish-dialog .purchase-date-shell{
+  width:100%;
+  min-width:0;
+  margin-top:4px;
+  height:44px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#fffdf7;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  box-sizing:border-box;
+}
+.purchase-wish-dialog .purchase-date-shell #purchaseWishDate{
+  width:100%!important;
+  inline-size:100%!important;
+  max-width:100%!important;
+  max-inline-size:100%!important;
+  min-width:0!important;
+  min-inline-size:0!important;
+  height:42px;
+  min-height:42px;
+  margin:0!important;
+  padding:0 11px!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  font-family:var(--sans);
+  font-weight:400!important;
+  font-size:16px!important;
+  line-height:42px;
+  text-align:center;
+  box-sizing:border-box;
+}
+.purchase-wish-dialog .purchase-date-shell #purchaseWishDate::-webkit-date-and-time-value,
+.purchase-wish-dialog .purchase-date-shell #purchaseWishDate::-webkit-datetime-edit{
+  width:100%;
+  min-width:0;
+  text-align:center;
+  padding:0;
+  margin:0;
+}
+.purchase-wish-dialog .sheet-head{
+  position:relative;
+  padding-right:34px;
+}
+.purchase-wish-dialog .sheet-head .close-btn{
+  position:absolute;
+  top:-8px;
+  right:-8px;
+  width:32px;
+  height:32px;
+  min-width:32px;
+  font-size:22px;
+  line-height:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* v13.15-dev6.1.6 — vertically center the native iOS Acquired date value */
+.purchase-wish-dialog .purchase-date-shell #purchaseWishDate{
+  display:block;
+  height:42px!important;
+  min-height:42px!important;
+  padding-top:0!important;
+  padding-bottom:0!important;
+  line-height:normal!important;
+}
+.purchase-wish-dialog .purchase-date-shell #purchaseWishDate::-webkit-date-and-time-value{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:42px;
+  min-height:42px;
+  line-height:normal;
+  padding:0;
+  margin:0;
+  text-align:center;
+}
+.purchase-wish-dialog .purchase-date-shell #purchaseWishDate::-webkit-datetime-edit{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:42px;
+  min-height:42px;
+  line-height:normal;
+  padding:0;
+  margin:0;
+  text-align:center;
+}
+.purchase-wish-dialog .purchase-date-shell #purchaseWishDate::-webkit-datetime-edit-fields-wrapper{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:100%;
+  padding:0;
+  margin:0;
+}
+
+/* v13.15-dev6.2 — Wishlist acquisition moment */
+.acquisition-moment-dialog{
+  width:min(92vw,430px);
+  max-width:430px;
+  border:0;
+  padding:0;
+  background:transparent;
+  overflow:visible;
+}
+.acquisition-moment-dialog::backdrop{
+  background:rgba(42,36,30,.42);
+  backdrop-filter:blur(2px);
+}
+.acquisition-moment-card{
+  position:relative;
+  overflow:hidden;
+  padding:26px 22px 20px;
+  border:1px solid rgba(108,81,66,.16);
+  border-radius:24px;
+  background:rgba(247,240,223,.985);
+  box-shadow:0 22px 58px rgba(47,39,31,.22);
+  text-align:center;
+  transform:translateY(8px) scale(.985);
+  opacity:.92;
+  transition:transform .32s cubic-bezier(.2,.75,.25,1),opacity .26s ease;
+}
+.acquisition-moment-dialog.moment-entered .acquisition-moment-card{transform:none;opacity:1}
+.acquisition-moment-close{position:absolute;top:8px;right:9px;z-index:3}
+.acquisition-moment-card>.script{margin:0 34px 0;color:#7c624c;font-size:1.02rem}
+.acquisition-moment-heart{
+  width:42px;height:42px;margin:6px auto 2px;
+  display:grid;place-items:center;
+  color:#8f3446;font-size:31px;line-height:1;
+  transform:scale(.72);opacity:.2;
+  filter:drop-shadow(0 2px 0 rgba(215,180,74,.22));
+  transition:transform .48s cubic-bezier(.2,1.4,.35,1),opacity .35s ease;
+}
+.acquisition-moment-dialog.moment-entered .acquisition-moment-heart{transform:scale(1);opacity:1}
+.acquisition-moment-card h2{margin:0 0 12px;font-size:1.45rem;line-height:1.08}
+.acquisition-moment-photo{
+  width:min(58vw,210px);height:min(58vw,210px);max-width:210px;max-height:210px;
+  margin:0 auto 10px;display:grid;place-items:center;background:transparent;border:0;
+}
+.acquisition-moment-photo img{width:100%;height:100%;object-fit:contain;background:transparent;border:0;filter:drop-shadow(0 7px 12px rgba(55,45,36,.09))}
+.acquisition-moment-placeholder{font-size:72px;color:rgba(143,52,70,.22)}
+.acquisition-moment-card h3{margin:2px 0 7px;font-family:Georgia,'Times New Roman',serif;font-size:1.12rem;font-weight:600;line-height:1.2;color:#372f28}
+.acquisition-moment-rating{display:flex;justify-content:center;align-items:center;gap:3px;margin:0 auto 9px;color:#b9aa98}
+.acquisition-moment-rating span{font-size:20px;line-height:1;color:#c8bba9}
+.acquisition-moment-rating span.filled{color:#8f3446;filter:drop-shadow(0 0 1px rgba(211,173,61,.55))}
+.acquisition-moment-rating small{margin-left:6px;font-size:11px;font-weight:600;letter-spacing:.02em;color:#7a6a59}
+.acquisition-moment-meta{margin:0 auto;font-size:11px;line-height:1.45;color:#76695c}
+.acquisition-moment-wait{margin:7px auto 0;max-width:300px;font-family:Georgia,'Times New Roman',serif;font-size:13px;line-height:1.35;color:#5e5044}
+.acquisition-moment-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:17px}
+.acquisition-moment-actions button{min-height:42px;font-size:12px;padding:9px 10px}
+@media(max-width:410px){
+  .acquisition-moment-dialog{width:min(94vw,390px)}
+  .acquisition-moment-card{padding:23px 16px 16px;border-radius:20px}
+  .acquisition-moment-photo{width:min(50vw,184px);height:min(50vw,184px)}
+  .acquisition-moment-card h2{font-size:1.32rem}
+  .acquisition-moment-actions{gap:8px}
+}
+@media(prefers-reduced-motion:reduce){
+  .acquisition-moment-card,.acquisition-moment-heart{transition:none!important;transform:none!important;opacity:1!important}
+}
+
+
+/* v13.15-dev6.3 — Wishlist entry refinements */
+#wishEditFields .wish-link-field{grid-column:1/-1}
+#wishEditFields .brand-field-label{position:relative;overflow:visible}
+#wishBrandSuggestions,#wishStoreSuggestions{z-index:60}
+.wish-review-link-row{align-items:center}
+.wish-product-link{font:600 14px var(--sans);color:var(--burgundy);text-decoration:none;overflow-wrap:anywhere;text-align:right;max-width:72%}
+.wish-product-link:active,.wish-product-link:focus-visible{text-decoration:underline;outline:none}
+@media(max-width:410px){.wish-product-link{font-size:13px;max-width:68%}}
+
+/* v13.15-dev6.4 — lifecycle visual polish */
+/* Active rows remain full color; inactive lifecycle states use one consistent visual language. */
+.item-card-archived{
+  opacity:.70;
+  filter:grayscale(.95) saturate(.18);
+}
+.item-card-archived .thumb{
+  filter:grayscale(1) saturate(0) contrast(.92);
+}
+.item-card-archived .card-body{color:#756f68}
+.item-card-archived .swatch{filter:grayscale(1);opacity:.68}
+
+.wishlist-removed-view .wish-card{
+  opacity:.72;
+  filter:grayscale(.96) saturate(.12);
+}
+.wishlist-removed-view .wish-photo{
+  filter:grayscale(1) saturate(0) contrast(.92);
+}
+.wishlist-removed-view .wish-desire,
+.wishlist-removed-view .price,
+.wishlist-removed-view .wish-link-mark{
+  color:#817a71!important;
+}
+
+/* The row stays the primary detail action; this compact secondary action opens the product itself. */
+.wish-link-mark{
+  display:inline-flex;
+  align-items:center;
+  justify-content:flex-end;
+  width:max-content;
+  max-width:100%;
+  color:var(--turq);
+  font-size:9px;
+  font-weight:750;
+  line-height:1.2;
+  text-decoration:none;
+  border-bottom:1px solid rgba(77,142,138,.34);
+  padding:2px 0;
+  cursor:pointer;
+  -webkit-tap-highlight-color:rgba(77,142,138,.12);
+}
+.wish-link-mark:active{opacity:.62}
+.wishlist-reorder-mode .wish-link-mark{display:none!important}
+
+
+/* v13.15-dev7 — shopping session groundwork */
+.wishlist-toolbar-actions{display:flex;align-items:center;gap:12px}
+.wishlist-sessions-toggle{appearance:none;border:0;background:transparent;padding:5px 0;color:var(--olive);font:500 13px/1.1 inherit;letter-spacing:.02em}
+#wishEditFields .wish-session-field{grid-column:1/-1}
+.wish-session-control{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}
+.wish-session-control .text-btn{padding:7px 2px;white-space:nowrap}
+.wish-session{margin-top:2px!important;font-size:11px!important;font-style:italic;color:var(--olive)!important}
+.shopping-sessions-dialog{width:min(92vw,520px);max-height:min(86vh,760px)}
+.shopping-sessions-scroll{max-height:min(80vh,700px);overflow-y:auto;padding:0 1px 12px}
+.shopping-session-help{margin:0 0 12px;color:var(--muted);font-size:13px;line-height:1.4}
+.shopping-sessions-list{border-top:1px solid rgba(94,78,62,.16);margin-bottom:18px}
+.shopping-session-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid rgba(94,78,62,.16)}
+.shopping-session-row>div:first-child{min-width:0;display:flex;flex-direction:column;gap:2px}
+.shopping-session-row strong{font-size:14px;font-weight:650}
+.shopping-session-row small,.shopping-session-row em{font-size:11px;color:var(--muted);font-style:normal}
+.shopping-session-actions{display:flex;gap:8px;flex:0 0 auto}
+.shopping-session-actions .text-btn{font-size:12px;padding:5px 0}
+.shopping-session-empty{padding:12px 0;color:var(--muted);font-size:13px}
+.shopping-session-form{border-top:1px solid rgba(94,78,62,.16);padding-top:12px;display:grid;gap:9px}
+.shopping-session-form label{font-size:11px;font-weight:650;color:var(--muted)}
+.shopping-session-form input{font-size:16px;font-weight:400}
+.shopping-session-form-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:4px}
+@media(max-width:410px){.wishlist-toolbar-actions{gap:9px}.wishlist-sessions-toggle{font-size:12px}.shopping-session-row{align-items:flex-start}.shopping-session-actions{flex-direction:column;gap:2px}}
+
+/* v13.15-dev7.1 — Shopping Sessions UI & lifecycle */
+body.shopping-sessions-open{position:fixed;left:0;right:0;width:100%;overflow:hidden;overscroll-behavior:none;touch-action:none}
+.wishlist-page-head{align-items:flex-end}
+.wishlist-head-actions{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.wishlist-head-actions .wishlist-sessions-toggle{padding:2px 1px;color:var(--olive);font-size:12px;font-weight:550;letter-spacing:.02em}
+.wishlist-active-session{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:-3px 1px 10px;padding:8px 10px;border:1px solid rgba(77,142,138,.28);border-radius:12px;background:rgba(77,142,138,.07)}
+.wishlist-active-session>div{min-width:0;display:flex;flex-direction:column;gap:1px}.wishlist-active-session small{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}.wishlist-active-session strong{font-family:var(--serif);font-size:14px;font-weight:550;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.wishlist-active-session button{border:0;background:transparent;color:var(--burgundy);font:500 11px/1 var(--sans);padding:7px 2px;flex:0 0 auto}
+.shopping-sessions-dialog{width:min(92vw,520px);height:min(86vh,760px);max-height:min(86vh,760px);overflow:hidden;padding:0;overscroll-behavior:contain;touch-action:pan-y}
+.shopping-sessions-shell{height:100%;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr) auto;background:#f7f0df;border-radius:inherit;overflow:hidden}
+.shopping-sessions-header{padding:17px 17px 9px;background:#f7f0df;border-bottom:1px solid rgba(94,78,62,.12);z-index:2}
+.shopping-sessions-header .sheet-head h2{margin-bottom:7px}.shopping-session-help{margin:0;color:var(--muted);font-size:12px;line-height:1.42}.shopping-session-help strong{display:block;color:var(--ink);font-weight:650;margin-bottom:2px}.shopping-session-help span{display:block}
+.shopping-sessions-body-scroll{min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;overscroll-behavior-x:none;touch-action:pan-y;padding:0 17px 14px}
+.shopping-sessions-list{border-top:0;margin:0}.shopping-session-row{position:relative;margin:8px 0;padding:10px 10px;border:1px solid rgba(94,78,62,.16);border-radius:13px;background:rgba(255,250,240,.68);transition:border-color .16s,box-shadow .16s,background .16s}.shopping-session-row.current{border-color:rgba(77,142,138,.75);box-shadow:0 0 0 2px rgba(77,142,138,.12) inset;background:rgba(77,142,138,.055)}
+.shopping-session-main{min-width:0;display:flex;flex-direction:column;gap:2px}.shopping-session-title{display:flex;align-items:center;gap:7px;min-width:0}.shopping-session-title strong{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.shopping-session-current{display:inline-flex;align-items:center;border:1px solid rgba(77,142,138,.5);border-radius:999px;padding:2px 6px;color:var(--olive-dark);background:rgba(77,142,138,.08);font-size:8px;font-weight:750;text-transform:uppercase;letter-spacing:.08em;flex:0 0 auto}
+.shopping-session-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}.shopping-session-actions .text-btn{font-size:11px;padding:5px 0}.shopping-session-actions .danger-text{color:#8c2f3a}
+.shopping-session-form{border-top:1px solid rgba(94,78,62,.16);margin-top:12px;padding-top:12px;padding-bottom:4px;display:grid;gap:9px}
+.shopping-session-form-actions{display:grid;grid-template-columns:1.25fr .72fr 1fr;gap:8px;margin:0;padding:10px 17px max(10px,env(safe-area-inset-bottom));border-top:1px solid rgba(94,78,62,.14);background:rgba(247,240,223,.98);backdrop-filter:blur(10px)}
+.shopping-session-form-actions button{min-width:0;min-height:42px;font-size:11px;padding:9px 8px;white-space:normal;line-height:1.1}
+@media(max-width:410px){.shopping-sessions-dialog{width:calc(100vw - 14px);height:min(88dvh,760px)}.shopping-sessions-header{padding:15px 14px 8px}.shopping-sessions-body-scroll{padding:0 14px 12px}.shopping-session-row{align-items:center}.shopping-session-actions{flex-direction:column;gap:1px}.shopping-session-form-actions{padding-left:14px;padding-right:14px;grid-template-columns:1.22fr .7fr 1fr}.shopping-session-form-actions button{font-size:10.5px}.wishlist-head-actions .primary{padding:10px 13px}}
+
+/* v13.15-dev7.1.1 — Shopping Session entry polish */
+.wishlist-active-session{justify-content:flex-start}
+.wishlist-active-session-icon{display:flex;align-items:center;justify-content:center;flex:0 0 28px;width:28px;height:28px;font-size:17px;line-height:1;border-radius:9px;background:rgba(77,142,138,.09)}
+.wishlist-active-session>div{flex:1 1 auto}
+.wishlist-active-session>button{margin-left:auto}
+.shopping-session-date-label,.shopping-session-store-label{min-width:0;width:100%;box-sizing:border-box}
+.shopping-session-date-shell{width:100%;min-width:0;height:44px;margin-top:4px;border:1px solid var(--line);border-radius:12px;background:#fffdf7;display:flex;align-items:center;justify-content:center;overflow:hidden;box-sizing:border-box}
+.shopping-session-date-shell #shoppingSessionDate{width:100%!important;inline-size:100%!important;max-width:100%!important;max-inline-size:100%!important;min-width:0!important;min-inline-size:0!important;height:42px!important;min-height:42px!important;margin:0!important;padding:0 11px!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;font-family:var(--sans);font-weight:400!important;font-size:16px!important;line-height:normal!important;text-align:center;box-sizing:border-box}
+.shopping-session-date-shell #shoppingSessionDate::-webkit-date-and-time-value,.shopping-session-date-shell #shoppingSessionDate::-webkit-datetime-edit{display:flex;align-items:center;justify-content:center;width:100%;height:42px;min-height:42px;line-height:normal;text-align:center;padding:0;margin:0}
+.shopping-session-date-shell #shoppingSessionDate::-webkit-datetime-edit-fields-wrapper{display:flex;align-items:center;justify-content:center;height:100%;padding:0;margin:0}
+.shopping-session-store-label{position:relative;overflow:visible}
+.shopping-session-store-label .brand-suggestions{top:calc(100% - 2px)}
+@media(max-width:410px){.wishlist-active-session-icon{flex-basis:26px;width:26px;height:26px;font-size:16px}}
+
+
+/* v13.15-dev8 · Wishlist Quick Capture */
+.wishlist-head-actions .wishlist-quick-capture{padding:2px 1px;color:var(--burgundy);font-size:12px;font-weight:550;letter-spacing:.02em}
+.quick-capture-dialog,.quick-capture-review-dialog{width:min(92vw,520px);max-height:min(88dvh,780px);overflow:hidden;padding:0}
+.quick-capture-shell,.quick-capture-review-shell{max-height:min(88dvh,780px);overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;padding:17px;background:#f7f0df}
+.quick-capture-intro{margin:0 0 10px;color:var(--muted);font-size:12px;line-height:1.45}
+.quick-capture-session-note{margin:0 0 12px;padding:8px 10px;border:1px solid rgba(77,142,138,.25);border-radius:11px;background:rgba(77,142,138,.07);font-size:11px;color:var(--olive)}
+.quick-capture-session-note.no-session{border-color:rgba(108,81,66,.14);background:rgba(255,255,255,.25);color:var(--muted)}
+.quick-capture-slots{display:grid;gap:8px}.quick-capture-slot{display:grid;grid-template-columns:minmax(0,1fr) 72px;align-items:center;gap:10px;padding:9px 10px;border:1px solid rgba(108,81,66,.15);border-radius:13px;background:rgba(255,250,240,.64);cursor:pointer}.quick-capture-slot.primary-slot{border-color:rgba(125,53,71,.27)}
+.quick-capture-slot-copy{display:flex;flex-direction:column;gap:2px}.quick-capture-slot-copy strong{font-family:inherit;font-size:13px;color:var(--ink)}.quick-capture-slot-copy small{font-size:10.5px;color:var(--muted);line-height:1.35}
+.quick-capture-slot input[type=file]{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}.quick-capture-preview{width:72px;height:58px;display:grid;place-items:center;overflow:hidden;border-radius:10px;background:rgba(108,81,66,.06);color:var(--muted);font-size:10px}.quick-capture-preview img{display:none;width:100%;height:100%;object-fit:contain;background:transparent}.quick-capture-preview span{padding:4px;text-align:center}
+.quick-capture-actions,.quick-capture-review-actions{margin-top:10px}.quick-capture-review-fields{display:grid;gap:7px;margin:10px 0}.quick-capture-review-row{display:grid;grid-template-columns:28px minmax(0,1fr);gap:7px;align-items:center;padding:7px 8px;border-bottom:1px solid rgba(108,81,66,.11)}.quick-capture-apply{display:grid;place-items:center}.quick-capture-apply input{width:18px;height:18px}.quick-capture-review-copy{display:grid;grid-template-columns:auto 1fr;gap:2px 8px;align-items:center}.quick-capture-review-copy strong{font-size:11px}.quick-capture-review-copy small{font-size:9.5px;color:var(--muted);text-align:right}.quick-capture-review-copy input,.quick-capture-review-copy select{grid-column:1/-1;width:100%;min-width:0;font-size:16px;font-weight:400}.quick-capture-barcode-note{font-size:10.5px;color:var(--muted);line-height:1.4;margin:8px 0}
+@media(max-width:410px){.quick-capture-dialog,.quick-capture-review-dialog{width:calc(100vw - 14px)}.quick-capture-shell,.quick-capture-review-shell{padding:14px}.quick-capture-slot{grid-template-columns:minmax(0,1fr) 64px}.quick-capture-preview{width:64px;height:54px}.wishlist-head-actions .wishlist-quick-capture{font-size:11.5px}}
+
+/* v13.15-dev8.1 Quick Capture polish */
+body.quick-capture-open{position:fixed!important;left:0;right:0;width:100%;overflow:hidden!important;touch-action:none}
+.quick-capture-dialog,.quick-capture-review-dialog{overscroll-behavior:contain}
+.quick-capture-shell,.quick-capture-review-shell{touch-action:pan-y}
+.quick-capture-warning{color:var(--burgundy)!important;font-weight:600}
+
+/* v13.15-dev8.2 · Quick Capture interaction refinements */
+.quick-capture-alert{position:sticky;top:-1px;z-index:6;margin:0 0 10px;padding:9px 11px;border:1px solid rgba(125,53,71,.28);border-radius:12px;background:rgba(255,247,226,.97);box-shadow:0 4px 12px rgba(65,52,37,.08);color:var(--burgundy);font-size:11px;font-weight:650;line-height:1.4}
+.quick-capture-review-copy{position:relative}
+.quick-capture-brand-suggestions{grid-column:1/-1;position:absolute;z-index:12;left:0;right:0;top:calc(100% - 1px);max-height:150px;overflow-y:auto}
+.quick-capture-price-currency{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) 88px;gap:7px;align-items:center}
+.quick-capture-price-currency input,.quick-capture-price-currency select{grid-column:auto!important;margin:0!important}
+@media(max-width:410px){.quick-capture-price-currency{grid-template-columns:minmax(0,1fr) 82px}}
+\n\n/* v13.15-dev8.3 — Wishlist / Quick Capture interaction polish */\n.wishlist-page-head{align-items:flex-start}\n.wishlist-title-stack{display:flex;flex-direction:column;align-items:flex-start;min-width:0}\n.wishlist-title-stack .wishlist-sessions-toggle{display:inline-flex;align-items:center;gap:5px;margin-top:3px;padding:1px 0;border:0;background:transparent;color:var(--olive);font-size:11.5px;font-weight:520;line-height:1.2}\n.wishlist-title-stack .wishlist-sessions-toggle.hidden{display:none!important}\n#wishlistSessionsBtn span{font-size:12px;line-height:1}\n.wishlist-head-actions{align-items:flex-end;justify-content:flex-start}\n#addWishBtn{display:inline-flex;align-items:center;justify-content:center;gap:6px}\n.add-wish-sparkle{font-size:13px;line-height:1;color:#f3d96b;text-shadow:0 0 0.5px rgba(92,67,25,.45)}\n\n/* Full-width product-link row in Wishlist review. */\n#wishDialog .wish-review-link-row{grid-column:1/-1!important;width:100%;box-sizing:border-box}\n#wishDialog .wish-review-link-row .wish-product-link{min-width:0;max-width:100%;overflow-wrap:anywhere;word-break:break-word}\n\n/* Center bottom actions for create-mode Wishlist and Quick Capture. */\n#wishDialog.wish-edit-mode:not(.wish-review-mode) .wish-sheet-actions{justify-content:center}\n#wishDialog.wish-edit-mode .wish-sheet-actions>#cancelWishBtn,\n#wishDialog.wish-edit-mode .wish-sheet-actions>#saveWishBtn{justify-self:center}\n#wishDialog.wish-edit-mode .wish-sheet-actions>#deleteWishBtn.hidden,\n#wishDialog.wish-edit-mode .wish-sheet-actions>#purchaseWishBtn.hidden{display:none!important}\n#quickCaptureDialog .quick-capture-actions{display:flex;justify-content:center;align-items:center;gap:10px}\n#quickCaptureDialog .quick-capture-actions button{flex:0 1 46%;max-width:190px;min-width:0}\n\n@media(max-width:410px){\n  .wishlist-title-stack .wishlist-sessions-toggle{font-size:11px}\n  #quickCaptureDialog .quick-capture-actions{gap:8px}\n  #quickCaptureDialog .quick-capture-actions button{flex-basis:47%;font-size:11.5px;padding-left:8px;padding-right:8px}\n}\n\n/* Create mode has two centered actions instead of inheriting the three-column edit layout. */\n#wishDialog.wish-create-mode .wish-sheet-actions{display:flex!important;justify-content:center!important;align-items:center;gap:10px}\n#wishDialog.wish-create-mode .wish-sheet-actions>#cancelWishBtn,\n#wishDialog.wish-create-mode .wish-sheet-actions>#saveWishBtn{flex:0 1 44%;width:auto!important;max-width:190px;min-width:0}\n#wishDialog.wish-create-mode .wish-sheet-actions>#deleteWishBtn,\n#wishDialog.wish-create-mode .wish-sheet-actions>#purchaseWishBtn{display:none!important}\n@media(max-width:410px){#wishDialog.wish-create-mode .wish-sheet-actions{gap:8px}#wishDialog.wish-create-mode .wish-sheet-actions>#cancelWishBtn,#wishDialog.wish-create-mode .wish-sheet-actions>#saveWishBtn{flex-basis:47%;font-size:11.5px!important;padding-left:7px!important;padding-right:7px!important}}\n
+/* v13.15-dev8.4 — Wishlist action stack + balanced create/capture actions */
+.wishlist-head-actions{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  justify-content:flex-start;
+  gap:5px;
+}
+.wishlist-head-actions .wishlist-sessions-toggle,
+.wishlist-head-actions .wishlist-quick-capture{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  padding:2px 1px;
+  border:0;
+  background:transparent;
+  font-size:11.5px;
+  font-weight:520;
+  line-height:1.2;
+  letter-spacing:.02em;
+}
+.wishlist-head-actions .wishlist-sessions-toggle{color:var(--olive)}
+.wishlist-head-actions .wishlist-quick-capture{color:var(--burgundy)}
+.wishlist-head-actions .wishlist-sessions-toggle.hidden{display:none!important}
+
+/* New wish: two equal, centered actions spanning the usable action row. */
+#wishDialog.wish-create-mode .wish-sheet-actions{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+  gap:9px!important;
+  width:100%;
+  align-items:stretch;
+}
+#wishDialog.wish-create-mode .wish-sheet-actions>#cancelWishBtn,
+#wishDialog.wish-create-mode .wish-sheet-actions>#saveWishBtn{
+  width:100%!important;
+  max-width:none!important;
+  min-width:0!important;
+  justify-self:stretch!important;
+  text-align:center;
+}
+
+/* Quick Capture: equal-width actions across the bottom row. */
+#quickCaptureDialog .quick-capture-actions{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+  gap:9px!important;
+  width:100%;
+  align-items:stretch;
+}
+#quickCaptureDialog .quick-capture-actions button{
+  width:100%!important;
+  max-width:none!important;
+  min-width:0!important;
+  text-align:center;
+}
+
+@media(max-width:410px){
+  .wishlist-head-actions{gap:4px}
+  .wishlist-head-actions .wishlist-sessions-toggle,
+  .wishlist-head-actions .wishlist-quick-capture{font-size:11px}
+  #wishDialog.wish-create-mode .wish-sheet-actions,
+  #quickCaptureDialog .quick-capture-actions{gap:8px!important}
+}
+
+/* v13.15-dev8.5 — Wishlist header + acquisition moment layout polish */
+
+/* Keep the Wish-granted content in a stable vertical flow so the item image can
+   never overlap the message/rating area, even with unusually shaped images. */
+.acquisition-moment-card{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  isolation:isolate;
+}
+.acquisition-moment-card>.script,
+.acquisition-moment-card>h2,
+.acquisition-moment-heart,
+.acquisition-moment-photo,
+.acquisition-moment-card>h3,
+.acquisition-moment-rating,
+.acquisition-moment-meta,
+.acquisition-moment-wait,
+.acquisition-moment-actions{
+  position:relative;
+  z-index:1;
+  flex:0 0 auto;
+}
+.acquisition-moment-photo{
+  overflow:hidden;
+  margin-top:3px;
+}
+.acquisition-moment-photo img{
+  display:block;
+  position:static!important;
+  max-width:100%;
+  max-height:100%;
+  margin:auto;
+  transform:none!important;
+}
+.acquisition-moment-rating{min-height:22px}
+
+/* Give the Wishlist identity a little more presence and use the available
+   upper-left space while keeping its top edge aligned with Start Session. */
+.screen[data-screen="wishlist"]{padding-top:10px}
+.wishlist-page-head{
+  margin-top:0;
+  align-items:flex-start!important;
+}
+.wishlist-title-stack{
+  align-self:flex-start;
+  margin-left:-1px;
+  padding-top:0;
+}
+.wishlist-title-stack .script{
+  margin:0 0 -2px!important;
+  line-height:1.02;
+}
+.wishlist-title-stack h2{
+  margin:0!important;
+  font-size:34px;
+  line-height:1.02;
+}
+.wishlist-head-actions{padding-top:0}
+
+/* Keep Reorder visually attached to the list controls, but slightly lower so
+   it is separated from the Add Wish / Quick Capture action stack above. */
+.wishlist-toolbar-actions{
+  align-self:flex-end;
+  padding-top:7px;
+}
+.wishlist-reorder-toggle{transform:translateY(2px)}
+
+@media(max-width:410px){
+  .screen[data-screen="wishlist"]{padding-top:8px}
+  .wishlist-title-stack h2{font-size:31px}
+  .wishlist-toolbar-actions{padding-top:6px}
+}

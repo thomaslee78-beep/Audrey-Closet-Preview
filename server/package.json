@@ -1,0 +1,15 @@
+{
+  "name": "audrey-smartscan-api",
+  "private": true,
+  "version": "13.24.0",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "migrate": "wrangler d1 migrations apply AUDREY_DB --remote",
+    "deploy": "npm run migrate && wrangler deploy",
+    "check": "wrangler deploy --dry-run"
+  },
+  "devDependencies": {
+    "wrangler": "^4.102.0"
+  }
+}
