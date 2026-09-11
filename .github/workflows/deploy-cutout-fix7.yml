@@ -1,4 +1,4 @@
-name: Preview v13.24.2 Runtime Cache Refresh
+name: Deploy Audrey Closet Preview Pages
 
 on:
   workflow_dispatch:
@@ -21,110 +21,44 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Check out v13.24.2 cache branch
+      - name: Check out Preview repository main
         uses: actions/checkout@v4
         with:
-          repository: thomaslee78-beep/Audrey-Closet
-          ref: bugfix/v13.24.2-runtime-cache-refresh
           path: site
+          fetch-depth: 1
 
-      - name: Prepare standard Preview
+      - name: Prepare preview-safe site
         shell: bash
         run: |
-          python - <<'PY'
+          set -euo pipefail
+          python3 - <<'PY'
           from pathlib import Path
-          import json,re
-          p=Path('site/index.html'); html=p.read_text(encoding='utf-8')
-          build='13.24.2-runtime-cache-preview1'
-          html=re.sub(r'app\.js\?v=[^"\']+',f'app.js?v={build}',html,count=1)
+          import re
+          p=Path('site/index.html')
+          html=p.read_text(encoding='utf-8')
+
+          # Preview should never be held behind an older service worker while we iterate.
           swpat=re.compile(r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*',re.S)
-          html,n=swpat.subn('\n',html,count=1)
-          if n!=1: raise SystemExit('Production service worker registration block missing')
-          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreyCacheRefreshPreview1')){sessionStorage.setItem('audreyCacheRefreshPreview1','1');location.reload();}\n        });\n      });\n    }\n  </script>\n'''
-          service=f'''  <script id="audreySmartScanServiceConfig">\n    window.AUDREY_SMART_SCAN_SERVICE_CONFIG = {{enabled:true,endpoint:'https://audrey-smartscan-api.thomaslee78.workers.dev',channel:'preview',build:'{build}'}};\n  </script>\n'''
-          marker=f'<script src="app.js?v={build}"></script>'
-          if marker not in html: raise SystemExit('app.js marker missing')
-          html=html.replace(marker,cleanup+service+'  '+marker,1)
-          html=html.replace('</head>',f'  <meta name="audrey-preview-build" content="{build}">\n</head>',1)
-          manifest=json.loads(Path('site/manifest.webmanifest').read_text(encoding='utf-8'))
-          manifest.update({'name':'Audrey Closet — v13.24.2 Cache Preview','short_name':'Audrey Preview','id':'./index.html','start_url':'./index.html','scope':'./'})
-          pm='manifest-preview-v13.24.2-cache.webmanifest'
-          Path('site/'+pm).write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-          html,count=re.subn(r'(<link\s+[^>]*rel=["\']manifest["\'][^>]*href=["\'])[^"\']+(["\'][^>]*>)',r'\1'+pm+r'\2',html,count=1,flags=re.I)
-          if count!=1: raise SystemExit('Manifest link missing')
+          html,_=swpat.subn('\n',html,count=1)
+          cleanup='''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        return Promise.all(ours.map(function(r){return r.unregister();}));\n      }).catch(function(){});\n    }\n  </script>\n'''
+          html=html.replace('</body>',cleanup+'</body>',1)
+          if 'audrey-preview-build' not in html:
+            html=html.replace('</head>','  <meta name="audrey-preview-build" content="v13.25-phase1">\n</head>',1)
           p.write_text(html,encoding='utf-8')
           PY
 
-      - name: Build production-like cache test
-        shell: bash
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          import json,re,shutil
-          root=Path('site'); offline=root/'offline'
-          if offline.exists(): shutil.rmtree(offline)
-          offline.mkdir()
-          ext={'.html','.css','.js','.json','.webmanifest','.png','.jpg','.jpeg','.webp','.svg','.gif','.ico','.woff','.woff2','.ttf','.otf'}
-          excluded={'.git','server','admin','offline'}
-          for src in root.rglob('*'):
-            if not src.is_file(): continue
-            rel=src.relative_to(root)
-            if rel.parts[0] in excluded or rel.name=='offline-preview-sw-v13.24-phase7a7b.js' or src.suffix.lower() not in ext: continue
-            dst=offline/rel; dst.parent.mkdir(parents=True,exist_ok=True); shutil.copy2(src,dst)
-
-          idx=offline/'index.html'; html=idx.read_text(encoding='utf-8')
-          html=re.sub(r'\s*<script id="previewServiceWorkerCleanup">.*?</script>\s*','\n',html,count=1,flags=re.S)
-          manifest=json.loads((root/'manifest.webmanifest').read_text(encoding='utf-8'))
-          manifest.update({'name':'Audrey Closet — v13.24.2 Cache Test','short_name':'Audrey Cache Test','id':'./index.html','start_url':'./index.html','scope':'./'})
-          pm='manifest-offline-v13.24.2-cache.webmanifest'; (offline/pm).write_text(json.dumps(manifest,indent=2)+'\n')
-          html=re.sub(r'(<link\s+[^>]*rel=["\']manifest["\'][^>]*href=["\'])[^"\']+(["\'][^>]*>)',r'\1'+pm+r'\2',html,count=1,flags=re.I)
-          readiness='''<script id="audreyCacheValidationSW">
-          (function(){
-            var badge=document.createElement('div');badge.id='audreyOfflineReadyBadge';badge.textContent='Preparing cache test…';badge.style.cssText='position:fixed;right:10px;bottom:78px;z-index:99999;padding:7px 10px;border-radius:999px;background:#fffaf0;border:1px solid rgba(80,70,60,.22);box-shadow:0 2px 8px rgba(0,0,0,.12);font:700 11px -apple-system,BlinkMacSystemFont,sans-serif;color:#665c50';document.body.appendChild(badge);
-            function ready(){badge.textContent='Cache test ready';document.documentElement.dataset.offlineReady='true'}
-            function failed(err){badge.textContent='Cache setup failed';document.documentElement.dataset.offlineReady='false';console.error(err)}
-            if(!('serviceWorker' in navigator)){failed(new Error('Service workers unavailable'));return}
-            if(navigator.serviceWorker.controller)ready();
-            navigator.serviceWorker.addEventListener('controllerchange',function(){if(navigator.serviceWorker.controller)ready()});
-            navigator.serviceWorker.register('./sw.js',{scope:'./',updateViaCache:'none'}).then(function(reg){if(reg.active||navigator.serviceWorker.controller)ready();if(navigator.onLine)reg.update().catch(function(err){console.warn('SW update check skipped',err)});return navigator.serviceWorker.ready}).then(function(reg){if(reg.active||navigator.serviceWorker.controller)ready()}).catch(function(err){if(navigator.serviceWorker.controller)ready();else failed(err)});
-          })();
-          </script>'''
-          html=html.replace('</body>',readiness+'</body>',1)
-          idx.write_text(html,encoding='utf-8')
-          PY
-
-      - name: Verify v13.24.2 cache policy
-        shell: bash
-        run: |
-          node --check site/sw-v13.24-release.js
-          node --check site/offline/sw-v13.24-release.js
-          node --check site/photo-cutout-state-v13.23-phase3a.js
-          python - <<'PY'
-          from pathlib import Path
-          html=Path('site/index.html').read_text(encoding='utf-8')
-          offline=Path('site/offline/index.html').read_text(encoding='utf-8')
-          sw=Path('site/sw-v13.24-release.js').read_text(encoding='utf-8')
-          photo=Path('site/photo-cutout-state-v13.23-phase3a.js').read_text(encoding='utf-8')
-          assert '13.24.2-runtime-cache-preview1' in html
-          assert "CACHE='audrey-closet-v13.24.2-release1'" in sw
-          assert 'function runtimeAsset(request)' in sw
-          assert "request.destination==='script'||request.destination==='style'" in sw
-          assert "const freshRequest=new Request(request,{cache:'no-cache'})" in sw
-          assert 'const cached=(await matchCurrent(request))' in sw
-          assert 'async function matchCurrent' in sw
-          assert 'caches.match(request,{ignoreSearch:true})' not in sw
-          assert 'restoreCanonicalManualMasks(canonical)' in photo
-          assert 'rebuildStudioWorkCanvas' in photo
-          assert 'Cache test ready' in offline
-          assert "navigator.serviceWorker.register('./sw.js'" in offline
-          PY
+          test -f site/index.html
+          test -f site/app.js
+          grep -q 'audrey-preview-build' site/index.html
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
+
       - name: Upload Preview site
         uses: actions/upload-pages-artifact@v3
         with:
           path: site
+
       - name: Deploy Preview
         id: deployment
         uses: actions/deploy-pages@v4
