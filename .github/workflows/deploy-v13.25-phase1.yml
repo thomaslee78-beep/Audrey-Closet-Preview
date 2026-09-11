@@ -5,6 +5,7 @@ on:
     paths:
       - '.v1325-phase1-trigger'
       - '.github/workflows/deploy-v13.25-phase1.yml'
+      - '.github/scripts/build-v13.25-preview.py'
 
 permissions:
   contents: write
@@ -17,10 +18,10 @@ concurrency:
 
 jobs:
   deploy:
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
     steps:
       - name: Checkout v13.25 source branch
         uses: actions/checkout@v4
@@ -36,73 +37,15 @@ jobs:
           path: preview
           fetch-depth: 0
 
-      - name: Build preview from v13.25 source
+      - name: Build deterministic preview
         shell: bash
         run: |
           set -euo pipefail
-          rsync -a --delete \
-            --exclude='.git' \
-            --exclude='.github' \
-            source/ preview/
-
-          python3 - <<'PY'
-          from pathlib import Path
-          import re
-
-          path=Path('preview/index.html')
-          text=path.read_text(encoding='utf-8')
-
-          # Make the Journal action/footer deterministic in the HTML itself.
-          footer=re.compile(r'<div class="sheet-actions journal-detail-actions">.*?</div>',re.S)
-          replacement='''<div class="sheet-actions journal-detail-actions"><button type="button" class="soft-btn" id="editJournalDetailBtn">Edit</button><button type="button" class="primary journal-open-board-btn" id="journalOpenBoardBtn">Add to Outfit Board</button><button type="button" class="soft-btn" id="cancelJournalDetailBtn">Cancel</button><button type="button" class="danger-text" id="deleteJournalDetailBtn">Delete</button></div>'''
-          text,count=footer.subn(replacement,text,count=1)
-          if count!=1:
-              raise SystemExit('Journal detail footer not found')
-
-          # Preview-only footer layout so it is correct even before the v13.25 module runs.
-          style='''  <style id="v1325PreviewJournalFooterStyles">
-    #journalDetailDialog .journal-detail-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);grid-template-areas:"edit board" "cancel delete";gap:10px 12px;align-items:center}
-    #journalDetailDialog #editJournalDetailBtn{grid-area:edit;width:100%;min-width:0}
-    #journalDetailDialog .journal-open-board-btn{grid-area:board;width:100%;min-width:0;white-space:nowrap}
-    #journalDetailDialog #cancelJournalDetailBtn{grid-area:cancel;width:100%;min-width:0}
-    #journalDetailDialog #deleteJournalDetailBtn{grid-area:delete;width:100%;min-width:0;justify-self:stretch;text-align:center}
-  </style>\n'''
-          text=text.replace('</head>',style+'  <meta name="audrey-preview-build" content="v13.25-phase1-fix6">\n</head>',1)
-
-          # Preview must not register the production service worker while we iterate.
-          swpat=re.compile(r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*',re.S)
-          text,n=swpat.subn('\n',text,count=1)
-          if n!=1:
-              raise SystemExit('Production service worker registration block missing')
-
-          cleanup='''  <script id="previewServiceWorkerCleanup">
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(function(regs){
-        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});
-        if(!ours.length)return;
-        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){
-          if(!sessionStorage.getItem('audreyV1325PreviewSWCleared')){
-            sessionStorage.setItem('audreyV1325PreviewSWCleared','1');
-            location.reload();
-          }
-        });
-      }).catch(function(){});
-    }
-  </script>\n'''
-
-          text=re.sub(r'\s*<script src="\./v13\.25-phase1-journal-board\.js(?:\?[^\"]*)?"></script>\s*','\n',text)
-          marker='<script src="./v13.25-phase1-journal-board.js?v=phase1-fix6"></script>'
-          text=text.replace('</body>',cleanup+'  '+marker+'\n</body>',1)
-          path.write_text(text,encoding='utf-8')
-          PY
-
+          rsync -a --delete --exclude='.git' --exclude='.github' source/ preview/
+          python3 .github/scripts/build-v13.25-preview.py
           test -f preview/index.html
           test -f preview/app.js
           test -f preview/v13.25-phase1-journal-board.js
-          grep -q 'Add to Outfit Board' preview/index.html
-          grep -q 'audrey-preview-build" content="v13.25-phase1-fix6' preview/index.html
-          grep -q 'v13.25-phase1-journal-board.js?v=phase1-fix6' preview/index.html
-          ! grep -q "navigator.serviceWorker.register('./sw.js" preview/index.html
 
       - name: Publish preview repository
         shell: bash
@@ -112,11 +55,11 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
-          if ! git diff --cached --quiet; then
+          if git diff --cached --quiet; then
+            echo 'Preview repository already current.'
+          else
             git commit -m 'Deploy v13.25 Phase 1 Journal Board preview'
             git push origin HEAD:main
-          else
-            echo 'Preview repository already current.'
           fi
 
       - name: Configure Pages
