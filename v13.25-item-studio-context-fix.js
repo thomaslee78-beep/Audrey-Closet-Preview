@@ -1,10 +1,11 @@
 /* Audrey Closet v13.25 — Closet item/photo context integrity guard.
  * Prevents a stale photo working-copy from being edited or persisted against
- * a different Closet item id.
+ * a different saved Closet item, while preserving the unsaved new-item flow.
  */
 (function(){
   'use strict';
 
+  const NEW_ITEM_SESSION='__audrey_new_item__';
   let workingItemId='';
   let studioItemId='';
   let lastTappedCardId='';
@@ -38,6 +39,10 @@
     return String(document.querySelector('#itemId')?.value||'');
   }
 
+  function isUnsavedNewItem(){
+    return !currentEditorId()&&itemDialogMode==='create';
+  }
+
   function ensureEditorMatches(id,{mode='review'}={}){
     const item=liveItem(id);
     if(!item)return false;
@@ -49,19 +54,19 @@
     return true;
   }
 
-  /* Track every editor load, including swipe navigation, and bind the working
-   * photo copy to exactly the item being displayed. */
+  /* Track every editor load, including swipe navigation. A null item is the
+   * legitimate create flow and therefore resets saved-item identity only; the
+   * normal app remains responsible for the new working photo captured/uploaded
+   * after the form opens. */
   const originalLoadItemIntoEditor=loadItemIntoEditor;
   loadItemIntoEditor=function(item=null,preferredCategory='',mode='review'){
     const result=originalLoadItemIntoEditor(item,preferredCategory,mode);
     workingItemId=item?.id?String(item.id):'';
+    studioItemId='';
     if(item)hydrateWorkingContext(item,{refreshPreview:true});
     return result;
   };
 
-  /* Capture the exact Closet card that the user tapped. After the normal card
-   * handler runs, verify the open dialog really represents that card. This is
-   * deliberately inactive during Log Outfit multi-select mode. */
   document.addEventListener('click',event=>{
     const card=event.target.closest?.('#catalogGrid .item-card[data-id]');
     if(!card||document.body.classList.contains('v1325-closet-log-mode'))return;
@@ -83,13 +88,19 @@
     },0);
   },true);
 
-  /* Photo Studio receives an explicit item identity. If the editor/photo
-   * context is stale, rehydrate from the item currently displayed before the
-   * Studio initializes its canvases. */
+  /* Existing saved pieces receive strict identity binding. A brand-new item has
+   * no persisted id by design; give that draft a temporary Studio-session id so
+   * camera/library photo -> Photo Studio continues to work before Save Piece. */
   const originalOpenPhotoStudio=openPhotoStudio;
   openPhotoStudio=async function(target='item'){
     if(target!=='wish'){
       const id=currentEditorId();
+      if(!id&&isUnsavedNewItem()){
+        if(!itemWorkingPhoto)return originalOpenPhotoStudio(target);
+        workingItemId='';
+        studioItemId=NEW_ITEM_SESSION;
+        return originalOpenPhotoStudio(target);
+      }
       const item=liveItem(id);
       if(!item)return toast('Could not find this Closet piece');
       if(workingItemId!==id)hydrateWorkingContext(item,{refreshPreview:true});
@@ -100,33 +111,34 @@
     return originalOpenPhotoStudio(target);
   };
 
-  /* Never apply a Studio result to a different item than the one that opened
-   * the Studio. This protects the working copy before the user can save it. */
+  /* Saved items must keep an exact id match. Unsaved create sessions are safe
+   * to apply while #itemId is still blank because there is no persisted record
+   * that could be overwritten; Save Piece will create the record afterward. */
   const originalApplyPhotoStudio=applyPhotoStudio;
   applyPhotoStudio=async function(){
     if(studioTarget==='item'){
       const id=currentEditorId();
-      if(!id||!studioItemId||id!==studioItemId){
-        console.error('[v13.25] Blocked Photo Studio cross-item apply',{
-          editor:id,studioItemId,workingItemId
-        });
-        toast('Photo Studio item changed — no photo was applied');
-        return;
-      }
-      if(workingItemId!==id){
-        console.error('[v13.25] Blocked Photo Studio stale working context',{
-          editor:id,studioItemId,workingItemId
-        });
-        toast('Photo context mismatch — no photo was applied');
-        return;
+      const unsavedSession=studioItemId===NEW_ITEM_SESSION&&!id&&itemDialogMode==='create';
+      if(!unsavedSession){
+        if(!id||!studioItemId||id!==studioItemId){
+          console.error('[v13.25] Blocked Photo Studio cross-item apply',{
+            editor:id,studioItemId,workingItemId
+          });
+          toast('Photo Studio item changed — no photo was applied');
+          return;
+        }
+        if(workingItemId!==id){
+          console.error('[v13.25] Blocked Photo Studio stale working context',{
+            editor:id,studioItemId,workingItemId
+          });
+          toast('Photo context mismatch — no photo was applied');
+          return;
+        }
       }
     }
     return originalApplyPhotoStudio();
   };
 
-  /* Final persistence barrier. A stale working photo must never overwrite a
-   * different Closet item's thumbnail/data. On mismatch, reload the correct
-   * item and stop the save rather than risking corruption. */
   const originalSaveItem=saveItem;
   saveItem=async function(){
     const id=currentEditorId();
@@ -142,7 +154,6 @@
     return originalSaveItem();
   };
 
-  /* Existing Review button uses the same strict sync before its click handler. */
   document.addEventListener('click',event=>{
     if(!event.target.closest?.('#reviewStudioBtn'))return;
     const id=currentEditorId();
@@ -152,6 +163,6 @@
 
   window.AudreyItemStudioContextFix={
     sync:()=>ensureEditorMatches(currentEditorId(),{mode:itemDialogMode==='edit'?'edit':'review'}),
-    status:()=>({editorId:currentEditorId(),workingItemId,studioItemId,lastTappedCardId})
+    status:()=>({editorId:currentEditorId(),workingItemId,studioItemId,lastTappedCardId,isUnsavedNewItem:isUnsavedNewItem()})
   };
 })();
