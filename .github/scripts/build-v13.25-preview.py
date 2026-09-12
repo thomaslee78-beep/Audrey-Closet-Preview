@@ -11,7 +11,7 @@ if count != 1:
     raise SystemExit('Journal detail footer not found')
 
 style = '''  <style id="v1325PreviewJournalFooterStyles">\n    #journalDetailDialog .journal-detail-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);grid-template-areas:"edit board" "cancel delete";gap:10px 12px;align-items:center}\n    #journalDetailDialog #editJournalDetailBtn{grid-area:edit;width:100%;min-width:0}\n    #journalDetailDialog .journal-open-board-btn{grid-area:board;width:100%;min-width:0;white-space:nowrap}\n    #journalDetailDialog #cancelJournalDetailBtn{grid-area:cancel;width:100%;min-width:0}\n    #journalDetailDialog #deleteJournalDetailBtn{grid-area:delete;width:100%;min-width:0;justify-self:stretch;text-align:center}\n  </style>\n'''
-text = text.replace('</head>', style + '  <meta name="audrey-preview-build" content="v13.25-phase2-dev6">\n</head>', 1)
+text = text.replace('</head>', style + '  <meta name="audrey-preview-build" content="v13.25-phase2-dev7">\n</head>', 1)
 
 swpat = re.compile(r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*', re.S)
 text, n = swpat.subn('\n', text, count=1)
@@ -20,20 +20,27 @@ if n != 1:
 
 cleanup = '''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker' in navigator) {\n      navigator.serviceWorker.getRegistrations().then(function(regs){\n        var ours=regs.filter(function(r){return r.scope.indexOf('/Audrey-Closet-Preview/')!==-1;});\n        if(!ours.length)return;\n        return Promise.all(ours.map(function(r){return r.unregister();})).then(function(){\n          if(!sessionStorage.getItem('audreyV1325PreviewSWCleared')){\n            sessionStorage.setItem('audreyV1325PreviewSWCleared','1');\n            location.reload();\n          }\n        });\n      }).catch(function(){});\n    }\n  </script>\n'''
 
-text = re.sub(r'\s*<script src="\./v13\.25-phase1-journal-board\.js(?:\?[^\"]*)?"></script>\s*', '\n', text)
-text = re.sub(r'\s*<script src="\./v13\.25-phase2-closet-log\.js(?:\?[^\"]*)?"></script>\s*', '\n', text)
+for name in [
+    'v13.25-phase1-journal-board.js',
+    'v13.25-phase2-closet-log.js',
+    'v13.25-item-studio-context-fix.js',
+]:
+    text = re.sub(r'\s*<script src="\./' + re.escape(name) + r'(?:\?[^\"]*)?"></script>\s*', '\n', text)
+
 markers = (
-    '<script src="./v13.25-phase1-journal-board.js?v=phase2-dev6"></script>\n'
-    '  <script src="./v13.25-phase2-closet-log.js?v=phase2-dev6"></script>'
+    '<script src="./v13.25-phase1-journal-board.js?v=phase2-dev7"></script>\n'
+    '  <script src="./v13.25-phase2-closet-log.js?v=phase2-dev7"></script>\n'
+    '  <script src="./v13.25-item-studio-context-fix.js?v=phase2-dev7"></script>'
 )
 text = text.replace('</body>', cleanup + '  ' + markers + '\n</body>', 1)
 path.write_text(text, encoding='utf-8')
 
 checks = [
     'Add to Outfit Board',
-    'audrey-preview-build" content="v13.25-phase2-dev6',
-    'v13.25-phase1-journal-board.js?v=phase2-dev6',
-    'v13.25-phase2-closet-log.js?v=phase2-dev6',
+    'audrey-preview-build" content="v13.25-phase2-dev7',
+    'v13.25-phase1-journal-board.js?v=phase2-dev7',
+    'v13.25-phase2-closet-log.js?v=phase2-dev7',
+    'v13.25-item-studio-context-fix.js?v=phase2-dev7',
 ]
 for token in checks:
     if token not in text:
