@@ -48,8 +48,8 @@ jobs:
           test -f preview/v13.25-phase1-journal-board.js
           test -f preview/v13.25-phase2-closet-log.js
           test -f preview/v13.25-item-studio-context-fix.js
-          grep -q 'v13.25-phase2-closet-log.js?v=phase2-dev7' preview/index.html
-          grep -q 'v13.25-item-studio-context-fix.js?v=phase2-dev7' preview/index.html
+          grep -q 'v13.25-phase2-closet-log.js?v=phase2-dev8' preview/index.html
+          grep -q 'v13.25-item-studio-context-fix.js?v=phase2-dev8' preview/index.html
 
       - name: Publish preview repository
         shell: bash
@@ -62,7 +62,7 @@ jobs:
           if git diff --cached --quiet; then
             echo 'Preview repository already current.'
           else
-            git commit -m 'Deploy v13.25 Photo Studio item context regression fix'
+            git commit -m 'Deploy v13.25 dev8 item/photo context integrity fix'
             git push origin HEAD:main
           fi
 
