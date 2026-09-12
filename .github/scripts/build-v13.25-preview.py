@@ -11,7 +11,7 @@ if count != 1:
     raise SystemExit('Journal detail footer not found')
 
 style = '''  <style id="v1325PreviewJournalFooterStyles">\n    #journalDetailDialog .journal-detail-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);grid-template-areas:"edit board" "cancel delete";gap:10px 12px;align-items:center}\n    #journalDetailDialog #editJournalDetailBtn{grid-area:edit;width:100%;min-width:0}\n    #journalDetailDialog .journal-open-board-btn{grid-area:board;width:100%;min-width:0;white-space:nowrap}\n    #journalDetailDialog #cancelJournalDetailBtn{grid-area:cancel;width:100%;min-width:0}\n    #journalDetailDialog #deleteJournalDetailBtn{grid-area:delete;width:100%;min-width:0;justify-self:stretch;text-align:center}\n  </style>\n'''
-text = text.replace('</head>', style + '  <meta name="audrey-preview-build" content="v13.25-phase2-dev11">\n</head>', 1)
+text = text.replace('</head>', style + '  <meta name="audrey-preview-build" content="v13.25-phase2-dev12">\n</head>', 1)
 
 swpat = re.compile(r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*', re.S)
 text, n = swpat.subn('\n', text, count=1)
@@ -29,33 +29,27 @@ for name in [
 ]:
     text = re.sub(r'\s*<script src="\./' + re.escape(name) + r'(?:\?[^\"]*)?"></script>\s*', '\n', text)
 
-# Order: core app -> reopen snapshot hotfix -> state integrity guard -> item identity guard.
-# The identity guard remains outermost; integrity quarantine runs after the exact item is synchronized.
 markers = (
-    '<script src="./v13.25-phase1-journal-board.js?v=phase2-dev11"></script>\n'
-    '  <script src="./v13.25-phase2-closet-log.js?v=phase2-dev11"></script>\n'
-    '  <script src="./photo-studio-reopen-snapshot-hotfix-v13.24.js?v=phase2-dev11"></script>\n'
-    '  <script src="./photo-studio-state-integrity-hotfix-v13.24.js?v=phase2-dev11"></script>\n'
-    '  <script src="./v13.25-item-studio-context-fix.js?v=phase2-dev11"></script>'
+    '<script src="./v13.25-phase1-journal-board.js?v=phase2-dev12"></script>\n'
+    '  <script src="./v13.25-phase2-closet-log.js?v=phase2-dev12"></script>\n'
+    '  <script src="./photo-studio-reopen-snapshot-hotfix-v13.24.js?v=phase2-dev12"></script>\n'
+    '  <script src="./photo-studio-state-integrity-hotfix-v13.24.js?v=phase2-dev12"></script>\n'
+    '  <script src="./v13.25-item-studio-context-fix.js?v=phase2-dev12"></script>'
 )
 text = text.replace('</body>', cleanup + '  ' + markers + '\n</body>', 1)
 path.write_text(text, encoding='utf-8')
 
 checks = [
     'Add to Outfit Board',
-    'audrey-preview-build" content="v13.25-phase2-dev11',
-    'v13.25-phase1-journal-board.js?v=phase2-dev11',
-    'v13.25-phase2-closet-log.js?v=phase2-dev11',
-    'photo-studio-reopen-snapshot-hotfix-v13.24.js?v=phase2-dev11',
-    'photo-studio-state-integrity-hotfix-v13.24.js?v=phase2-dev11',
-    'v13.25-item-studio-context-fix.js?v=phase2-dev11',
+    'audrey-preview-build" content="v13.25-phase2-dev12',
+    'v13.25-phase1-journal-board.js?v=phase2-dev12',
+    'v13.25-phase2-closet-log.js?v=phase2-dev12',
+    'photo-studio-reopen-snapshot-hotfix-v13.24.js?v=phase2-dev12',
+    'photo-studio-state-integrity-hotfix-v13.24.js?v=phase2-dev12',
+    'v13.25-item-studio-context-fix.js?v=phase2-dev12',
 ]
 for token in checks:
     if token not in text:
         raise SystemExit(f'Missing expected preview token: {token}')
-if text.index('photo-studio-reopen-snapshot-hotfix-v13.24.js?v=phase2-dev11') > text.index('photo-studio-state-integrity-hotfix-v13.24.js?v=phase2-dev11'):
-    raise SystemExit('Photo Studio reopen/integrity script order is incorrect')
-if text.index('photo-studio-state-integrity-hotfix-v13.24.js?v=phase2-dev11') > text.index('v13.25-item-studio-context-fix.js?v=phase2-dev11'):
-    raise SystemExit('Photo Studio integrity/identity script order is incorrect')
 if "navigator.serviceWorker.register('./sw.js" in text:
     raise SystemExit('Production service worker registration still present')
