@@ -1,18 +1,11 @@
 /* Audrey Closet Photo Studio state integrity hotfix
  * Isolated, backward-compatible guard for cross-item Photo Studio state.
- *
- * A legacy corruption can exist when two different Closet records contain the
- * exact same nested cutout.baseResult even though their source fingerprints
- * differ. In that case we must never restore the shared cutout state blindly.
- * The current flattened Closet photo is treated as authoritative for that
- * Studio session. A newly applied Studio edit is stamped with its item/source
- * identity so future cross-item reuse is rejected.
  */
 (function(){
   'use strict';
   if(typeof openPhotoStudio!=='function'||typeof applyPhotoStudio!=='function')return;
 
-  const VERSION=1;
+  const VERSION=2;
   let quarantinedSession=null;
 
   function clone(v){return v?JSON.parse(JSON.stringify(v)):null;}
@@ -102,16 +95,10 @@
     const id=targetId(target);
     const result=await innerApplyPhotoStudio();
     stampCurrentState(target,id);
-    if(quarantinedSession&&quarantinedSession.target===target&&quarantinedSession.id===id){
-      quarantinedSession=null;
-    }
+    if(quarantinedSession&&quarantinedSession.target===target&&quarantinedSession.id===id)quarantinedSession=null;
     return result;
   };
 
-  /* Final save barrier: if an already-stamped state somehow belongs to another
-   * record, discard only the non-destructive Studio state. The authoritative
-   * flattened photo remains untouched, preventing a different garment from
-   * being persisted over this piece. */
   if(typeof saveItem==='function'){
     const innerSaveItem=saveItem;
     saveItem=async function(){
@@ -133,11 +120,10 @@
 
   window.AudreyPhotoStudioStateIntegrity={
     version:VERSION,
+    shouldQuarantineRecord:function(target,record){return shouldQuarantine(target,record);},
     inspect:function(){
       const collisions=[];
-      for(const record of (state.items||[])){
-        if(sameLegacyBaseAcrossDifferentSources('item',record))collisions.push(String(record.id));
-      }
+      for(const record of (state.items||[]))if(sameLegacyBaseAcrossDifferentSources('item',record))collisions.push(String(record.id));
       return {collisionItemIds:collisions,quarantinedSession:clone(quarantinedSession)};
     }
   };

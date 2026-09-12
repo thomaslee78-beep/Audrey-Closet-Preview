@@ -1,18 +1,11 @@
 /* Audrey Closet Photo Studio reopen snapshot hotfix
  * Isolated from v13.25 feature work so it can be promoted independently.
- *
- * Goals:
- * 1) Resolve the exact live Closet/Wishlist record before any reopen decision.
- * 2) Older edited items reopen from the exact flattened saved photo instead of
- *    rerunning background removal from originalPhoto.
- * 3) New Photo Studio applies persist the exact 720x720 base/cutout snapshot
- *    in photoStudioState.basePhoto so future reopens are reproducible.
  */
 (function(){
   'use strict';
   if(typeof openPhotoStudio!=='function'||typeof applyPhotoStudio!=='function')return;
 
-  const HOTFIX_VERSION=2;
+  const HOTFIX_VERSION=3;
   const originalOpenPhotoStudio=openPhotoStudio;
   const originalApplyPhotoStudio=applyPhotoStudio;
 
@@ -22,21 +15,25 @@
     const list=target==='wish'?state.wishlist:state.items;
     return id?list.find(x=>String(x.id)===String(id))||null:null;
   }
+  function integrityRejects(target,live){
+    try{return !!window.AudreyPhotoStudioStateIntegrity?.shouldQuarantineRecord?.(target,live);}catch{return false;}
+  }
   function syncGlobalsFromLive(target){
     const id=currentId(target),live=liveRecord(target,id);
-    if(!live)return {id,live:null};
+    if(!live)return {id,live:null,quarantined:false};
+    const quarantined=integrityRejects(target,live);
     if(target==='wish'){
       wishWorkingPhoto=live.photo||'';
       wishOriginalPhoto=live.originalPhoto||live.photo||'';
-      wishStudioState=clone(live.photoStudioState);
+      wishStudioState=quarantined?null:clone(live.photoStudioState);
     }else{
       itemWorkingPhoto=live.photo||'';
       itemOriginalPhoto=live.originalPhoto||live.photo||'';
       itemCutoutApplied=live.photoStudioCutoutApplied ?? (!!live.photo&&!!live.originalPhoto&&live.photo!==live.originalPhoto);
-      itemStudioState=clone(live.photoStudioState);
+      itemStudioState=quarantined?null:clone(live.photoStudioState);
       if(typeof showPhoto==='function')showPhoto('#itemPhotoPreview','#photoPlaceholder',itemWorkingPhoto);
     }
-    return {id,live};
+    return {id,live,quarantined};
   }
   function targetState(target){
     if(target==='wish')return {working:wishWorkingPhoto,original:wishOriginalPhoto,saved:wishStudioState};
@@ -54,10 +51,19 @@
 
   openPhotoStudio=async function(target='item'){
     const resolved=target==='wish'?'wish':'item';
-    const {id}=syncGlobalsFromLive(resolved);
+    const {id,quarantined}=syncGlobalsFromLive(resolved);
     const ctx=targetState(resolved);
-    const saved=validSavedState(ctx.saved,ctx.original,id)?ctx.saved:null;
 
+    if(quarantined){
+      /* The flattened current photo is authoritative for a corrupted legacy
+       * state. Keep Studio state null so core opens in legacy exact-photo mode. */
+      const result=await originalOpenPhotoStudio(resolved);
+      const status=$('#studioStatus');
+      if(status)status.textContent='A mismatched saved edit was isolated. This Studio session starts from the correct Closet photo.';
+      return result;
+    }
+
+    const saved=validSavedState(ctx.saved,ctx.original,id)?ctx.saved:null;
     if(saved?.basePhoto){
       const realApplyStudioMode=applyStudioMode;
       let usedSnapshot=false;
@@ -78,8 +84,6 @@
     }
 
     if(saved&&ctx.working&&ctx.original&&ctx.working!==ctx.original){
-      /* Bypass saved reconstruction for older edits. Core legacy mode uses the
-       * exact flattened working photo, which is what the Closet card displays. */
       if(resolved==='wish')wishStudioState=null;else itemStudioState=null;
       try{
         const result=await originalOpenPhotoStudio(resolved);
@@ -100,7 +104,6 @@
     let basePhoto='';
     try{if(studioBaseCanvas&&!studioLegacyMode)basePhoto=studioBaseCanvas.toDataURL('image/png');}
     catch(err){console.warn('[Photo Studio hotfix] Could not capture exact base snapshot.',err);}
-
     const result=await originalApplyPhotoStudio();
     if(basePhoto&&!studioLegacyMode){
       const stateObj=target==='wish'?wishStudioState:itemStudioState;
