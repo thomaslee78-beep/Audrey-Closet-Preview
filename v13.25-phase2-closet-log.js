@@ -8,29 +8,31 @@
   let active=false;
   let selected=new Set();
   let observer=null;
+  let shapeObserver=null;
 
   const IDS={button:'closetLogOutfitBtn',toolbar:'closetLogModeBar',count:'closetLogSelectedCount',finish:'closetLogFinishBtn',cancel:'closetLogCancelBtn'};
 
   function visibleClosetItem(id){return state.items.find(item=>item.id===id&&!isArchived(item))||null;}
 
-  function isModernClosetView(){
-    const candidates=[...document.querySelectorAll('select,input[type="radio"]')];
-    for(const control of candidates){
-      const context=[control.id,control.name,control.getAttribute('aria-label'),control.closest('label')?.textContent,control.closest('.settings-card')?.textContent].filter(Boolean).join(' ').toLowerCase();
-      if(!context.includes('closet')||!context.includes('view'))continue;
-      if(control.tagName==='SELECT'){
-        const value=String(control.value||control.options?.[control.selectedIndex]?.text||'').trim().toLowerCase();
-        if(value==='modern')return true;
-      }else if(control.checked&&String(control.value||control.closest('label')?.textContent||'').toLowerCase().includes('modern'))return true;
-    }
-    const saved=state?.settings||{};
-    return Object.entries(saved).some(([key,value])=>/closet.*view|view.*closet/i.test(key)&&String(value).toLowerCase()==='modern');
-  }
-
   function syncButtonShape(){
     const button=document.querySelector('#'+IDS.button);
-    if(!button)return;
-    button.classList.toggle('v1325-modern-action',isModernClosetView());
+    const add=document.querySelector('#addItemBtn');
+    if(!button||!add)return;
+    const style=getComputedStyle(add);
+    button.style.setProperty('border-top-left-radius',style.borderTopLeftRadius,'important');
+    button.style.setProperty('border-top-right-radius',style.borderTopRightRadius,'important');
+    button.style.setProperty('border-bottom-right-radius',style.borderBottomRightRadius,'important');
+    button.style.setProperty('border-bottom-left-radius',style.borderBottomLeftRadius,'important');
+  }
+
+  function scheduleShapeSync(){[0,40,120,260].forEach(delay=>setTimeout(syncButtonShape,delay));}
+
+  function observeAddPieceShape(){
+    const add=document.querySelector('#addItemBtn');
+    if(!add)return;
+    if(shapeObserver)shapeObserver.disconnect();
+    shapeObserver=new MutationObserver(scheduleShapeSync);
+    shapeObserver.observe(add,{attributes:true,attributeFilter:['class','style']});
   }
 
   function syncModeLocks(){
@@ -54,7 +56,8 @@
     if(!document.querySelector('#'+IDS.button)){
       const button=document.createElement('button');button.type='button';button.id=IDS.button;button.className='soft-btn v1325-closet-hero-button';button.textContent='Log Outfit';button.addEventListener('click',startSelectionMode);actions.insertBefore(button,add);
     }
-    syncButtonShape();
+    scheduleShapeSync();
+    observeAddPieceShape();
 
     if(!document.querySelector('#'+IDS.toolbar)){
       const bar=document.createElement('div');bar.id=IDS.toolbar;bar.className='v1325-closet-log-bar hidden';bar.setAttribute('role','region');bar.setAttribute('aria-label','Log outfit selection');
@@ -68,9 +71,9 @@
         .v1325-closet-hero-copy{flex:1 1 auto;min-width:0}.v1325-closet-hero-copy .script,.v1325-closet-hero-copy h2{white-space:nowrap}.v1325-closet-hero-copy .script{font-size:clamp(18px,5vw,23px)}.v1325-closet-hero-copy h2{font-size:clamp(25px,6.2vw,31px);margin-bottom:5px}
         .v1325-closet-hero-actions{position:relative;z-index:2;display:flex;flex-direction:column;gap:9px;align-items:stretch;justify-content:center;flex:0 0 auto;width:132px}
         .v1325-closet-hero-button{width:100%;min-height:44px;padding:10px 12px!important;font-size:13.5px!important;line-height:1.1;white-space:nowrap;font-family:inherit;font-weight:750}
-        #closetLogOutfitBtn{background:rgba(255,250,240,.94);color:var(--olive-dark,#3f4937);border:1px solid rgba(255,255,255,.42)}#closetLogOutfitBtn.v1325-modern-action{border-radius:0!important}
-        .v1325-closet-log-bar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(76px + max(env(safe-area-inset-bottom),4px));z-index:999;width:min(760px,calc(100% - 24px));display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 16px;border:1px solid rgba(108,81,66,.24);border-radius:18px;background:rgba(251,248,239,.985);backdrop-filter:blur(18px);box-shadow:0 -10px 28px rgba(54,50,42,.20),0 5px 18px rgba(54,50,42,.14)}
-        .v1325-closet-log-copy{display:flex;flex-direction:column;gap:2px;min-width:0;line-height:1.3}.v1325-closet-log-copy strong{font-size:1rem;color:var(--ink,#292820)}.v1325-closet-log-copy span{font-size:.78rem;color:#746b5e;max-width:430px}.v1325-closet-log-copy small{font-size:.78rem;color:var(--olive-dark,#3f4937);font-weight:750;margin-top:3px}
+        #closetLogOutfitBtn{background:rgba(255,250,240,.94);color:var(--olive-dark,#3f4937);border:1px solid rgba(255,255,255,.42)}
+        .v1325-closet-log-bar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(76px + max(env(safe-area-inset-bottom),4px));z-index:999;width:min(760px,calc(100% - 24px));display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 16px;border:1px solid rgba(102,91,73,.34);border-radius:18px;background:rgba(243,238,226,.97);backdrop-filter:blur(20px) saturate(1.06);-webkit-backdrop-filter:blur(20px) saturate(1.06);box-shadow:0 -12px 30px rgba(54,50,42,.22),0 8px 22px rgba(54,50,42,.16),0 0 0 1px rgba(255,255,255,.48) inset}
+        .v1325-closet-log-copy{display:flex;flex-direction:column;gap:2px;min-width:0;line-height:1.3}.v1325-closet-log-copy strong{font-size:1rem;color:var(--ink,#292820)}.v1325-closet-log-copy span{font-size:.78rem;color:#655d50;max-width:430px}.v1325-closet-log-copy small{font-size:.78rem;color:var(--olive-dark,#3f4937);font-weight:750;margin-top:3px}
         .v1325-closet-log-actions{display:flex;gap:9px;flex:0 0 auto}.v1325-closet-log-actions>button{min-width:82px;min-height:42px;padding:10px 13px;font-size:13px}
         body.v1325-closet-log-mode{padding-bottom:calc(176px + env(safe-area-inset-bottom))}body.v1325-closet-log-mode #addItemBtn,body.v1325-closet-log-mode #closetLogOutfitBtn{visibility:hidden;pointer-events:none}body.v1325-closet-log-mode #quickAddBtn{opacity:.32;pointer-events:none}body.v1325-closet-log-mode .bottom-nav{opacity:.48;pointer-events:none}
         body.v1325-closet-log-mode #catalogGrid .item-card{cursor:pointer;position:relative;transition:transform .14s ease,box-shadow .14s ease,outline-color .14s ease}body.v1325-closet-log-mode #catalogGrid .item-card.v1325-log-selected{outline:3px solid var(--olive,#66715a);outline-offset:-3px;box-shadow:0 8px 22px rgba(60,72,54,.18);transform:translateY(-1px)}body.v1325-closet-log-mode #catalogGrid .item-card.v1325-log-selected::after{content:'✓';position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:999px;display:grid;place-items:center;background:var(--olive,#66715a);color:white;font-weight:800;font-size:16px;box-shadow:0 2px 8px rgba(0,0,0,.2);z-index:5}body.v1325-closet-log-mode #catalogGrid .item-card:active{transform:scale(.985)}
@@ -90,8 +93,14 @@
   function interceptPress(e){if(!active)return;const card=e.target.closest?.('#catalogGrid .item-card[data-id]');if(!card)return;e.stopPropagation();}
   function interceptClick(e){if(!active)return;const card=e.target.closest?.('#catalogGrid .item-card[data-id]');if(!card)return;e.preventDefault();e.stopPropagation();toggleItem(card.dataset.id);}
   function installCaptureGuards(){const grid=document.querySelector('#catalogGrid');if(!grid||grid.dataset.v1325ClosetLogGuards==='1')return;['pointerdown','mousedown','touchstart'].forEach(type=>grid.addEventListener(type,interceptPress,true));grid.addEventListener('click',interceptClick,true);grid.addEventListener('contextmenu',e=>{if(active&&e.target.closest?.('.item-card')){e.preventDefault();e.stopPropagation();}},true);grid.dataset.v1325ClosetLogGuards='1';}
-  function observeViewSetting(){document.addEventListener('change',e=>{const context=[e.target?.id,e.target?.name,e.target?.getAttribute?.('aria-label'),e.target?.closest?.('label')?.textContent,e.target?.closest?.('.settings-card')?.textContent].filter(Boolean).join(' ').toLowerCase();if(context.includes('closet')&&context.includes('view'))setTimeout(syncButtonShape,0);});}
+  function observeViewSetting(){
+    document.addEventListener('change',e=>{
+      const context=[e.target?.id,e.target?.name,e.target?.getAttribute?.('aria-label'),e.target?.closest?.('label')?.textContent,e.target?.closest?.('.settings-card')?.textContent].filter(Boolean).join(' ').toLowerCase();
+      if(context.includes('closet')||context.includes('view')||e.target?.closest?.('dialog'))scheduleShapeSync();
+    },true);
+    document.addEventListener('click',e=>{if(e.target?.closest?.('dialog,.settings-card,#settingsDialog'))scheduleShapeSync();},true);
+  }
 
-  installControls();installCaptureGuards();observeViewSetting();syncModeLocks();window.addEventListener('pageshow',()=>{installControls();installCaptureGuards();syncButtonShape();syncModeLocks();if(active){observeCatalog();refreshSelectionUI();}});
+  installControls();installCaptureGuards();observeViewSetting();syncModeLocks();window.addEventListener('pageshow',()=>{installControls();installCaptureGuards();scheduleShapeSync();syncModeLocks();if(active){observeCatalog();refreshSelectionUI();}});
   window.AudreyClosetLogOutfit={start:startSelectionMode,cancel:cancelSelectionMode,finish:finishSelectionMode,getSelected:()=>[...selected]};
 })();
