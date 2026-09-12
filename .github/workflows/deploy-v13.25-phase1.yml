@@ -47,7 +47,7 @@ jobs:
           test -f preview/app.js
           test -f preview/v13.25-phase1-journal-board.js
           test -f preview/v13.25-phase2-closet-log.js
-          grep -q 'v13.25-phase2-closet-log.js?v=phase2-dev4' preview/index.html
+          grep -q 'v13.25-phase2-closet-log.js?v=phase2-dev5' preview/index.html
 
       - name: Publish preview repository
         shell: bash
