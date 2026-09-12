@@ -49,9 +49,9 @@ jobs:
           test -f preview/v13.25-phase2-closet-log.js
           test -f preview/v13.25-item-studio-context-fix.js
           test -f preview/photo-studio-reopen-snapshot-hotfix-v13.24.js
-          grep -q 'v13.25-phase2-closet-log.js?v=phase2-dev9' preview/index.html
-          grep -q 'v13.25-item-studio-context-fix.js?v=phase2-dev9' preview/index.html
-          grep -q 'photo-studio-reopen-snapshot-hotfix-v13.24.js?v=phase2-dev9' preview/index.html
+          grep -q 'v13.25-phase2-closet-log.js?v=phase2-dev10' preview/index.html
+          grep -q 'v13.25-item-studio-context-fix.js?v=phase2-dev10' preview/index.html
+          grep -q 'photo-studio-reopen-snapshot-hotfix-v13.24.js?v=phase2-dev10' preview/index.html
 
       - name: Publish preview repository
         shell: bash
@@ -64,7 +64,7 @@ jobs:
           if git diff --cached --quiet; then
             echo 'Preview repository already current.'
           else
-            git commit -m 'Deploy v13.25 dev9 Photo Studio reopen hotfix'
+            git commit -m 'Deploy v13.25 dev10 Photo Studio item sync fix'
             git push origin HEAD:main
           fi
 
