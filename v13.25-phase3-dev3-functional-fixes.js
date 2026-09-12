@@ -1,17 +1,38 @@
 /* Audrey Closet v13.25 Phase 3 dev3 — functional fixes
  * Fixes Journal View routing, preserves rich journal formatting, adds photo
- * lightbox viewing, and confirms journal photo removal.
+ * lightbox viewing, confirms journal photo removal, and keeps look labels
+ * appropriate to today's, planned, or past entries.
  */
 (function(){
   'use strict';
 
-  const VERSION='3.1';
+  const VERSION='3.2';
   const STYLE_ID='v1325Phase3Dev3FunctionalFixStyles';
   const LIGHTBOX_ID='v1325JournalPhotoLightbox';
 
-  function esc(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));}
-  function currentEntry(){return state.journal.find(j=>String(j.id)===String(viewingJournalId||''))||null;}
+  function esc(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#039;'}[ch]));}
+  function entryById(id){return state.journal.find(j=>String(j.id)===String(id||''))||null;}
+  function currentEntry(){return entryById(viewingJournalId);}
   function plainTextFromHtml(html){const box=document.createElement('div');box.innerHTML=String(html||'');return (box.innerText||box.textContent||'').replace(/\n{3,}/g,'\n\n').trim();}
+  function todayISO(){
+    if(typeof localTodayISO==='function')return localTodayISO();
+    const d=new Date(),pad=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  }
+  function lookLabel(entry){
+    const date=String(entry?.date||'');const today=todayISO();
+    if(!date||date===today)return "Today's Look";
+    if(date>today)return 'Planned Look';
+    return 'What I Wore';
+  }
+  function syncDetailLookLabel(entry){
+    const label=document.querySelector('#journalDetailDialog .v1325-look-strip-head strong');
+    if(label&&entry)label.textContent=lookLabel(entry);
+  }
+  function syncReaderLookLabel(entry){
+    const reader=document.querySelector('#v1325JournalReaderDialog');if(!reader||!entry)return;
+    const section=[...reader.querySelectorAll('.v1325-reader-section')].find(s=>s.querySelector('.v1325-reader-look'));
+    const title=section?.querySelector('.v1325-reader-section-title');if(title)title.textContent=lookLabel(entry);
+  }
 
   function safeColor(value){
     value=String(value||'').trim();
@@ -88,9 +109,6 @@
     entry.journalHtml=html;entry.notes=plain;entry.updated=Date.now();
     const eraSelect=document.querySelector('#v1325JournalEra');
     if(eraSelect&&window.AudreyEraFoundation?.assign)window.AudreyEraFoundation.assign(entry,eraSelect.value,'personal');
-    /* Phase 3 keeps the current photo draft on the record only after its normal
-       Save Journal path. Read the visible grid here so confirmed removals reclaim
-       storage and additions remain exactly what the user sees. */
     const visiblePhotos=[...document.querySelectorAll('#v1325JournalPhotoGrid .v1325-journal-photo img')].map(img=>img.src).filter(Boolean).slice(0,3);
     entry.journalPhotos=visiblePhotos;
     const legacy=document.querySelector('#journalDetailNotesInput');if(legacy)legacy.value=plain;
@@ -127,13 +145,15 @@
   }
   function openLightbox(src,alt){const box=ensureLightbox();if(!box)return;const img=box.querySelector('img');img.src=src;img.alt=alt||'Enlarged journal photo';box.classList.add('open');}
 
-  /* Fix stale-entry routing: the original dev3 button captured the first entry
-     when it was created. Route using viewingJournalId at click time instead. */
   document.addEventListener('click',event=>{
     const viewButton=event.target.closest?.('#v1325JournalViewBtn');if(viewButton){
       event.preventDefault();event.stopImmediatePropagation();
-      const id=String(viewingJournalId||'');
-      if(id&&window.AudreyJournalExperienceDev3?.openReader)window.AudreyJournalExperienceDev3.openReader(id);
+      const id=String(viewingJournalId||''),entry=entryById(id);
+      if(id&&window.AudreyJournalExperienceDev3?.openReader){
+        window.AudreyJournalExperienceDev3.openReader(id);
+        requestAnimationFrame(()=>syncReaderLookLabel(entry));
+        setTimeout(()=>syncReaderLookLabel(entry),0);
+      }
       return;
     }
     const saveButton=event.target.closest?.('#v1325SaveJournalBtn');if(saveButton){
@@ -149,17 +169,14 @@
     if(readerImage){event.preventDefault();openLightbox(readerImage.src,readerImage.alt);}
   },true);
 
-  /* Restore the authoritative rich markup after the older Phase 3 sanitizer has
-     rendered the editor, so opening/editing a Journal does not progressively
-     strip font faces or CSS color values. */
   const open0=openJournalDetail;
   openJournalDetail=function(){
     const out=open0.apply(this,arguments),entry=currentEntry();
-    requestAnimationFrame(()=>restoreRichJournalMarkup(entry));
-    setTimeout(()=>restoreRichJournalMarkup(entry),0);
+    requestAnimationFrame(()=>{restoreRichJournalMarkup(entry);syncDetailLookLabel(entry);});
+    setTimeout(()=>{restoreRichJournalMarkup(entry);syncDetailLookLabel(entry);},0);
     return out;
   };
 
   installStyles();
-  window.AudreyJournalDev3FunctionalFixes={version:VERSION,saveRichJournal,restore:()=>restoreRichJournalMarkup(currentEntry())};
+  window.AudreyJournalDev3FunctionalFixes={version:VERSION,saveRichJournal,restore:()=>restoreRichJournalMarkup(currentEntry()),lookLabel};
 })();
