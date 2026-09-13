@@ -11,7 +11,7 @@ if count != 1:
     raise SystemExit('Journal detail footer not found')
 
 style = '''  <style id="v1325PreviewJournalFooterStyles">\n    #journalDetailDialog .journal-detail-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);grid-template-areas:"edit board" "cancel delete";gap:10px 12px;align-items:center}\n    #journalDetailDialog #editJournalDetailBtn{grid-area:edit;width:100%;min-width:0}\n    #journalDetailDialog .journal-open-board-btn{grid-area:board;width:100%;min-width:0;white-space:nowrap}\n    #journalDetailDialog #cancelJournalDetailBtn{grid-area:cancel;width:100%;min-width:0}\n    #journalDetailDialog #deleteJournalDetailBtn{grid-area:delete;width:100%;min-width:0;justify-self:stretch;text-align:center}\n  </style>\n'''
-text = text.replace('</head>', style + '  <meta name="audrey-preview-build" content="v13.25-phase3-dev3-layout13">\n</head>', 1)
+text = text.replace('</head>', style + '  <meta name="audrey-preview-build" content="v13.25-phase3-dev3-layout14">\n</head>', 1)
 
 swpat = re.compile(r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*', re.S)
 text, n = swpat.subn('\n', text, count=1)
@@ -40,36 +40,36 @@ for name in [
     text = re.sub(r'\s*<script src="\./' + re.escape(name) + r'(?:\?[^\"]*)?"></script>\s*', '\n', text)
 
 markers = (
-    '<script src="./v13.25-phase1-journal-board.js?v=phase3-dev3-layout13"></script>\n'
-    '  <script src="./v13.25-phase2-closet-log.js?v=phase3-dev3-layout13"></script>\n'
-    '  <script src="./v13.25-phase3-contextual-journal.js?v=phase3-dev3-layout13"></script>\n'
-    '  <script src="./v13.25-phase3-era-foundation.js?v=phase3-dev3-layout13"></script>\n'
-    '  <script src="./v13.25-phase3-dev3-journal-experience.js?v=phase3-dev3-layout13"></script>\n'
-    '  <script src="./v13.25-phase3-dev3-functional-fixes.js?v=phase3-dev3-layout13"></script>\n'
-    '  <script src="./v13.25-phase3-dev3-journal-layout.js?v=phase3-dev3-layout13"></script>\n'
-    '  <script src="./v13.25-phase3-dev3-reader-polish-fix.js?v=phase3-dev3-layout13"></script>\n'
-    '  <script src="./v13.25-phase3-journal-title-log.js?v=phase3-dev3-layout13"></script>\n'
-    '  <script src="./v13.25-phase3-journal-detail-toolbar.js?v=phase3-dev3-layout13"></script>\n'
-    '  <script src="./v13.25-phase3-journal-row-polish2.js?v=phase3-dev3-layout13"></script>\n'
-    '  <script src="./v13.25-phase3-wear-log-detail-polish.js?v=phase3-dev3-layout13"></script>\n'
-    '  <script src="./photo-studio-reopen-snapshot-hotfix-v13.24.js?v=phase3-dev3-layout13"></script>\n'
-    '  <script src="./photo-studio-state-integrity-hotfix-v13.24.js?v=phase3-dev3-layout13"></script>\n'
-    '  <script src="./v13.25-item-studio-context-fix.js?v=phase3-dev3-layout13"></script>'
+    '<script src="./v13.25-phase1-journal-board.js?v=phase3-dev3-layout14"></script>\n'
+    '  <script src="./v13.25-phase2-closet-log.js?v=phase3-dev3-layout14"></script>\n'
+    '  <script src="./v13.25-phase3-contextual-journal.js?v=phase3-dev3-layout14"></script>\n'
+    '  <script src="./v13.25-phase3-era-foundation.js?v=phase3-dev3-layout14"></script>\n'
+    '  <script src="./v13.25-phase3-dev3-journal-experience.js?v=phase3-dev3-layout14"></script>\n'
+    '  <script src="./v13.25-phase3-dev3-functional-fixes.js?v=phase3-dev3-layout14"></script>\n'
+    '  <script src="./v13.25-phase3-dev3-journal-layout.js?v=phase3-dev3-layout14"></script>\n'
+    '  <script src="./v13.25-phase3-dev3-reader-polish-fix.js?v=phase3-dev3-layout14"></script>\n'
+    '  <script src="./v13.25-phase3-journal-title-log.js?v=phase3-dev3-layout14"></script>\n'
+    '  <script src="./v13.25-phase3-journal-detail-toolbar.js?v=phase3-dev3-layout14"></script>\n'
+    '  <script src="./v13.25-phase3-journal-row-polish2.js?v=phase3-dev3-layout14"></script>\n'
+    '  <script src="./v13.25-phase3-wear-log-detail-polish.js?v=phase3-dev3-layout14"></script>\n'
+    '  <script src="./photo-studio-reopen-snapshot-hotfix-v13.24.js?v=phase3-dev3-layout14"></script>\n'
+    '  <script src="./photo-studio-state-integrity-hotfix-v13.24.js?v=phase3-dev3-layout14"></script>\n'
+    '  <script src="./v13.25-item-studio-context-fix.js?v=phase3-dev3-layout14"></script>'
 )
 text = text.replace('</body>', cleanup + '  ' + markers + '\n</body>', 1)
 path.write_text(text, encoding='utf-8')
 
 checks = [
     'Add to Outfit Board',
-    'audrey-preview-build" content="v13.25-phase3-dev3-layout13',
-    'v13.25-phase3-journal-title-log.js?v=phase3-dev3-layout13',
-    'v13.25-phase3-journal-detail-toolbar.js?v=phase3-dev3-layout13',
-    'v13.25-phase3-journal-row-polish2.js?v=phase3-dev3-layout13',
-    'v13.25-phase3-wear-log-detail-polish.js?v=phase3-dev3-layout13',
-    'v13.25-phase3-dev3-reader-polish-fix.js?v=phase3-dev3-layout13',
-    'photo-studio-reopen-snapshot-hotfix-v13.24.js?v=phase3-dev3-layout13',
-    'photo-studio-state-integrity-hotfix-v13.24.js?v=phase3-dev3-layout13',
-    'v13.25-item-studio-context-fix.js?v=phase3-dev3-layout13',
+    'audrey-preview-build" content="v13.25-phase3-dev3-layout14',
+    'v13.25-phase3-journal-title-log.js?v=phase3-dev3-layout14',
+    'v13.25-phase3-journal-detail-toolbar.js?v=phase3-dev3-layout14',
+    'v13.25-phase3-journal-row-polish2.js?v=phase3-dev3-layout14',
+    'v13.25-phase3-wear-log-detail-polish.js?v=phase3-dev3-layout14',
+    'v13.25-phase3-dev3-reader-polish-fix.js?v=phase3-dev3-layout14',
+    'photo-studio-reopen-snapshot-hotfix-v13.24.js?v=phase3-dev3-layout14',
+    'photo-studio-state-integrity-hotfix-v13.24.js?v=phase3-dev3-layout14',
+    'v13.25-item-studio-context-fix.js?v=phase3-dev3-layout14',
 ]
 for token in checks:
     if token not in text:
