@@ -55,17 +55,17 @@ jobs:
           test -f preview/v13.25-item-studio-context-fix.js
           test -f preview/photo-studio-reopen-snapshot-hotfix-v13.24.js
           test -f preview/photo-studio-state-integrity-hotfix-v13.24.js
-          grep -q 'audrey-preview-build" content="v13.25-phase3-dev3-layout3' preview/index.html
-          grep -q 'v13.25-phase1-journal-board.js?v=phase3-dev3-layout3' preview/index.html
-          grep -q 'v13.25-phase2-closet-log.js?v=phase3-dev3-layout3' preview/index.html
-          grep -q 'v13.25-phase3-contextual-journal.js?v=phase3-dev3-layout3' preview/index.html
-          grep -q 'v13.25-phase3-era-foundation.js?v=phase3-dev3-layout3' preview/index.html
-          grep -q 'v13.25-phase3-dev3-journal-experience.js?v=phase3-dev3-layout3' preview/index.html
-          grep -q 'v13.25-phase3-dev3-functional-fixes.js?v=phase3-dev3-layout3' preview/index.html
-          grep -q 'v13.25-phase3-dev3-journal-layout.js?v=phase3-dev3-layout3' preview/index.html
-          grep -q 'photo-studio-reopen-snapshot-hotfix-v13.24.js?v=phase3-dev3-layout3' preview/index.html
-          grep -q 'photo-studio-state-integrity-hotfix-v13.24.js?v=phase3-dev3-layout3' preview/index.html
-          grep -q 'v13.25-item-studio-context-fix.js?v=phase3-dev3-layout3' preview/index.html
+          grep -q 'audrey-preview-build" content="v13.25-phase3-dev3-layout4' preview/index.html
+          grep -q 'v13.25-phase1-journal-board.js?v=phase3-dev3-layout4' preview/index.html
+          grep -q 'v13.25-phase2-closet-log.js?v=phase3-dev3-layout4' preview/index.html
+          grep -q 'v13.25-phase3-contextual-journal.js?v=phase3-dev3-layout4' preview/index.html
+          grep -q 'v13.25-phase3-era-foundation.js?v=phase3-dev3-layout4' preview/index.html
+          grep -q 'v13.25-phase3-dev3-journal-experience.js?v=phase3-dev3-layout4' preview/index.html
+          grep -q 'v13.25-phase3-dev3-functional-fixes.js?v=phase3-dev3-layout4' preview/index.html
+          grep -q 'v13.25-phase3-dev3-journal-layout.js?v=phase3-dev3-layout4' preview/index.html
+          grep -q 'photo-studio-reopen-snapshot-hotfix-v13.24.js?v=phase3-dev3-layout4' preview/index.html
+          grep -q 'photo-studio-state-integrity-hotfix-v13.24.js?v=phase3-dev3-layout4' preview/index.html
+          grep -q 'v13.25-item-studio-context-fix.js?v=phase3-dev3-layout4' preview/index.html
 
       - name: Publish preview repository
         shell: bash
@@ -78,7 +78,7 @@ jobs:
           if git diff --cached --quiet; then
             echo 'Preview repository already current.'
           else
-            git commit -m 'Deploy v13.25 Phase 3 Journal layout3'
+            git commit -m 'Deploy v13.25 Phase 3 Journal layout4'
             git push origin HEAD:main
           fi
 
