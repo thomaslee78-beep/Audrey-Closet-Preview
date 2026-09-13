@@ -6,7 +6,7 @@
 (function(){
   'use strict';
 
-  const VERSION='1.3';
+  const VERSION='1.4';
   const STYLE_ID='v1325JournalRowPolish2Styles';
   const NEUTRAL_ACCENT='#9f9484';
 
@@ -42,18 +42,19 @@
       .v1325-simple-item{width:62px!important;height:76px!important;flex:0 0 62px!important;border-radius:10px!important}
       .v1325-simple-item img{width:100%!important;height:100%!important;object-fit:contain!important}
 
-      /* Stars and favorite live on the same top status line. */
-      .v1325-row-rating{
-        position:absolute!important;right:47px!important;left:auto!important;top:7px!important;
-        height:30px!important;display:flex!important;align-items:center!important;
-        line-height:1!important;margin:0!important;text-align:right!important;
-      }
-      .v1325-row-favorite{top:7px!important}
+      /* Stars share the heart's height, but start exactly where the title starts. */
       .v1325-simple-copy{
         position:relative!important;align-self:stretch!important;display:flex!important;
         flex-direction:column!important;justify-content:center!important;
-        padding:6px 38px 3px 0!important;min-width:0!important;
+        padding:20px 38px 4px 0!important;min-width:0!important;
       }
+      .v1325-simple-copy>.v1325-row-rating{
+        position:absolute!important;left:0!important;right:auto!important;top:7px!important;
+        height:30px!important;display:flex!important;align-items:center!important;
+        line-height:1!important;margin:0!important;text-align:left!important;
+        font-size:.82rem!important;letter-spacing:-.01em!important;
+      }
+      .v1325-row-favorite{top:7px!important}
       .v1325-simple-title{align-self:stretch!important;margin:auto 0!important;text-align:left!important}
 
       @media(max-width:520px){
@@ -68,8 +69,8 @@
         .v1325-simple-items{width:120px!important;min-height:72px!important;gap:4px!important;overflow:hidden!important}
         .v1325-simple-item{width:58px!important;height:72px!important;flex-basis:58px!important}
         .v1325-simple-items .v1325-simple-item:nth-child(n+3){display:none!important}
-        .v1325-simple-copy{padding:6px 34px 3px 0!important}
-        .v1325-row-rating{right:42px!important;top:7px!important;height:30px!important}
+        .v1325-simple-copy{padding:20px 34px 4px 0!important}
+        .v1325-simple-copy>.v1325-row-rating{top:7px!important;height:30px!important;font-size:.77rem!important}
       }
     `;
     document.head.appendChild(style);
@@ -83,8 +84,9 @@
       row.classList.toggle('v1325-has-day-color',!!entry&&validColor(entry.dayColor));
       row.querySelectorAll('.v1325-row-color-dot').forEach(dot=>dot.remove());
       const summary=row.querySelector('.v1325-simple-log');
+      const copy=summary?.querySelector('.v1325-simple-copy');
       const rating=summary?.querySelector('.v1325-row-rating');
-      if(summary&&rating&&rating.parentNode!==summary)summary.appendChild(rating);
+      if(copy&&rating&&rating.parentNode!==copy)copy.appendChild(rating);
     });
   }
 
