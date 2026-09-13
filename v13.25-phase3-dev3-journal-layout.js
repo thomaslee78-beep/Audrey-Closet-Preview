@@ -5,15 +5,16 @@
 (function(){
   'use strict';
 
-  const VERSION='3.5';
+  const VERSION='3.6';
   const STYLE_ID='v1325Phase3CraftedReaderStyles';
+  let returnItemPreviewToReader=false;
 
   function installStyles(){
     document.getElementById(STYLE_ID)?.remove();
     const style=document.createElement('style');style.id=STYLE_ID;style.textContent=`
       #v1325JournalReaderDialog{position:relative}
-      #v1325JournalReaderDialog .v1325-reader-scroll{background:#efe5d3;padding-bottom:78px}
-      #v1325JournalReaderDialog .v1325-reader-page{position:relative;max-width:680px;margin:0 auto;min-height:100%;padding:58px 28px 42px;background:
+      #v1325JournalReaderDialog .v1325-reader-scroll{background:#efe5d3;padding-bottom:82px}
+      #v1325JournalReaderDialog .v1325-reader-page{position:relative;max-width:680px;margin:0 auto;min-height:100%;padding:58px 28px 46px;background:
         radial-gradient(circle at 12% 8%,rgba(255,255,255,.72),transparent 22%),
         linear-gradient(180deg,#fbf5e9 0%,#f8efdf 100%);box-shadow:inset 0 0 0 1px rgba(107,83,61,.10)}
       #v1325JournalReaderDialog .v1325-reader-page:before{content:'';position:absolute;inset:16px;border:1px solid rgba(111,85,62,.26);border-radius:12px;pointer-events:none;box-shadow:inset 0 0 0 4px rgba(255,255,255,.23)}
@@ -25,17 +26,9 @@
       #v1325JournalReaderDialog .v1325-reader-date:before{left:-16px;clip-path:polygon(0 0,100% 0,100% 100%,0 78%,28% 50%,0 22%)}
       #v1325JournalReaderDialog .v1325-reader-date:after{right:-16px;clip-path:polygon(0 0,100% 22%,72% 50%,100% 78%,100% 100%,0 100%,0 0)}
       #v1325JournalReaderDialog .v1325-reader-close{position:absolute;right:0;top:-2px;z-index:4}
-      #v1325JournalReaderDialog .v1325-reader-chips{position:relative;z-index:2;justify-content:center;margin:0 0 8px;padding:0 10px 5px}
+      #v1325JournalReaderDialog .v1325-reader-chips{position:relative;z-index:2;justify-content:center;margin:0 0 13px;padding:0 10px 5px}
 
-      /* Outfit sits directly below context, like loose cutouts on the page. */
-      #v1325JournalReaderDialog .v1325-crafted-lookbar{position:relative;z-index:2;display:grid;grid-template-columns:90px minmax(0,1fr);gap:10px;align-items:center;margin:2px 15px 19px;padding:4px 4px 7px}
-      #v1325JournalReaderDialog .v1325-crafted-look-label{font-family:var(--serif);font-size:1.08rem;line-height:1.05;font-weight:650;color:#66503c;text-align:right;white-space:normal}
-      #v1325JournalReaderDialog .v1325-crafted-look{min-width:0;margin:0;padding:0;transform:rotate(-.25deg)}
-      #v1325JournalReaderDialog .v1325-crafted-look .v1325-reader-section-title{display:none}
-      #v1325JournalReaderDialog .v1325-crafted-look .v1325-reader-look{justify-content:flex-start;gap:13px;overflow-x:auto;padding:4px 4px 7px}
-      #v1325JournalReaderDialog .v1325-crafted-look .v1325-reader-look-card{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;flex:0 0 105px!important;width:105px!important;min-height:126px;transform:none}
-      #v1325JournalReaderDialog .v1325-crafted-look .v1325-reader-look-card img,#v1325JournalReaderDialog .v1325-crafted-look .v1325-reader-look-ph{width:100px!important;height:122px!important;object-fit:contain!important;background:transparent!important;border-radius:0!important;filter:drop-shadow(0 6px 6px rgba(69,52,39,.16))}
-
+      /* Main crafted body comes directly below the context chips. */
       #v1325JournalReaderDialog .v1325-crafted-body{position:relative;z-index:2;display:grid;grid-template-columns:154px minmax(0,1fr);column-gap:20px;align-items:start}
       #v1325JournalReaderDialog .v1325-crafted-photos{grid-column:1;grid-row:1;display:flex;flex-direction:column;gap:13px;padding-top:3px}
       #v1325JournalReaderDialog .v1325-crafted-photos .v1325-reader-photos{display:flex;flex-direction:column;gap:13px}
@@ -50,29 +43,37 @@
       #v1325JournalReaderDialog .v1325-crafted-writing-bottom .v1325-reader-writing{padding:2px 0 4px;font-size:1rem;line-height:1.74;background:linear-gradient(transparent 31px,rgba(120,99,76,.08) 32px);background-size:100% 32px}
       #v1325JournalReaderDialog .v1325-reader-section{margin:0}
 
+      /* Worn pieces are a framed keepsake near the bottom of the journal page. */
+      #v1325JournalReaderDialog .v1325-crafted-lookbar{position:relative;z-index:2;margin:22px 13px 8px;padding:13px 14px 14px;border:1px solid rgba(101,77,55,.27);border-radius:13px;background:rgba(255,252,245,.34);box-shadow:inset 0 0 0 3px rgba(255,255,255,.18)}
+      #v1325JournalReaderDialog .v1325-crafted-look-label{display:block;margin:0 0 7px;text-align:center;font-family:var(--script),"Bradley Hand","Segoe Print",cursive;font-size:1.42rem;line-height:1.05;font-weight:500;color:#6d5947;transform:rotate(-1deg)}
+      #v1325JournalReaderDialog .v1325-crafted-look{min-width:0;margin:0;padding:0}
+      #v1325JournalReaderDialog .v1325-crafted-look .v1325-reader-section-title{display:none}
+      #v1325JournalReaderDialog .v1325-crafted-look .v1325-reader-look{justify-content:center;gap:14px;overflow-x:auto;padding:4px 4px 7px}
+      #v1325JournalReaderDialog .v1325-crafted-look .v1325-reader-look-card{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;flex:0 0 105px!important;width:105px!important;min-height:126px;transform:none}
+      #v1325JournalReaderDialog .v1325-crafted-look .v1325-reader-look-card img,#v1325JournalReaderDialog .v1325-crafted-look .v1325-reader-look-ph{width:100px!important;height:122px!important;object-fit:contain!important;background:transparent!important;border-radius:0!important;filter:drop-shadow(0 6px 6px rgba(69,52,39,.16))}
+
       /* Persistent reader actions live outside the scrolling page. */
       #v1325JournalReaderDialog > .v1325-reader-actions{position:absolute;left:10px;right:10px;bottom:8px;z-index:45;margin:0;padding:9px 10px max(9px,env(safe-area-inset-bottom));border:1px solid rgba(102,80,59,.16);border-radius:16px;background:rgba(249,242,230,.95);box-shadow:0 8px 28px rgba(49,39,31,.18);backdrop-filter:blur(10px)}
 
       @media(max-width:560px){
-        #v1325JournalReaderDialog .v1325-reader-page{padding:52px 18px 38px}
+        #v1325JournalReaderDialog .v1325-reader-page{padding:52px 18px 42px}
         #v1325JournalReaderDialog .v1325-reader-page:before{inset:10px}
         #v1325JournalReaderDialog .v1325-reader-top{padding:0 40px}
         #v1325JournalReaderDialog .v1325-reader-date{font-size:1.36rem;padding:10px 21px 11px}
-        #v1325JournalReaderDialog .v1325-crafted-lookbar{grid-template-columns:76px minmax(0,1fr);gap:8px;margin:0 6px 16px}
-        #v1325JournalReaderDialog .v1325-crafted-look-label{font-size:.96rem}
-        #v1325JournalReaderDialog .v1325-crafted-look .v1325-reader-look{gap:10px}
-        #v1325JournalReaderDialog .v1325-crafted-look .v1325-reader-look-card{flex-basis:92px!important;width:92px!important;min-height:112px}
-        #v1325JournalReaderDialog .v1325-crafted-look .v1325-reader-look-card img,#v1325JournalReaderDialog .v1325-crafted-look .v1325-reader-look-ph{width:88px!important;height:108px!important}
         #v1325JournalReaderDialog .v1325-crafted-body{grid-template-columns:124px minmax(0,1fr);column-gap:12px}
         #v1325JournalReaderDialog .v1325-crafted-photos .v1325-reader-photos img{width:116px;height:116px;border-width:5px}
         #v1325JournalReaderDialog .v1325-crafted-writing-top .v1325-reader-writing,#v1325JournalReaderDialog .v1325-crafted-writing-bottom .v1325-reader-writing{font-size:.94rem;line-height:1.68}
+        #v1325JournalReaderDialog .v1325-crafted-lookbar{margin:18px 5px 8px;padding:11px 9px 12px}
+        #v1325JournalReaderDialog .v1325-crafted-look-label{font-size:1.28rem}
+        #v1325JournalReaderDialog .v1325-crafted-look .v1325-reader-look{justify-content:flex-start;gap:10px}
+        #v1325JournalReaderDialog .v1325-crafted-look .v1325-reader-look-card{flex-basis:92px!important;width:92px!important;min-height:112px}
+        #v1325JournalReaderDialog .v1325-crafted-look .v1325-reader-look-card img,#v1325JournalReaderDialog .v1325-crafted-look .v1325-reader-look-ph{width:88px!important;height:108px!important}
       }
     `;document.head.appendChild(style);
   }
 
   function currentLookLabel(){
-    const reader=document.querySelector('#v1325JournalReaderDialog');
-    const id=reader?.dataset?.journalId;
+    const reader=document.querySelector('#v1325JournalReaderDialog'),id=reader?.dataset?.journalId;
     const entry=state.journal.find(j=>String(j.id)===String(id||''));
     if(window.AudreyJournalDev3FunctionalFixes?.lookLabel)return window.AudreyJournalDev3FunctionalFixes.lookLabel(entry);
     const today=typeof localTodayISO==='function'?localTodayISO():new Date().toISOString().slice(0,10),date=String(entry?.date||'');
@@ -98,9 +99,6 @@
 
   function applyCraftedLayout(){
     const page=document.querySelector('#v1325JournalReaderPage');if(!page)return;
-    /* openReader replaces page.innerHTML but keeps the page element itself. The old
-       data flag therefore survived and caused later opens to skip reconstruction.
-       Detect the actual crafted DOM instead of a persistent dataset flag. */
     if(page.querySelector('.v1325-crafted-body')&&page.querySelector('.v1325-crafted-lookbar'))return;
 
     const dialog=document.querySelector('#v1325JournalReaderDialog');
@@ -110,41 +108,68 @@
     const actions=page.querySelector('.v1325-reader-actions');
     if(!journalSection||!lookSection)return;
 
-    /* Compact outfit strip directly under context. */
-    const lookbar=document.createElement('section');lookbar.className='v1325-crafted-lookbar';
-    const label=document.createElement('div');label.className='v1325-crafted-look-label';label.textContent=currentLookLabel();
-    lookSection.classList.add('v1325-crafted-look');lookbar.append(label,lookSection);
-    const chips=page.querySelector('.v1325-reader-chips');
-    if(chips)chips.after(lookbar);else page.querySelector('.v1325-reader-top')?.after(lookbar);
-
     const split=splitWriting(journalSection),body=document.createElement('div');body.className='v1325-crafted-body';
     if(photoSection){photoSection.querySelector('.v1325-reader-section-title')?.remove();photoSection.classList.add('v1325-crafted-photos');body.appendChild(photoSection);}
 
     const top=document.createElement('section');top.className='v1325-reader-section v1325-crafted-writing-top';
     if(split.top)top.appendChild(split.top);else top.innerHTML='<div class="v1325-reader-writing empty">No written memory yet.</div>';
     body.appendChild(top);
-
     if(split.bottom){const bottom=document.createElement('section');bottom.className='v1325-reader-section v1325-crafted-writing-bottom';bottom.appendChild(split.bottom);body.appendChild(bottom);}
     journalSection.remove();
-    if(actions)page.insertBefore(body,actions);else page.appendChild(body);
 
-    /* Move actions outside the scrollable page so they stay anchored to the bottom.
-       Remove the previous reader footer first because the dialog itself is reused. */
-    if(dialog&&actions){dialog.querySelector(':scope > .v1325-reader-actions')?.remove();actions.querySelector('#v1325ReaderEditBtn')&&(actions.querySelector('#v1325ReaderEditBtn').textContent='Edit Journal');dialog.appendChild(actions);}
+    const chips=page.querySelector('.v1325-reader-chips');
+    if(chips)chips.after(body);else page.querySelector('.v1325-reader-top')?.after(body);
+
+    const lookbar=document.createElement('section');lookbar.className='v1325-crafted-lookbar';
+    const label=document.createElement('div');label.className='v1325-crafted-look-label';label.textContent=currentLookLabel();
+    lookSection.classList.add('v1325-crafted-look');lookbar.append(label,lookSection);
+    body.after(lookbar);
+
+    if(dialog&&actions){dialog.querySelector(':scope > .v1325-reader-actions')?.remove();const edit=actions.querySelector('#v1325ReaderEditBtn');if(edit)edit.textContent='Edit Journal';dialog.appendChild(actions);}
   }
 
   function wrapReader(){
-    const api=window.AudreyJournalExperienceDev3;if(!api?.openReader||api.__craftedWrappedV35)return;
+    const api=window.AudreyJournalExperienceDev3;if(!api?.openReader||api.__craftedWrappedV36)return;
     const open0=api.openReader.bind(api);
     api.openReader=function(id){
-      /* Remove footer from prior render before the base renderer creates the next one. */
       document.querySelector('#v1325JournalReaderDialog > .v1325-reader-actions')?.remove();
       const out=open0(id);requestAnimationFrame(applyCraftedLayout);setTimeout(applyCraftedLayout,0);return out;
     };
-    api.__craftedWrappedV35=true;
+    api.__craftedWrappedV36=true;
   }
 
-  installStyles();wrapReader();
+  function wrapItemPreviewReturn(){
+    if(typeof openJournalItemPreview==='function'&&!openJournalItemPreview.__readerReturnWrapped){
+      const open0=openJournalItemPreview;
+      openJournalItemPreview=function(itemId){
+        const detail=document.querySelector('#journalDetailDialog');
+        const reader=document.querySelector('#v1325JournalReaderDialog');
+        returnItemPreviewToReader=!!(reader?.dataset?.journalId&&!detail?.open&&String(viewingJournalId||'')===String(reader.dataset.journalId));
+        return open0.apply(this,arguments);
+      };
+      openJournalItemPreview.__readerReturnWrapped=true;
+    }
+    if(typeof closeJournalItemPreviewToDay==='function'&&!closeJournalItemPreviewToDay.__readerReturnWrapped){
+      const close0=closeJournalItemPreviewToDay;
+      closeJournalItemPreviewToDay=function(){
+        if(!returnItemPreviewToReader)return close0.apply(this,arguments);
+        returnItemPreviewToReader=false;
+        const returnId=journalItemReturnId,d=document.querySelector('#journalItemPreviewDialog');
+        if(d?.open)d.close();
+        if(typeof unlockPageForJournalItemPreview==='function')unlockPageForJournalItemPreview();
+        if(typeof clearJournalItemPreview==='function')clearJournalItemPreview();
+        journalItemReturnId=null;
+        if(returnId&&state.journal.some(j=>j.id===returnId)){
+          viewingJournalId=returnId;
+          window.AudreyJournalExperienceDev3?.openReader?.(returnId);
+          requestAnimationFrame(applyCraftedLayout);setTimeout(applyCraftedLayout,0);
+        }
+      };
+      closeJournalItemPreviewToDay.__readerReturnWrapped=true;
+    }
+  }
+
+  installStyles();wrapReader();wrapItemPreviewReturn();
   document.addEventListener('click',event=>{if(event.target.closest?.('#v1325JournalViewBtn')){requestAnimationFrame(applyCraftedLayout);setTimeout(applyCraftedLayout,0);}},true);
   window.AudreyJournalCraftedLayout={version:VERSION,refresh:applyCraftedLayout};
 })();
