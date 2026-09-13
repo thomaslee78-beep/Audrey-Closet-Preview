@@ -60,12 +60,12 @@ jobs:
           test -f preview/v13.25-item-studio-context-fix.js
           test -f preview/photo-studio-reopen-snapshot-hotfix-v13.24.js
           test -f preview/photo-studio-state-integrity-hotfix-v13.24.js
-          grep -q 'audrey-preview-build" content="v13.25-phase3-dev3-layout12' preview/index.html
-          grep -q 'v13.25-phase3-journal-title-log.js?v=phase3-dev3-layout12' preview/index.html
-          grep -q 'v13.25-phase3-journal-detail-toolbar.js?v=phase3-dev3-layout12' preview/index.html
-          grep -q 'v13.25-phase3-journal-row-polish2.js?v=phase3-dev3-layout12' preview/index.html
-          grep -q 'v13.25-phase3-wear-log-detail-polish.js?v=phase3-dev3-layout12' preview/index.html
-          grep -q 'v13.25-phase3-dev3-reader-polish-fix.js?v=phase3-dev3-layout12' preview/index.html
+          grep -q 'audrey-preview-build" content="v13.25-phase3-dev3-layout13' preview/index.html
+          grep -q 'v13.25-phase3-journal-title-log.js?v=phase3-dev3-layout13' preview/index.html
+          grep -q 'v13.25-phase3-journal-detail-toolbar.js?v=phase3-dev3-layout13' preview/index.html
+          grep -q 'v13.25-phase3-journal-row-polish2.js?v=phase3-dev3-layout13' preview/index.html
+          grep -q 'v13.25-phase3-wear-log-detail-polish.js?v=phase3-dev3-layout13' preview/index.html
+          grep -q 'v13.25-phase3-dev3-reader-polish-fix.js?v=phase3-dev3-layout13' preview/index.html
 
       - name: Publish preview repository
         shell: bash
@@ -78,7 +78,7 @@ jobs:
           if git diff --cached --quiet; then
             echo 'Preview repository already current.'
           else
-            git commit -m 'Deploy v13.25 Phase 3 Wear Log detail polish layout12'
+            git commit -m 'Deploy v13.25 Phase 3 Journal row rating polish layout13'
             git push origin HEAD:main
           fi
 
