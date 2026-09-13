@@ -1,13 +1,14 @@
 /* Audrey Closet v13.25 Phase 3 — Journal row polish pass 2
- * Presentation-only overlay for Wear Log rows. Keeps a visible neutral left accent
- * when no daily color is chosen, removes the redundant color dot, balances the
- * calendar against larger clothing thumbnails, and aligns ratings with the title.
+ * Presentation-only overlay for Journal browse rows. Keeps a visible neutral
+ * accent when no Daily Color is chosen (including Today's Look), removes the
+ * redundant color dot, balances date/clothing sizing, and aligns rating/title.
  */
 (function(){
   'use strict';
 
-  const VERSION='1.1';
+  const VERSION='1.2';
   const STYLE_ID='v1325JournalRowPolish2Styles';
+  const NEUTRAL_ACCENT='#9f9484';
 
   function validColor(value){return /^#[0-9a-f]{6}$/i.test(String(value||''));}
   function entryById(id){return state.journal.find(j=>String(j.id)===String(id||''))||null;}
@@ -17,18 +18,28 @@
     const style=document.createElement('style');
     style.id=STYLE_ID;
     style.textContent=`
-      /* Always finish the left edge, even before a Daily Color is selected. */
-      .journal-row.v1325-simple-log-row{
-        border-left-width:5px!important;
-        border-left-style:solid!important;
-        border-left-color:#a99d8b!important;
+      /* Put the accent inside the visible card so it cannot be clipped by Today's Look. */
+      .journal-row.v1325-simple-log-row{border-left:0!important}
+      .journal-row.v1325-simple-log-row .v1325-simple-log{position:relative!important;overflow:hidden}
+      .journal-row.v1325-simple-log-row .v1325-simple-log:before{
+        content:'';
+        position:absolute;
+        left:0;
+        top:0;
+        bottom:0;
+        width:5px;
+        background:var(--journal-day-accent,${NEUTRAL_ACCENT});
+        border-radius:10px 0 0 10px;
+        z-index:2;
+        pointer-events:none;
       }
-      .journal-row.v1325-simple-log-row.v1325-has-day-color{
-        border-left-color:var(--journal-day-color)!important;
+      #todayJournalList .journal-row.v1325-simple-log-row .v1325-simple-log:before{
+        width:5px;
+        background:var(--journal-day-accent,${NEUTRAL_ACCENT})!important;
       }
       .v1325-row-color-dot{display:none!important}
 
-      /* Balance the date tile against larger clothing thumbnails. */
+      /* Keep clothes visually stronger than the calendar. */
       .v1325-simple-log{
         grid-template-columns:61px minmax(184px,auto) minmax(0,1fr)!important;
         gap:10px!important;
@@ -43,51 +54,36 @@
         flex-direction:column!important;
         justify-content:center!important;
       }
-      .v1325-simple-date-month{
-        font-size:.59rem!important;
-        padding:3px 2px 2px!important;
-      }
-      .v1325-simple-date-day{
-        font-size:1.40rem!important;
-        padding:2px 2px 0!important;
-      }
-      .v1325-simple-date-year{
-        font-size:.55rem!important;
-        padding:1px 2px 3px!important;
-      }
-      .v1325-simple-items{
-        min-height:76px!important;
-        gap:6px!important;
-        align-items:center!important;
-      }
-      .v1325-simple-item{
-        width:62px!important;
-        height:76px!important;
-        flex:0 0 62px!important;
-        border-radius:10px!important;
-      }
-      .v1325-simple-item img{
-        width:100%!important;
-        height:100%!important;
-        object-fit:contain!important;
-      }
+      .v1325-simple-date-month{font-size:.59rem!important;padding:3px 2px 2px!important}
+      .v1325-simple-date-day{font-size:1.40rem!important;padding:2px 2px 0!important}
+      .v1325-simple-date-year{font-size:.55rem!important;padding:1px 2px 3px!important}
+      .v1325-simple-items{min-height:76px!important;gap:6px!important;align-items:center!important}
+      .v1325-simple-item{width:62px!important;height:76px!important;flex:0 0 62px!important;border-radius:10px!important}
+      .v1325-simple-item img{width:100%!important;height:100%!important;object-fit:contain!important}
 
-      /* Rating begins at the same left edge as the title; title stays vertically centered. */
+      /* Rating and favorite share one visual baseline; title remains centered below it. */
       .v1325-simple-copy{
         position:relative!important;
         align-self:stretch!important;
+        display:flex!important;
+        flex-direction:column!important;
         justify-content:center!important;
-        padding:19px 38px 4px 0!important;
+        padding:15px 38px 3px 0!important;
+        min-width:0!important;
       }
       .v1325-simple-copy>.v1325-row-rating{
         position:absolute!important;
         left:0!important;
         right:auto!important;
         top:7px!important;
+        height:30px!important;
+        display:flex!important;
+        align-items:center!important;
         line-height:1!important;
         margin:0!important;
         text-align:left!important;
       }
+      .v1325-row-favorite{top:7px!important}
       .v1325-simple-title{
         align-self:stretch!important;
         margin:auto 0!important;
@@ -95,27 +91,23 @@
       }
 
       @media(max-width:520px){
+        /* Two 58px thumbnails + 4px gap = 120px; this moves title left without shrinking clothes. */
         .v1325-simple-log{
-          grid-template-columns:56px minmax(132px,174px) minmax(0,1fr)!important;
-          gap:6px!important;
+          grid-template-columns:54px 120px minmax(0,1fr)!important;
+          gap:5px!important;
           min-height:96px!important;
+          padding-left:8px!important;
+          padding-right:8px!important;
         }
-        .v1325-simple-date{
-          width:52px!important;
-          height:68px!important;
-        }
-        .v1325-simple-date-month{font-size:.57rem!important}
-        .v1325-simple-date-day{font-size:1.32rem!important}
-        .v1325-simple-date-year{font-size:.53rem!important}
-        .v1325-simple-items{min-height:72px!important;gap:4px!important}
-        .v1325-simple-item{
-          width:58px!important;
-          height:72px!important;
-          flex-basis:58px!important;
-        }
-        .v1325-simple-items .v1325-simple-item:nth-child(n+4){display:none!important}
-        .v1325-simple-copy{padding:18px 35px 4px 0!important}
-        .v1325-simple-copy>.v1325-row-rating{top:6px!important}
+        .v1325-simple-date{width:50px!important;height:66px!important}
+        .v1325-simple-date-month{font-size:.56rem!important}
+        .v1325-simple-date-day{font-size:1.28rem!important}
+        .v1325-simple-date-year{font-size:.52rem!important}
+        .v1325-simple-items{width:120px!important;min-height:72px!important;gap:4px!important;overflow:hidden!important}
+        .v1325-simple-item{width:58px!important;height:72px!important;flex-basis:58px!important}
+        .v1325-simple-items .v1325-simple-item:nth-child(n+3){display:none!important}
+        .v1325-simple-copy{padding:15px 34px 3px 0!important}
+        .v1325-simple-copy>.v1325-row-rating{top:7px!important;height:30px!important}
       }
     `;
     document.head.appendChild(style);
@@ -124,6 +116,8 @@
   function refreshRows(){
     document.querySelectorAll('.journal-row[data-journal-id].v1325-simple-log-row').forEach(row=>{
       const entry=entryById(row.dataset.journalId);
+      const color=entry&&validColor(entry.dayColor)?entry.dayColor:NEUTRAL_ACCENT;
+      row.style.setProperty('--journal-day-accent',color);
       row.classList.toggle('v1325-has-day-color',!!entry&&validColor(entry.dayColor));
       row.querySelectorAll('.v1325-row-color-dot').forEach(dot=>dot.remove());
       const summary=row.querySelector('.v1325-simple-log');
