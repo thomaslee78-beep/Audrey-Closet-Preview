@@ -1,16 +1,16 @@
 /* Audrey Closet v13.25 Phase 3 — Final Journal row renderer
- * Layout29 consolidates the nearly-final Journal browse row into one owner.
+ * Layout30 consolidates the nearly-final Journal browse row into one owner.
  * It replaces the layered TitleLog -> DetailToolbar -> RowPolish composition for
  * browse rows so initial load and return-from-Wear-Log use identical DOM/layout.
  */
 (function(){
   'use strict';
 
-  const VERSION='1.1';
+  const VERSION='1.2';
   const STYLE_ID='v1325JournalRowFinalStyles';
   const NEUTRAL_ACCENT='#9f9484';
 
-  function esc(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#039;'}[ch]));}
+  function esc(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));}
   function entryById(id){return state.journal.find(j=>String(j.id)===String(id||''))||null;}
   function validColor(value){return /^#[0-9a-f]{6}$/i.test(String(value||''));}
   function ratingValue(entry){const n=Number(entry?.rating||0);return Number.isFinite(n)?Math.max(0,Math.min(5,Math.round(n))):0;}
@@ -63,14 +63,16 @@
       .journal-row.v1325-final-row .v1325-simple-item img{width:100%!important;height:100%!important;object-fit:contain!important;display:block!important}
       .journal-row.v1325-final-row .v1325-simple-item-empty{font-size:.62rem!important;color:var(--muted)!important}
 
-      /* One deterministic text stack. Nothing is absolutely positioned here. */
+      /* Rating and title are one left-aligned text stack. */
       .journal-row.v1325-final-row .v1325-simple-copy{
         position:relative!important;align-self:stretch!important;display:flex!important;
-        flex-direction:column!important;justify-content:center!important;align-items:flex-start!important;
+        flex-direction:column!important;justify-content:center!important;align-items:stretch!important;
         min-width:0!important;padding:7px 38px 5px 0!important;box-sizing:border-box!important;
+        text-align:left!important;
       }
       .journal-row.v1325-final-row .v1325-row-rating{
         position:static!important;display:block!important;flex:0 0 auto!important;
+        align-self:stretch!important;width:100%!important;min-width:0!important;
         min-height:18px!important;margin:0 0 3px!important;padding:0!important;
         color:#9b7442!important;font-size:.82rem!important;line-height:1!important;
         letter-spacing:-.01em!important;white-space:nowrap!important;text-align:left!important;
@@ -79,7 +81,7 @@
         position:static!important;display:-webkit-box!important;-webkit-box-orient:vertical!important;
         -webkit-line-clamp:2!important;white-space:normal!important;overflow:hidden!important;
         text-overflow:ellipsis!important;width:100%!important;min-width:0!important;
-        margin:0!important;padding:0!important;font-family:var(--serif)!important;
+        align-self:stretch!important;margin:0!important;padding:0!important;font-family:var(--serif)!important;
         font-size:.88rem!important;font-weight:650!important;line-height:1.2!important;color:var(--coffee)!important;
         text-align:left!important;
       }
@@ -155,8 +157,6 @@
     if(!dialog||dialog.dataset.v1325FinalRowsCloseBound==='1')return;
     dialog.dataset.v1325FinalRowsCloseBound='1';
     dialog.addEventListener('close',()=>{
-      /* This listener is registered after the legacy row layers, so it always
-         runs last and restores the one canonical row DOM/layout. */
       requestAnimationFrame(renderAll);
       setTimeout(renderAll,35);
     });
