@@ -1,12 +1,12 @@
 /* Audrey Closet v13.25 Phase 3 — Final Journal row renderer
- * Layout30 consolidates the nearly-final Journal browse row into one owner.
- * It replaces the layered TitleLog -> DetailToolbar -> RowPolish composition for
- * browse rows so initial load and return-from-Wear-Log use identical DOM/layout.
+ * Layout31 consolidates the nearly-final Journal browse row into one owner.
+ * Initial load and return-from-Wear-Log use identical DOM/layout.
+ * Ratings remain left-aligned while titles sit slightly higher at the visual center.
  */
 (function(){
   'use strict';
 
-  const VERSION='1.2';
+  const VERSION='1.3';
   const STYLE_ID='v1325JournalRowFinalStyles';
   const NEUTRAL_ACCENT='#9f9484';
 
@@ -63,27 +63,32 @@
       .journal-row.v1325-final-row .v1325-simple-item img{width:100%!important;height:100%!important;object-fit:contain!important;display:block!important}
       .journal-row.v1325-final-row .v1325-simple-item-empty{font-size:.62rem!important;color:var(--muted)!important}
 
-      /* Rating and title are one left-aligned text stack. */
+      /* Title owns the visual center; rating floats in a reserved upper lane.
+         Both begin at exactly the same left edge and can never overlap. */
       .journal-row.v1325-final-row .v1325-simple-copy{
         position:relative!important;align-self:stretch!important;display:flex!important;
-        flex-direction:column!important;justify-content:center!important;align-items:stretch!important;
+        align-items:center!important;justify-content:flex-start!important;
         min-width:0!important;padding:7px 38px 5px 0!important;box-sizing:border-box!important;
         text-align:left!important;
       }
       .journal-row.v1325-final-row .v1325-row-rating{
-        position:static!important;display:block!important;flex:0 0 auto!important;
-        align-self:stretch!important;width:100%!important;min-width:0!important;
-        min-height:18px!important;margin:0 0 3px!important;padding:0!important;
+        position:absolute!important;left:0!important;right:auto!important;top:13px!important;
+        display:block!important;width:auto!important;max-width:calc(100% - 38px)!important;
+        min-height:17px!important;margin:0!important;padding:0!important;
         color:#9b7442!important;font-size:.82rem!important;line-height:1!important;
         letter-spacing:-.01em!important;white-space:nowrap!important;text-align:left!important;
       }
       .journal-row.v1325-final-row .v1325-simple-title{
-        position:static!important;display:-webkit-box!important;-webkit-box-orient:vertical!important;
+        position:relative!important;display:-webkit-box!important;-webkit-box-orient:vertical!important;
         -webkit-line-clamp:2!important;white-space:normal!important;overflow:hidden!important;
         text-overflow:ellipsis!important;width:100%!important;min-width:0!important;
-        align-self:stretch!important;margin:0!important;padding:0!important;font-family:var(--serif)!important;
+        margin:0!important;padding:0!important;font-family:var(--serif)!important;
         font-size:.88rem!important;font-weight:650!important;line-height:1.2!important;color:var(--coffee)!important;
-        text-align:left!important;
+        text-align:left!important;transform:translateY(4px)!important;
+      }
+      .journal-row.v1325-final-row .v1325-simple-copy:has(.v1325-row-rating) .v1325-simple-title{
+        padding-top:13px!important;
+        transform:translateY(0)!important;
       }
       .journal-row.v1325-final-row .v1325-simple-title.empty{font-weight:500!important;color:var(--muted)!important;font-style:italic!important}
       .journal-row.v1325-final-row .v1325-row-favorite{
@@ -104,7 +109,8 @@
         .journal-row.v1325-final-row .v1325-simple-item{width:58px!important;height:72px!important;flex-basis:58px!important}
         .journal-row.v1325-final-row .v1325-simple-items .v1325-simple-item:nth-child(n+3){display:none!important}
         .journal-row.v1325-final-row .v1325-simple-copy{padding:7px 34px 5px 0!important}
-        .journal-row.v1325-final-row .v1325-row-rating{font-size:.77rem!important;min-height:17px!important;margin-bottom:3px!important}
+        .journal-row.v1325-final-row .v1325-row-rating{top:12px!important;font-size:.77rem!important;min-height:16px!important;max-width:calc(100% - 34px)!important}
+        .journal-row.v1325-final-row .v1325-simple-copy:has(.v1325-row-rating) .v1325-simple-title{padding-top:11px!important}
         .journal-row.v1325-final-row .v1325-simple-title{font-size:.81rem!important}
       }
     `;
@@ -147,30 +153,19 @@
     window.AudreyJournalLayoutHardening?.refresh?.();
   }
 
-  function settleRows(){
-    renderAll();
-    requestAnimationFrame(renderAll);
-  }
+  function settleRows(){renderAll();requestAnimationFrame(renderAll);}
 
   function bindDetailClose(){
     const dialog=document.querySelector('#journalDetailDialog');
     if(!dialog||dialog.dataset.v1325FinalRowsCloseBound==='1')return;
     dialog.dataset.v1325FinalRowsCloseBound='1';
-    dialog.addEventListener('close',()=>{
-      requestAnimationFrame(renderAll);
-      setTimeout(renderAll,35);
-    });
+    dialog.addEventListener('close',()=>{requestAnimationFrame(renderAll);setTimeout(renderAll,35);});
   }
 
   function wrapRenderJournal(){
     if(typeof renderJournal!=='function'||renderJournal.__finalRowsWrapped)return;
     const render0=renderJournal;
-    renderJournal=function(){
-      const out=render0.apply(this,arguments);
-      requestAnimationFrame(renderAll);
-      setTimeout(renderAll,35);
-      return out;
-    };
+    renderJournal=function(){const out=render0.apply(this,arguments);requestAnimationFrame(renderAll);setTimeout(renderAll,35);return out;};
     renderJournal.__finalRowsWrapped=true;
   }
 
