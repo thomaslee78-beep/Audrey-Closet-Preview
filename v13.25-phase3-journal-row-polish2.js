@@ -1,12 +1,13 @@
 /* Audrey Closet v13.25 Phase 3 — Journal row polish pass 2
  * Presentation-only overlay for Journal browse rows. Keeps a visible neutral
  * accent when no Daily Color is chosen (including Today's Look), removes the
- * redundant color dot, balances date/clothing sizing, and aligns rating/title.
+ * redundant color dot, balances date/clothing sizing, and keeps rating/title
+ * in deterministic non-overlapping rows after returning from Wear Log.
  */
 (function(){
   'use strict';
 
-  const VERSION='1.4';
+  const VERSION='1.5';
   const STYLE_ID='v1325JournalRowPolish2Styles';
   const NEUTRAL_ACCENT='#9f9484';
 
@@ -42,20 +43,46 @@
       .v1325-simple-item{width:62px!important;height:76px!important;flex:0 0 62px!important;border-radius:10px!important}
       .v1325-simple-item img{width:100%!important;height:100%!important;object-fit:contain!important}
 
-      /* Stars share the heart's height, but start exactly where the title starts. */
+      /* Rating and title use two real rows instead of absolute positioning.
+         This prevents the stars from landing over the title after the row DOM
+         is rebuilt when the Wear Log dialog closes. */
       .v1325-simple-copy{
-        position:relative!important;align-self:stretch!important;display:flex!important;
-        flex-direction:column!important;justify-content:center!important;
-        padding:20px 38px 4px 0!important;min-width:0!important;
+        position:relative!important;
+        align-self:stretch!important;
+        display:grid!important;
+        grid-template-rows:30px minmax(0,1fr)!important;
+        align-content:center!important;
+        padding:7px 38px 5px 0!important;
+        min-width:0!important;
+        box-sizing:border-box!important;
       }
       .v1325-simple-copy>.v1325-row-rating{
-        position:absolute!important;left:0!important;right:auto!important;top:7px!important;
-        height:30px!important;display:flex!important;align-items:center!important;
-        line-height:1!important;margin:0!important;text-align:left!important;
-        font-size:.82rem!important;letter-spacing:-.01em!important;
+        position:static!important;
+        align-self:center!important;
+        justify-self:start!important;
+        height:30px!important;
+        display:flex!important;
+        align-items:center!important;
+        line-height:1!important;
+        margin:0!important;
+        text-align:left!important;
+        font-size:.82rem!important;
+        letter-spacing:-.01em!important;
+        white-space:nowrap!important;
       }
       .v1325-row-favorite{top:7px!important}
-      .v1325-simple-title{align-self:stretch!important;margin:auto 0!important;text-align:left!important}
+      .v1325-simple-title{
+        align-self:center!important;
+        justify-self:stretch!important;
+        margin:0!important;
+        text-align:left!important;
+      }
+
+      /* Rows without a rating should not reserve an empty star line. */
+      .v1325-simple-copy:not(:has(>.v1325-row-rating)){
+        grid-template-rows:minmax(0,1fr)!important;
+        align-items:center!important;
+      }
 
       @media(max-width:520px){
         .v1325-simple-log{
@@ -69,8 +96,9 @@
         .v1325-simple-items{width:120px!important;min-height:72px!important;gap:4px!important;overflow:hidden!important}
         .v1325-simple-item{width:58px!important;height:72px!important;flex-basis:58px!important}
         .v1325-simple-items .v1325-simple-item:nth-child(n+3){display:none!important}
-        .v1325-simple-copy{padding:20px 34px 4px 0!important}
-        .v1325-simple-copy>.v1325-row-rating{top:7px!important;height:30px!important;font-size:.77rem!important}
+        .v1325-simple-copy{grid-template-rows:28px minmax(0,1fr)!important;padding:7px 34px 5px 0!important}
+        .v1325-simple-copy>.v1325-row-rating{height:28px!important;font-size:.77rem!important}
+        .v1325-simple-copy:not(:has(>.v1325-row-rating)){grid-template-rows:minmax(0,1fr)!important}
       }
     `;
     document.head.appendChild(style);
@@ -86,7 +114,8 @@
       const summary=row.querySelector('.v1325-simple-log');
       const copy=summary?.querySelector('.v1325-simple-copy');
       const rating=summary?.querySelector('.v1325-row-rating');
-      if(copy&&rating&&rating.parentNode!==copy)copy.appendChild(rating);
+      if(copy&&rating&&rating.parentNode!==copy)copy.insertBefore(rating,copy.firstChild);
+      if(copy&&rating&&copy.firstElementChild!==rating)copy.insertBefore(rating,copy.firstElementChild);
     });
   }
 
