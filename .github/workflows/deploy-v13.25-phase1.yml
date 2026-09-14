@@ -54,20 +54,14 @@ jobs:
           test -f preview/v13.25-phase3-journal-layout-hardening.js
           test -f preview/v13.25-phase3-journal-row-polish2.js
           test -f preview/v13.25-phase3-journal-row-final.js
+          test -f preview/v13.25-phase3-journal-row-spacing-final.js
           test -f preview/v13.25-phase3-journal-reader-refinements.js
           test -f preview/photo-studio-reopen-snapshot-hotfix-v13.24.js
           test -f preview/photo-studio-state-integrity-hotfix-v13.24.js
-          grep -q 'audrey-preview-build" content="v13.25-phase3-dev3-layout37' preview/index.html
-          grep -q 'v13.25-phase3-era-foundation.js?v=phase3-dev3-layout37' preview/index.html
-          grep -q 'v13.25-phase3-journal-row-final.js?v=phase3-dev3-layout37' preview/index.html
-          grep -q 'v13.25-phase3-journal-reader-refinements.js?v=phase3-dev3-layout37' preview/index.html
-          grep -q 'v13.25-phase3-wear-log-layout2.js?v=phase3-dev3-layout37' preview/index.html
-          grep -q 'v13.25-phase3-wear-log-detail-polish.js?v=phase3-dev3-layout37' preview/index.html
-          grep -q 'v13.25-phase3-wear-log-interaction-fixes.js?v=phase3-dev3-layout37' preview/index.html
-          grep -q 'v13.25-phase3-journal-editor-layout.js?v=phase3-dev3-layout37' preview/index.html
-          grep -q 'v13.25-phase3-journal-editor-refinements.js?v=phase3-dev3-layout37' preview/index.html
-          grep -q 'v13.25-phase3-journal-layout-hardening.js?v=phase3-dev3-layout37' preview/index.html
-          grep -q 'v13.25-phase3-journal-row-polish2.js?v=phase3-dev3-layout37' preview/index.html
+          grep -q 'audrey-preview-build" content="v13.25-phase3-dev3-layout38' preview/index.html
+          grep -q 'v13.25-phase3-journal-row-final.js?v=phase3-dev3-layout38' preview/index.html
+          grep -q 'v13.25-phase3-journal-row-spacing-final.js?v=phase3-dev3-layout38' preview/index.html
+          grep -q 'v13.25-phase3-journal-reader-refinements.js?v=phase3-dev3-layout38' preview/index.html
 
       - name: Publish preview repository
         shell: bash
@@ -80,7 +74,7 @@ jobs:
           if git diff --cached --quiet; then
             echo 'Preview repository already current.'
           else
-            git commit -m 'Deploy v13.25 Phase 3 top-aligned Journal ratings layout37'
+            git commit -m 'Deploy v13.25 Phase 3 Journal row spacing layout38'
             git push origin HEAD:main
           fi
 
