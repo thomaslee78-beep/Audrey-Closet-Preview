@@ -1,12 +1,13 @@
 /* Audrey Closet v13.25 Phase 3 — Journal layout hardening
- * Layout24 stability overlay for all three Journal surfaces.
+ * Layout25 stability overlay for all three Journal surfaces.
  * Prevents accidental horizontal drift/overflow, recenters browse/detail surfaces,
- * and turns the crafted reader outfit area into a full-width bottom strip.
+ * suppresses browser focus artifacts on the favorite control, and stages the
+ * initial Wear Log reveal so layered presentation passes settle before display.
  */
 (function(){
   'use strict';
 
-  const VERSION='1.1';
+  const VERSION='1.2';
   const STYLE_ID='v1325JournalLayoutHardeningStyles';
   let syncing=false;
 
@@ -20,11 +21,26 @@
       .v1325-journal-browse-host .v1325-simple-log{width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;overflow:hidden!important}
       .v1325-journal-browse-host .v1325-simple-date,.v1325-journal-browse-host .v1325-simple-items,.v1325-journal-browse-host .v1325-simple-copy{min-width:0!important;box-sizing:border-box!important}
 
-      #journalDetailDialog{overflow-x:hidden!important;overscroll-behavior-x:none!important}
+      #journalDetailDialog{overflow-x:hidden!important;overscroll-behavior-x:none!important;outline:none!important}
+      #journalDetailDialog.v1325-detail-preparing{opacity:0!important;pointer-events:none!important}
+      #journalDetailDialog.v1325-detail-settled{opacity:1;transition:opacity .09s ease-out}
       #journalDetailDialog .journal-detail-scroll{width:100%!important;max-width:100%!important;min-width:0!important;overflow-x:hidden!important;overscroll-behavior-x:none!important;box-sizing:border-box!important}
       #journalDetailDialog .journal-detail-scroll>*{max-width:100%;box-sizing:border-box}
       #journalDetailDialog .v1325-journal-sheet{max-width:calc(100% + 28px)!important;box-sizing:border-box!important}
       #journalDetailDialog .v1325-look-strip-wrap,#journalDetailDialog .v1325-day-classifiers,#journalDetailDialog .v1325-journal-primary-view{max-width:100%!important;box-sizing:border-box!important}
+
+      /* Safari was drawing its blue focus geometry around the relocated heart.
+         Keep keyboard focus visible with a subtle app-native ring instead. */
+      #journalDetailDialog #journalDetailFavoriteBtn,
+      #journalDetailDialog #journalDetailFavoriteBtn:focus,
+      #journalDetailDialog #journalDetailFavoriteBtn:active{
+        outline:none!important;
+        -webkit-tap-highlight-color:transparent!important;
+      }
+      #journalDetailDialog #journalDetailFavoriteBtn:focus-visible{
+        outline:none!important;
+        box-shadow:0 0 0 2px rgba(161,83,82,.16),0 3px 10px rgba(61,48,39,.08)!important;
+      }
 
       #v1325JournalReaderDialog{overflow:hidden!important;overscroll-behavior-x:none!important}
       #v1325JournalReaderDialog .v1325-reader-scroll{width:100%!important;max-width:100%!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior-x:none!important;touch-action:pan-y!important;box-sizing:border-box!important}
@@ -55,7 +71,25 @@
     document.querySelectorAll('.v1325-journal-browse-host').forEach(host=>{if(host.scrollLeft!==0)host.scrollLeft=0;});
   }
 
+  function normalizeDetailFocus(dialog){
+    if(!dialog)return;
+    dialog.setAttribute('tabindex','-1');
+    const favorite=dialog.querySelector('#journalDetailFavoriteBtn');
+    if(document.activeElement===favorite)favorite.blur();
+    try{dialog.focus({preventScroll:true});}catch{}
+  }
+
   function sync(){if(syncing)return;syncing=true;try{installStyles();markBrowseHosts();normalizeScrollLeft();}finally{syncing=false;}}
+
+  function settleDetail(dialog){
+    try{window.AudreyWearLogDetailPolish?.refresh?.();}catch{}
+    try{window.AudreyWearLogLayout2?.refresh?.();}catch{}
+    try{window.AudreyWearLogInteractionFixes?.refresh?.();}catch{}
+    try{window.AudreyJournalEditorLayout?.refresh?.();}catch{}
+    try{window.AudreyJournalEditorRefinements?.refresh?.();}catch{}
+    sync();
+    normalizeDetailFocus(dialog);
+  }
 
   function wrapRenderJournal(){
     if(typeof renderJournal!=='function'||renderJournal.__journalHardeningWrapped)return;
@@ -64,7 +98,20 @@
 
   function wrapOpenDetail(){
     if(typeof openJournalDetail!=='function'||openJournalDetail.__journalHardeningWrapped)return;
-    const open0=openJournalDetail;openJournalDetail=function(){const out=open0.apply(this,arguments);requestAnimationFrame(sync);setTimeout(sync,80);return out;};openJournalDetail.__journalHardeningWrapped=true;
+    const open0=openJournalDetail;
+    openJournalDetail=function(){
+      const dialog=document.querySelector('#journalDetailDialog');
+      if(dialog){dialog.classList.remove('v1325-detail-settled');dialog.classList.add('v1325-detail-preparing');}
+      const out=open0.apply(this,arguments);
+      requestAnimationFrame(()=>settleDetail(dialog));
+      setTimeout(()=>settleDetail(dialog),70);
+      setTimeout(()=>{
+        settleDetail(dialog);
+        if(dialog){dialog.classList.remove('v1325-detail-preparing');dialog.classList.add('v1325-detail-settled');}
+      },175);
+      return out;
+    };
+    openJournalDetail.__journalHardeningWrapped=true;
   }
 
   function wrapReader(){
