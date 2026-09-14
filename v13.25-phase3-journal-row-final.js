@@ -1,12 +1,12 @@
 /* Audrey Closet v13.25 Phase 3 — Final Journal row renderer
- * Layout31 consolidates the nearly-final Journal browse row into one owner.
+ * Layout32 consolidates the nearly-final Journal browse row into one owner.
  * Initial load and return-from-Wear-Log use identical DOM/layout.
- * Ratings remain left-aligned while titles sit slightly higher at the visual center.
+ * Ratings stay left-aligned above titles with guaranteed non-overlapping space.
  */
 (function(){
   'use strict';
 
-  const VERSION='1.3';
+  const VERSION='1.4';
   const STYLE_ID='v1325JournalRowFinalStyles';
   const NEUTRAL_ACCENT='#9f9484';
 
@@ -40,7 +40,7 @@
         position:relative!important;display:grid!important;
         grid-template-columns:61px minmax(184px,auto) minmax(0,1fr)!important;
         gap:10px!important;align-items:center!important;width:100%!important;
-        min-height:100px!important;padding:9px 10px!important;box-sizing:border-box!important;
+        min-height:104px!important;padding:9px 10px!important;box-sizing:border-box!important;
         overflow:hidden!important;text-align:left!important;cursor:pointer!important;
       }
       .journal-row.v1325-final-row .v1325-simple-log:before{
@@ -63,31 +63,31 @@
       .journal-row.v1325-final-row .v1325-simple-item img{width:100%!important;height:100%!important;object-fit:contain!important;display:block!important}
       .journal-row.v1325-final-row .v1325-simple-item-empty{font-size:.62rem!important;color:var(--muted)!important}
 
-      /* Title owns the visual center; rating floats in a reserved upper lane.
-         Both begin at exactly the same left edge and can never overlap. */
+      /* Reserve real vertical space for rating + title. This avoids the collision
+         and clipping caused by the previous absolutely-positioned star lane. */
       .journal-row.v1325-final-row .v1325-simple-copy{
         position:relative!important;align-self:stretch!important;display:flex!important;
-        align-items:center!important;justify-content:flex-start!important;
-        min-width:0!important;padding:7px 38px 5px 0!important;box-sizing:border-box!important;
-        text-align:left!important;
+        flex-direction:column!important;justify-content:center!important;align-items:stretch!important;
+        min-width:0!important;padding:7px 38px 6px 0!important;box-sizing:border-box!important;
+        text-align:left!important;overflow:visible!important;
       }
       .journal-row.v1325-final-row .v1325-row-rating{
-        position:absolute!important;left:0!important;right:auto!important;top:13px!important;
-        display:block!important;width:auto!important;max-width:calc(100% - 38px)!important;
-        min-height:17px!important;margin:0!important;padding:0!important;
-        color:#9b7442!important;font-size:.82rem!important;line-height:1!important;
+        position:static!important;display:block!important;flex:0 0 17px!important;
+        width:100%!important;min-width:0!important;height:17px!important;
+        margin:0 0 2px!important;padding:0!important;
+        color:#9b7442!important;font-size:.82rem!important;line-height:17px!important;
         letter-spacing:-.01em!important;white-space:nowrap!important;text-align:left!important;
+        overflow:visible!important;
       }
       .journal-row.v1325-final-row .v1325-simple-title{
-        position:relative!important;display:-webkit-box!important;-webkit-box-orient:vertical!important;
+        position:static!important;display:-webkit-box!important;-webkit-box-orient:vertical!important;
         -webkit-line-clamp:2!important;white-space:normal!important;overflow:hidden!important;
         text-overflow:ellipsis!important;width:100%!important;min-width:0!important;
         margin:0!important;padding:0!important;font-family:var(--serif)!important;
-        font-size:.88rem!important;font-weight:650!important;line-height:1.2!important;color:var(--coffee)!important;
-        text-align:left!important;transform:translateY(4px)!important;
+        font-size:.88rem!important;font-weight:650!important;line-height:1.14!important;color:var(--coffee)!important;
+        text-align:left!important;transform:translateY(-1px)!important;
       }
-      .journal-row.v1325-final-row .v1325-simple-copy:has(.v1325-row-rating) .v1325-simple-title{
-        padding-top:13px!important;
+      .journal-row.v1325-final-row .v1325-simple-copy:not(:has(.v1325-row-rating)) .v1325-simple-title{
         transform:translateY(0)!important;
       }
       .journal-row.v1325-final-row .v1325-simple-title.empty{font-weight:500!important;color:var(--muted)!important;font-style:italic!important}
@@ -100,7 +100,7 @@
       .journal-row.v1325-final-row .v1325-row-favorite.active{background:#f6e5e1!important;border-color:rgba(161,83,82,.28)!important;color:#a15352!important}
 
       @media(max-width:520px){
-        .journal-row.v1325-final-row .v1325-simple-log{grid-template-columns:54px 120px minmax(0,1fr)!important;gap:5px!important;min-height:96px!important;padding:8px!important}
+        .journal-row.v1325-final-row .v1325-simple-log{grid-template-columns:54px 120px minmax(0,1fr)!important;gap:5px!important;min-height:102px!important;padding:8px!important}
         .journal-row.v1325-final-row .v1325-simple-date{width:50px!important;height:66px!important}
         .journal-row.v1325-final-row .v1325-simple-date-month{font-size:.56rem!important}
         .journal-row.v1325-final-row .v1325-simple-date-day{font-size:1.28rem!important}
@@ -108,10 +108,9 @@
         .journal-row.v1325-final-row .v1325-simple-items{width:120px!important;min-height:72px!important;gap:4px!important}
         .journal-row.v1325-final-row .v1325-simple-item{width:58px!important;height:72px!important;flex-basis:58px!important}
         .journal-row.v1325-final-row .v1325-simple-items .v1325-simple-item:nth-child(n+3){display:none!important}
-        .journal-row.v1325-final-row .v1325-simple-copy{padding:7px 34px 5px 0!important}
-        .journal-row.v1325-final-row .v1325-row-rating{top:12px!important;font-size:.77rem!important;min-height:16px!important;max-width:calc(100% - 34px)!important}
-        .journal-row.v1325-final-row .v1325-simple-copy:has(.v1325-row-rating) .v1325-simple-title{padding-top:11px!important}
-        .journal-row.v1325-final-row .v1325-simple-title{font-size:.81rem!important}
+        .journal-row.v1325-final-row .v1325-simple-copy{padding:7px 34px 6px 0!important}
+        .journal-row.v1325-final-row .v1325-row-rating{font-size:.77rem!important;height:16px!important;flex-basis:16px!important;line-height:16px!important;margin-bottom:2px!important}
+        .journal-row.v1325-final-row .v1325-simple-title{font-size:.81rem!important;line-height:1.13!important;transform:translateY(-1px)!important}
       }
     `;
     document.head.appendChild(style);
