@@ -1,14 +1,15 @@
 /* Audrey Closet v13.25 Phase 3 — Journal editor refinements
- * Layout21 targeted presentation overlay.
+ * Layout22 targeted presentation overlay.
  * - hides context chips/details in Wear Log read mode
- * - stacks View Journal directly beneath Edit Journal
+ * - promotes View Journal to a full-width primary action above Remember this day
  * - capitalizes Journal Title
  * - prevents iPhone form-field auto zoom in About the Day
+ * - adds edit-mode bottom scroll room so Save Journal can clear the footer menu
  */
 (function(){
   'use strict';
 
-  const VERSION='1.0';
+  const VERSION='1.1';
   const STYLE_ID='v1325JournalEditorRefinementStyles';
   let syncing=false;
 
@@ -17,37 +18,42 @@
     const style=document.createElement('style');
     style.id=STYLE_ID;
     style.textContent=`
-      /* Read mode should be simple: heading/title, Journal View action, then entry. */
+      /* Read mode should be simple: View Journal, heading/title, then entry. */
       #journalDetailDialog .v1325-journal-sheet:not(.editing) .v1325-about-day-panel,
       #journalDetailDialog .v1325-journal-sheet:not(.editing) .v1325-journal-context-chips,
       #journalDetailDialog .v1325-journal-sheet:not(.editing) .v1325-journal-context-grid{
         display:none!important;
       }
 
-      /* Edit + View form one compact action stack at the upper-right of the Journal section. */
-      #journalDetailDialog .v1325-journal-heading-actions{
-        flex:0 0 auto;
-        display:flex;
-        flex-direction:column;
-        align-items:stretch;
-        gap:5px;
-        margin-left:auto;
-      }
-      #journalDetailDialog .v1325-journal-heading-actions .v1325-journal-edit-toggle{
-        margin:0!important;
-        min-width:96px!important;
-      }
-      #journalDetailDialog .v1325-journal-heading-actions #v1325JournalViewBtn{
+      /* View Journal is the primary read-mode action and spans the Journal width. */
+      #journalDetailDialog .v1325-journal-primary-view{
         width:100%!important;
-        min-width:96px!important;
-        min-height:31px!important;
-        padding:5px 9px!important;
-        border-radius:9px!important;
-        font-size:.68rem!important;
-        box-shadow:0 2px 8px rgba(68,53,40,.11)!important;
+        margin:0 0 9px!important;
       }
-      #journalDetailDialog .v1325-journal-feature-row{display:none!important}
-      #journalDetailDialog .v1325-journal-sheet.editing .v1325-journal-heading-actions #v1325JournalViewBtn{
+      #journalDetailDialog .v1325-journal-primary-view #v1325JournalViewBtn{
+        width:100%!important;
+        min-width:0!important;
+        min-height:42px!important;
+        padding:9px 14px!important;
+        border-radius:11px!important;
+        display:flex!important;
+        align-items:center!important;
+        justify-content:center!important;
+        gap:7px!important;
+        font-size:.76rem!important;
+        font-weight:800!important;
+        box-shadow:0 4px 12px rgba(68,53,40,.14)!important;
+      }
+
+      /* Remember this day keeps only its contextual edit control. */
+      #journalDetailDialog .v1325-journal-context-title .v1325-journal-edit-toggle{
+        margin-left:auto!important;
+      }
+      #journalDetailDialog .v1325-journal-feature-row,
+      #journalDetailDialog .v1325-journal-heading-actions{
+        display:none!important;
+      }
+      #journalDetailDialog .v1325-journal-sheet.editing .v1325-journal-primary-view{
         display:none!important;
       }
 
@@ -57,23 +63,37 @@
         font-size:16px!important;
       }
 
+      /* Give edit mode enough trailing space to scroll Save Journal above the fixed/footer actions. */
+      #journalDetailDialog .v1325-journal-sheet.editing .v1325-journal-write{
+        padding-bottom:92px!important;
+      }
+      #journalDetailDialog .v1325-journal-sheet.editing .v1325-journal-save-row{
+        margin-bottom:8px!important;
+        scroll-margin-bottom:96px!important;
+      }
+      #journalDetailDialog .journal-detail-scroll{
+        scroll-padding-bottom:110px!important;
+      }
+
       @media(max-width:520px){
         #journalDetailDialog .v1325-journal-context-title{
-          align-items:flex-start!important;
+          align-items:center!important;
         }
-        #journalDetailDialog .v1325-journal-heading-actions{
-          gap:4px;
-        }
-        #journalDetailDialog .v1325-journal-heading-actions .v1325-journal-edit-toggle,
-        #journalDetailDialog .v1325-journal-heading-actions #v1325JournalViewBtn{
-          min-width:104px!important;
-          font-size:.66rem!important;
+        #journalDetailDialog .v1325-journal-primary-view #v1325JournalViewBtn{
+          min-height:44px!important;
+          font-size:.74rem!important;
         }
         /* 16px prevents Safari from zooming the page when these controls receive focus. */
         #journalDetailDialog .v1325-journal-sheet.editing .v1325-about-day-body input,
         #journalDetailDialog .v1325-journal-sheet.editing .v1325-about-day-body select{
           font-size:16px!important;
           line-height:1.2!important;
+        }
+        #journalDetailDialog .v1325-journal-sheet.editing .v1325-journal-write{
+          padding-bottom:118px!important;
+        }
+        #journalDetailDialog .journal-detail-scroll{
+          scroll-padding-bottom:132px!important;
         }
       }
     `;
@@ -85,21 +105,34 @@
     if(label)label.textContent='Journal Title';
   }
 
-  function stackJournalActions(dialog,sheet){
-    const title=sheet?.querySelector('.v1325-journal-context-title');
+  function placePrimaryView(dialog,sheet){
+    const head=sheet?.querySelector('.v1325-journal-context-head');
+    const contextTitle=head?.querySelector('.v1325-journal-context-title');
     const edit=dialog?.querySelector('#v1325JournalEditToggle');
     const view=dialog?.querySelector('#v1325JournalViewBtn');
-    if(!title||!edit)return;
+    if(!head||!contextTitle)return;
 
-    let actions=title.querySelector('.v1325-journal-heading-actions');
-    if(!actions){
-      actions=document.createElement('div');
-      actions.className='v1325-journal-heading-actions';
-      title.appendChild(actions);
+    if(edit&&edit.parentNode!==contextTitle)contextTitle.appendChild(edit);
+
+    let primary=head.querySelector('.v1325-journal-primary-view');
+    if(!primary){
+      primary=document.createElement('div');
+      primary.className='v1325-journal-primary-view';
+      head.insertBefore(primary,contextTitle);
+    }else if(primary.nextElementSibling!==contextTitle){
+      head.insertBefore(primary,contextTitle);
     }
-    if(edit.parentNode!==actions)actions.appendChild(edit);
-    if(view&&view.parentNode!==actions)actions.appendChild(view);
+    if(view&&view.parentNode!==primary)primary.appendChild(view);
 
+    dialog.querySelectorAll('.v1325-journal-heading-actions').forEach(node=>{
+      while(node.firstChild){
+        const child=node.firstChild;
+        if(child===edit)contextTitle.appendChild(child);
+        else if(child===view)primary.appendChild(child);
+        else node.removeChild(child);
+      }
+      node.remove();
+    });
     dialog.querySelectorAll('.v1325-journal-feature-row').forEach(row=>{
       if(!row.children.length)row.remove();
     });
@@ -113,7 +146,7 @@
       const sheet=dialog?.querySelector('.v1325-journal-sheet');
       if(!dialog||!sheet)return;
       capitalizeTitleLabel(sheet);
-      stackJournalActions(dialog,sheet);
+      placePrimaryView(dialog,sheet);
     }finally{syncing=false;}
   }
 
