@@ -1,17 +1,16 @@
 /* Audrey Closet v13.25 Phase 3 — Journal View refinements
- * Layout33 presentation/interaction overlay.
+ * Layout34 presentation/interaction overlay.
  * - moves the reader close control into the upper-right page corner
  * - gives the close control the same tan/brown visual family as Wear Log
  * - adds a typewriter-style Journal title above photos/writing
- * - adds a contained horizontal photo viewer that hides reader actions
- * - locks reader/background vertical scrolling while photo viewer is open
+ * - hardens the existing swipeable photo viewer into a photo-only surface
+ * - hides reader actions and locks all vertical/background scrolling while photos are open
  */
 (function(){
   'use strict';
 
-  const VERSION='1.0';
+  const VERSION='1.1';
   const STYLE_ID='v1325JournalReaderRefinementStyles';
-  const LIGHTBOX_CLASS='v1325-photo-lightbox-open';
   let syncing=false;
 
   function currentEntry(){
@@ -71,98 +70,40 @@
         border-bottom:1px dashed rgba(112,91,69,.28);
       }
 
-      /* Journal photos are clearly tappable without changing their scrapbook styling. */
       #v1325JournalReaderDialog .v1325-crafted-photos .v1325-reader-photos img{
         cursor:zoom-in;
         -webkit-tap-highlight-color:transparent;
       }
 
-      /* Full reader-contained photo viewer. It covers the page/actions completely. */
-      #v1325JournalReaderDialog .v1325-reader-photo-lightbox{
-        position:absolute;
-        inset:0;
-        z-index:120;
-        display:flex;
-        flex-direction:column;
-        overflow:hidden;
-        background:rgba(42,35,29,.96);
-        color:#fff;
-      }
-      #v1325JournalReaderDialog .v1325-reader-photo-lightbox[hidden]{display:none!important}
-      #v1325JournalReaderDialog .v1325-reader-photo-close{
-        position:absolute;
-        top:14px;
-        right:14px;
-        z-index:3;
-        width:40px;
-        height:40px;
-        min-width:40px;
-        padding:0;
-        border:1px solid rgba(235,223,202,.42);
-        border-radius:50%;
-        background:#eadfc9;
-        color:#6f5d48;
-        font-size:25px;
-        line-height:36px;
-        box-shadow:0 4px 16px rgba(0,0,0,.22);
-      }
-      #v1325JournalReaderDialog .v1325-reader-photo-track{
-        flex:1 1 auto;
-        width:100%;
-        height:100%;
-        display:flex;
-        overflow-x:auto;
-        overflow-y:hidden;
-        scroll-snap-type:x mandatory;
-        overscroll-behavior-x:contain;
-        overscroll-behavior-y:none;
-        -webkit-overflow-scrolling:touch;
-        scrollbar-width:none;
-        touch-action:pan-x;
-      }
-      #v1325JournalReaderDialog .v1325-reader-photo-track::-webkit-scrollbar{display:none}
-      #v1325JournalReaderDialog .v1325-reader-photo-slide{
-        flex:0 0 100%;
-        width:100%;
-        height:100%;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        padding:62px 18px 34px;
-        box-sizing:border-box;
-        scroll-snap-align:center;
-        scroll-snap-stop:always;
-      }
-      #v1325JournalReaderDialog .v1325-reader-photo-slide img{
-        display:block;
-        max-width:100%;
-        max-height:100%;
-        width:auto;
-        height:auto;
-        object-fit:contain;
-        border-radius:6px;
-        box-shadow:0 12px 36px rgba(0,0,0,.34);
-      }
-      #v1325JournalReaderDialog .v1325-reader-photo-count{
-        position:absolute;
-        left:50%;
-        bottom:max(13px,env(safe-area-inset-bottom));
-        transform:translateX(-50%);
-        z-index:3;
-        padding:5px 9px;
-        border-radius:999px;
-        background:rgba(0,0,0,.38);
-        font-size:.69rem;
-        letter-spacing:.03em;
-      }
-
-      /* When photo detail is open, nothing behind it can scroll or remain actionable. */
-      #v1325JournalReaderDialog.${LIGHTBOX_CLASS} .v1325-reader-scroll{
+      /* The functional-fixes layer owns the actual photo carousel. Harden that
+         existing viewer instead of stacking a second viewer on top of it. */
+      #v1325JournalReaderDialog #v1325JournalPhotoLightbox{
+        z-index:180!important;
+        inset:0!important;
         overflow:hidden!important;
+        overscroll-behavior:none!important;
         touch-action:none!important;
       }
-      #v1325JournalReaderDialog.${LIGHTBOX_CLASS}>.v1325-reader-actions{
+      #v1325JournalReaderDialog #v1325JournalPhotoLightbox.open{
+        display:flex!important;
+      }
+      #v1325JournalReaderDialog:has(#v1325JournalPhotoLightbox.open){
+        overflow:hidden!important;
+        overscroll-behavior:none!important;
+      }
+      #v1325JournalReaderDialog:has(#v1325JournalPhotoLightbox.open) .v1325-reader-scroll{
+        overflow:hidden!important;
+        overscroll-behavior:none!important;
+        touch-action:none!important;
+      }
+      #v1325JournalReaderDialog:has(#v1325JournalPhotoLightbox.open) > .v1325-reader-actions{
         display:none!important;
+      }
+      #v1325JournalReaderDialog:has(#v1325JournalPhotoLightbox.open) .v1325-reader-page{
+        pointer-events:none!important;
+      }
+      #v1325JournalReaderDialog:has(#v1325JournalPhotoLightbox.open) #v1325JournalPhotoLightbox{
+        pointer-events:auto!important;
       }
 
       @media(max-width:560px){
@@ -183,7 +124,6 @@
           padding:4px 7px 6px;
           font-size:1rem;
         }
-        #v1325JournalReaderDialog .v1325-reader-photo-slide{padding:58px 10px 30px}
       }
     `;
     document.head.appendChild(style);
@@ -211,63 +151,19 @@
     title.textContent=text;
   }
 
-  function ensureLightbox(reader){
-    let box=reader?.querySelector('.v1325-reader-photo-lightbox');
-    if(box)return box;
-    box=document.createElement('div');
-    box.className='v1325-reader-photo-lightbox';
-    box.hidden=true;
-    box.innerHTML='<button type="button" class="v1325-reader-photo-close" aria-label="Close photos">×</button><div class="v1325-reader-photo-track"></div><div class="v1325-reader-photo-count" aria-live="polite"></div>';
-    reader.appendChild(box);
-    box.querySelector('.v1325-reader-photo-close').addEventListener('click',()=>closeLightbox(reader));
-    return box;
-  }
-
-  function updatePhotoCount(box){
-    const track=box?.querySelector('.v1325-reader-photo-track');
-    const count=box?.querySelector('.v1325-reader-photo-count');
-    if(!track||!count)return;
-    const total=track.children.length;
-    const index=total?Math.max(0,Math.min(total-1,Math.round(track.scrollLeft/Math.max(1,track.clientWidth)))):0;
-    count.textContent=total>1?`${index+1} / ${total}`:'';
-  }
-
-  function openLightbox(reader,index){
-    const entry=currentEntry();
-    const photos=Array.isArray(entry?.journalPhotos)?entry.journalPhotos.filter(Boolean):[];
-    if(!reader||!photos.length)return;
-    const box=ensureLightbox(reader),track=box.querySelector('.v1325-reader-photo-track');
-    track.innerHTML=photos.map((src,i)=>`<div class="v1325-reader-photo-slide"><img src="${src}" alt="Journal photo ${i+1}"></div>`).join('');
-    box.hidden=false;
-    reader.classList.add(LIGHTBOX_CLASS);
-    track.onscroll=()=>updatePhotoCount(box);
-    requestAnimationFrame(()=>{
-      track.scrollLeft=Math.max(0,index)*track.clientWidth;
-      updatePhotoCount(box);
-      box.querySelector('.v1325-reader-photo-close')?.focus({preventScroll:true});
-    });
-  }
-
-  function closeLightbox(reader){
-    const box=reader?.querySelector('.v1325-reader-photo-lightbox');
-    if(!box)return;
-    box.hidden=true;
-    reader.classList.remove(LIGHTBOX_CLASS);
-    const track=box.querySelector('.v1325-reader-photo-track');if(track){track.onscroll=null;track.innerHTML='';}
-  }
-
-  function bindPhotos(reader,page){
-    const photos=[...page.querySelectorAll('.v1325-crafted-photos .v1325-reader-photos img')];
-    photos.forEach((img,index)=>{
-      if(img.dataset.v1325PhotoViewerBound==='1')return;
-      img.dataset.v1325PhotoViewerBound='1';
-      img.setAttribute('role','button');
-      img.setAttribute('tabindex','0');
-      img.setAttribute('aria-label',`View journal photo ${index+1}`);
-      const open=()=>openLightbox(reader,index);
-      img.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();open();});
-      img.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();open();}});
-    });
+  function lockLegacyPhotoViewer(reader){
+    const box=reader?.querySelector('#v1325JournalPhotoLightbox');
+    if(!reader||!box)return;
+    const open=box.classList.contains('open');
+    reader.classList.toggle('v1325-photo-only-mode',open);
+    const scroll=reader.querySelector('.v1325-reader-scroll');
+    if(open){
+      if(scroll&&!scroll.dataset.v1325LockedTop)scroll.dataset.v1325LockedTop=String(scroll.scrollTop||0);
+      if(scroll)scroll.scrollTop=Number(scroll.dataset.v1325LockedTop||0);
+    }else if(scroll?.dataset.v1325LockedTop){
+      scroll.scrollTop=Number(scroll.dataset.v1325LockedTop||0);
+      delete scroll.dataset.v1325LockedTop;
+    }
   }
 
   function sync(){
@@ -279,7 +175,7 @@
       if(!reader||!page)return;
       moveCloseToPage(reader,page);
       ensureTitle(page);
-      bindPhotos(reader,page);
+      lockLegacyPhotoViewer(reader);
     }finally{syncing=false;}
   }
 
@@ -297,12 +193,23 @@
     api.__readerRefinementsWrapped=true;
   }
 
+  /* Functional fixes intercept photo clicks in capture phase and open the legacy
+     lightbox. Sync immediately after those clicks/close actions so the reader's
+     scroll state and footer are locked to the lightbox's real open state. */
   document.addEventListener('click',event=>{
-    if(event.target.closest?.('#v1325JournalViewBtn')){
-      requestAnimationFrame(sync);setTimeout(sync,40);setTimeout(sync,130);
+    if(event.target.closest?.('#v1325JournalViewBtn,#v1325JournalReaderDialog .v1325-reader-photos img,#v1325JournalPhotoLightbox .v1325-lightbox-close,#v1325JournalPhotoLightbox')){
+      requestAnimationFrame(sync);
+      setTimeout(sync,20);
+      setTimeout(sync,80);
     }
   },true);
 
+  document.addEventListener('touchmove',event=>{
+    const reader=document.querySelector('#v1325JournalReaderDialog');
+    const box=reader?.querySelector('#v1325JournalPhotoLightbox.open');
+    if(box&&event.target.closest?.('#v1325JournalPhotoLightbox'))event.preventDefault();
+  },{capture:true,passive:false});
+
   installStyles();wrapReader();requestAnimationFrame(sync);setTimeout(sync,150);
-  window.AudreyJournalReaderRefinements={version:VERSION,refresh:sync,closePhotos:()=>closeLightbox(document.querySelector('#v1325JournalReaderDialog'))};
+  window.AudreyJournalReaderRefinements={version:VERSION,refresh:sync};
 })();
