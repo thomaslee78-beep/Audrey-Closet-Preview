@@ -1,17 +1,17 @@
 /* Audrey Closet v13.25 Phase 3 — Wear Log interaction fixes
- * Layout24 targeted fixes layered after wear-log-layout2.
+ * Layout27 targeted fixes layered after wear-log-layout2.
  * - single centered Chapter/Era/Color classifier row
  * - centered color palette popover
  * - edit-state locks for View Journal + bottom actions
  * - Save Journal exits editing after confirmed save
  * - Journal View X returns to the existing Wear Log DOM without rerender flicker
- * - Journal browse rows are refreshed after detail closes
+ * - Journal browse rows are rebuilt in the correct order after detail closes
  * - duplicate Edit Journal controls are removed
  */
 (function(){
   'use strict';
 
-  const VERSION='1.1';
+  const VERSION='1.2';
   const STYLE_ID='v1325WearLogInteractionFixStyles';
   let syncing=false;
 
@@ -69,11 +69,20 @@
 
   function syncEditState(d=dialog()){if(!d)return;const editing=isEditing(d);dedupeEditControls(d);lockFooter(d,editing);}
 
-  function refreshBrowseRows(){
+  /* Row composition has a strict dependency order. TitleLog recreates the compact
+     row DOM, DetailToolbar adds the rating/favorite controls, then RowPolish2
+     relocates/alines those controls. Previously we ran TitleLog followed only by
+     RowPolish2, so closing Wear Log erased the stars/heart until a full reload. */
+  function rebuildBrowseRows(){
     try{window.AudreyJournalTitleLog?.refresh?.();}catch{}
-    requestAnimationFrame(()=>window.AudreyJournalRowPolish2?.refresh?.());
-    setTimeout(()=>window.AudreyJournalRowPolish2?.refresh?.(),40);
-    setTimeout(()=>window.AudreyJournalRowPolish2?.refresh?.(),120);
+    try{window.AudreyJournalDetailToolbar?.refresh?.();}catch{}
+    try{window.AudreyJournalRowPolish2?.refresh?.();}catch{}
+    try{window.AudreyJournalLayoutHardening?.refresh?.();}catch{}
+  }
+
+  function refreshBrowseRows(){
+    rebuildBrowseRows();
+    requestAnimationFrame(rebuildBrowseRows);
   }
 
   function waitForSaveThenExit(d){
@@ -97,9 +106,6 @@
     try{if(reader?.open)reader.close();}catch{}
     if(!id||!state.journal.some(j=>String(j.id)===id))return;
 
-    /* openReader closes Wear Log but does not destroy its DOM. Re-show that same
-       dialog instead of calling openJournalDetail(), which rebuilt the entire
-       screen and caused the visible flash/reflow on iPhone. */
     viewingJournalId=id;
     const d=dialog();
     if(d&&!d.open){
@@ -116,7 +122,6 @@
       }catch(err){console.warn('[v13.25] fast Wear Log return unavailable; falling back',err);}
     }
 
-    /* Defensive fallback only if the preserved dialog cannot be resumed. */
     if(typeof openJournalDetail==='function')openJournalDetail(id);
   }
 
@@ -142,5 +147,5 @@
   }
 
   installStyles();requestAnimationFrame(syncAll);setTimeout(syncAll,120);
-  window.AudreyWearLogInteractionFixes={version:VERSION,refresh:syncAll};
+  window.AudreyWearLogInteractionFixes={version:VERSION,refresh:syncAll,refreshBrowse:refreshBrowseRows};
 })();
