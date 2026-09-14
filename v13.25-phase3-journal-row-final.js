@@ -1,18 +1,18 @@
 /* Audrey Closet v13.25 Phase 3 — Final Journal row renderer
- * Layout36 consolidates the nearly-final Journal browse row into one owner.
+ * Layout37 consolidates the nearly-final Journal browse row into one owner.
  * Initial load and return-from-Wear-Log use identical DOM/layout.
- * Ratings stay left-aligned above titles with guaranteed non-overlapping space.
+ * Ratings stay firmly left-aligned near the top edge with titles below.
  * Limited thumbnail rows prioritize distinct clothing categories in outfit order.
  */
 (function(){
   'use strict';
 
-  const VERSION='1.5';
+  const VERSION='1.6';
   const STYLE_ID='v1325JournalRowFinalStyles';
   const NEUTRAL_ACCENT='#9f9484';
   const CATEGORY_ORDER=['tops','bottoms','dresses','outerwear','shoes','accessories','misc'];
 
-  function esc(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));}
+  function esc(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#039;'}[ch]));}
   function entryById(id){return state.journal.find(j=>String(j.id)===String(id||''))||null;}
   function validColor(value){return /^#[0-9a-f]{6}$/i.test(String(value||''));}
   function ratingValue(entry){const n=Number(entry?.rating||0);return Number.isFinite(n)?Math.max(0,Math.min(5,Math.round(n))):0;}
@@ -61,13 +61,7 @@
     style.textContent=`
       .journal-row.v1325-final-row{padding:0!important;overflow:hidden!important;border-left:0!important}
       .journal-row.v1325-final-row>*:not(.v1325-simple-log){display:none!important}
-      .journal-row.v1325-final-row .v1325-simple-log{
-        position:relative!important;display:grid!important;
-        grid-template-columns:61px minmax(184px,auto) minmax(0,1fr)!important;
-        gap:10px!important;align-items:center!important;width:100%!important;
-        min-height:104px!important;padding:9px 10px!important;box-sizing:border-box!important;
-        overflow:hidden!important;text-align:left!important;cursor:pointer!important;
-      }
+      .journal-row.v1325-final-row .v1325-simple-log{position:relative!important;display:grid!important;grid-template-columns:61px minmax(184px,auto) minmax(0,1fr)!important;gap:10px!important;align-items:center!important;width:100%!important;min-height:104px!important;padding:9px 10px!important;box-sizing:border-box!important;overflow:hidden!important;text-align:left!important;cursor:pointer!important}
       .journal-row.v1325-final-row .v1325-simple-log:before{content:'';position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--journal-day-accent,${NEUTRAL_ACCENT});border-radius:10px 0 0 10px;z-index:2;pointer-events:none}
       .journal-row.v1325-final-row .v1325-simple-date{width:56px!important;height:72px!important;align-self:center!important;display:flex!important;flex-direction:column!important;justify-content:center!important;border:1px solid rgba(108,81,66,.15)!important;border-radius:11px!important;overflow:hidden!important;background:rgba(255,253,248,.9)!important;text-align:center!important;box-shadow:0 2px 8px rgba(61,48,39,.05)!important}
       .journal-row.v1325-final-row .v1325-simple-date-month{display:block!important;padding:3px 2px 2px!important;background:rgba(102,113,90,.10)!important;font-size:.59rem!important;font-weight:750!important;letter-spacing:.08em!important;text-transform:uppercase!important;color:var(--olive-dark)!important}
@@ -78,10 +72,12 @@
       .journal-row.v1325-final-row .v1325-simple-item img{width:100%!important;height:100%!important;object-fit:contain!important;display:block!important}
       .journal-row.v1325-final-row .v1325-simple-item-empty{font-size:.62rem!important;color:var(--muted)!important}
 
-      .journal-row.v1325-final-row .v1325-simple-copy{position:relative!important;align-self:stretch!important;display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:stretch!important;min-width:0!important;padding:7px 6px 6px 0!important;box-sizing:border-box!important;text-align:left!important;overflow:visible!important}
-      .journal-row.v1325-final-row .v1325-row-rating{position:static!important;display:block!important;flex:0 0 17px!important;width:calc(100% - 34px)!important;min-width:0!important;height:17px!important;margin:0 0 2px!important;padding:0!important;color:#9b7442!important;font-size:.82rem!important;line-height:17px!important;letter-spacing:-.01em!important;white-space:nowrap!important;text-align:left!important;overflow:visible!important}
-      .journal-row.v1325-final-row .v1325-simple-title{position:static!important;display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:2!important;white-space:normal!important;overflow:hidden!important;text-overflow:ellipsis!important;width:100%!important;min-width:0!important;margin:0!important;padding:0 2px 0 0!important;font-family:var(--serif)!important;font-size:.88rem!important;font-weight:650!important;line-height:1.14!important;color:var(--coffee)!important;text-align:left!important;transform:translateY(-1px)!important}
-      .journal-row.v1325-final-row .v1325-simple-copy:not(:has(.v1325-row-rating)) .v1325-simple-title{transform:translateY(0)!important}
+      /* Keep the star lane visually anchored near the top-left of the text area.
+         The title retains its wider wrap area below and cannot collide with it. */
+      .journal-row.v1325-final-row .v1325-simple-copy{position:relative!important;align-self:stretch!important;display:flex!important;flex-direction:column!important;justify-content:flex-start!important;align-items:flex-start!important;min-width:0!important;padding:4px 6px 6px 0!important;box-sizing:border-box!important;text-align:left!important;overflow:visible!important}
+      .journal-row.v1325-final-row .v1325-row-rating{position:static!important;display:block!important;align-self:flex-start!important;flex:0 0 17px!important;width:auto!important;max-width:calc(100% - 34px)!important;min-width:0!important;height:17px!important;margin:0 0 5px!important;padding:0!important;color:#9b7442!important;font-size:.82rem!important;line-height:17px!important;letter-spacing:-.01em!important;white-space:nowrap!important;text-align:left!important;overflow:visible!important}
+      .journal-row.v1325-final-row .v1325-simple-title{position:static!important;display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:2!important;white-space:normal!important;overflow:hidden!important;text-overflow:ellipsis!important;width:100%!important;min-width:0!important;margin:0!important;padding:0 2px 0 0!important;font-family:var(--serif)!important;font-size:.88rem!important;font-weight:650!important;line-height:1.14!important;color:var(--coffee)!important;text-align:left!important;transform:none!important}
+      .journal-row.v1325-final-row .v1325-simple-copy:not(:has(.v1325-row-rating)){justify-content:center!important}
       .journal-row.v1325-final-row .v1325-simple-title.empty{font-weight:500!important;color:var(--muted)!important;font-style:italic!important}
       .journal-row.v1325-final-row .v1325-row-favorite{position:absolute!important;right:7px!important;top:7px!important;width:30px!important;height:30px!important;padding:0!important;border:1px solid rgba(108,81,66,.18)!important;border-radius:50%!important;background:rgba(255,253,248,.94)!important;color:#95605e!important;font-size:1rem!important;line-height:28px!important;text-align:center!important;box-shadow:0 2px 7px rgba(61,48,39,.07)!important;z-index:3!important}
       .journal-row.v1325-final-row .v1325-row-favorite.active{background:#f6e5e1!important;border-color:rgba(161,83,82,.28)!important;color:#a15352!important}
@@ -95,9 +91,9 @@
         .journal-row.v1325-final-row .v1325-simple-items{width:120px!important;min-height:72px!important;gap:4px!important}
         .journal-row.v1325-final-row .v1325-simple-item{width:58px!important;height:72px!important;flex-basis:58px!important}
         .journal-row.v1325-final-row .v1325-simple-items .v1325-simple-item:nth-child(n+3){display:none!important}
-        .journal-row.v1325-final-row .v1325-simple-copy{padding:7px 4px 6px 0!important}
-        .journal-row.v1325-final-row .v1325-row-rating{font-size:.77rem!important;height:16px!important;flex-basis:16px!important;line-height:16px!important;margin-bottom:2px!important;width:calc(100% - 32px)!important}
-        .journal-row.v1325-final-row .v1325-simple-title{font-size:.81rem!important;line-height:1.13!important;transform:translateY(-1px)!important;padding-right:1px!important}
+        .journal-row.v1325-final-row .v1325-simple-copy{padding:3px 4px 6px 0!important}
+        .journal-row.v1325-final-row .v1325-row-rating{align-self:flex-start!important;font-size:.77rem!important;height:16px!important;flex-basis:16px!important;line-height:16px!important;margin:0 0 4px!important;width:auto!important;max-width:calc(100% - 32px)!important;text-align:left!important}
+        .journal-row.v1325-final-row .v1325-simple-title{font-size:.81rem!important;line-height:1.13!important;transform:none!important;padding-right:1px!important}
       }
     `;
     document.head.appendChild(style);
