@@ -46,6 +46,7 @@ jobs:
           test -f preview/index.html
           test -f preview/app.js
           test -f preview/v13.25-phase3-era-foundation.js
+          test -f preview/v13.25-phase3-era-immediate-refresh-fix.js
           test -f preview/v13.25-phase3-wear-log-layout2.js
           test -f preview/v13.25-phase3-wear-log-detail-polish.js
           test -f preview/v13.25-phase3-wear-log-interaction-fixes.js
@@ -58,10 +59,12 @@ jobs:
           test -f preview/v13.25-phase3-journal-reader-refinements.js
           test -f preview/photo-studio-reopen-snapshot-hotfix-v13.24.js
           test -f preview/photo-studio-state-integrity-hotfix-v13.24.js
-          grep -q 'audrey-preview-build" content="v13.25-phase3-dev3-layout40' preview/index.html
-          grep -q 'v13.25-phase3-journal-row-final.js?v=phase3-dev3-layout40' preview/index.html
-          grep -q 'v13.25-phase3-journal-row-spacing-final.js?v=phase3-dev3-layout40' preview/index.html
-          grep -q 'v13.25-phase3-journal-reader-refinements.js?v=phase3-dev3-layout40' preview/index.html
+          grep -q 'audrey-preview-build" content="v13.25-phase3-dev3-layout41' preview/index.html
+          grep -q 'v13.25-phase3-era-foundation.js?v=phase3-dev3-layout41' preview/index.html
+          grep -q 'v13.25-phase3-era-immediate-refresh-fix.js?v=phase3-dev3-layout41' preview/index.html
+          grep -q 'v13.25-phase3-journal-row-final.js?v=phase3-dev3-layout41' preview/index.html
+          grep -q 'v13.25-phase3-journal-row-spacing-final.js?v=phase3-dev3-layout41' preview/index.html
+          grep -q 'v13.25-phase3-journal-reader-refinements.js?v=phase3-dev3-layout41' preview/index.html
 
       - name: Publish preview repository
         shell: bash
@@ -74,7 +77,7 @@ jobs:
           if git diff --cached --quiet; then
             echo 'Preview repository already current.'
           else
-            git commit -m 'Deploy v13.25 Phase 3 centered Journal titles layout40'
+            git commit -m 'Deploy v13.25 Phase 3 Era immediate refresh layout41'
             git push origin HEAD:main
           fi
 
