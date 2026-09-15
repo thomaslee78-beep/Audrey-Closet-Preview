@@ -11,7 +11,7 @@ if count != 1:
     raise SystemExit('Journal detail footer not found')
 
 style = '''  <style id="v1325PreviewJournalFooterStyles">\n    #journalDetailDialog .journal-detail-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);grid-template-areas:"edit board" "cancel delete";gap:10px 12px;align-items:center}\n    #journalDetailDialog #editJournalDetailBtn{grid-area:edit;width:100%;min-width:0}\n    #journalDetailDialog .journal-open-board-btn{grid-area:board;width:100%;min-width:0;white-space:nowrap}\n    #journalDetailDialog #cancelJournalDetailBtn{grid-area:cancel;width:100%;min-width:0}\n    #journalDetailDialog #deleteJournalDetailBtn{grid-area:delete;width:100%;min-width:0;justify-self:stretch;text-align:center}\n  </style>\n'''
-text = text.replace('</head>', style + '  <meta name="audrey-preview-build" content="v13.25-phase3-dev3-layout44">\n</head>', 1)
+text = text.replace('</head>', style + '  <meta name="audrey-preview-build" content="v13.25-phase3-dev3-layout45">\n</head>', 1)
 
 swpat = re.compile(r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*', re.S)
 text, n = swpat.subn('\n', text, count=1)
@@ -26,11 +26,11 @@ names=[
 for name in names:
     text = re.sub(r'\s*<script src="\./' + re.escape(name) + r'(?:\?[^\"]*)?"></script>\s*', '\n', text)
 
-markers='\n'.join('  <script src="./'+name+'?v=phase3-dev3-layout44"></script>' for name in names)
+markers='\n'.join('  <script src="./'+name+'?v=phase3-dev3-layout45"></script>' for name in names)
 text = text.replace('</body>', cleanup + markers + '\n</body>', 1)
 path.write_text(text, encoding='utf-8')
 
-checks=['Add to Outfit Board','audrey-preview-build" content="v13.25-phase3-dev3-layout44','sticker-studio-v13.22-release.js?v=phase3-dev3-layout44','sticker-render-compat-v13.23.1.js?v=phase3-dev3-layout44','v13.25-phase3-era-foundation.js?v=phase3-dev3-layout44','v13.25-phase3-era-immediate-refresh-fix.js?v=phase3-dev3-layout44','v13.25-phase3-journal-creative-page-v1.js?v=phase3-dev3-layout44','v13.25-phase3-journal-creative-page-refinements.js?v=phase3-dev3-layout44','v13.25-phase3-journal-row-final.js?v=phase3-dev3-layout44','v13.25-phase3-journal-row-spacing-final.js?v=phase3-dev3-layout44','v13.25-phase3-journal-reader-refinements.js?v=phase3-dev3-layout44','photo-studio-reopen-snapshot-hotfix-v13.24.js?v=phase3-dev3-layout44','photo-studio-state-integrity-hotfix-v13.24.js?v=phase3-dev3-layout44']
+checks=['Add to Outfit Board','audrey-preview-build" content="v13.25-phase3-dev3-layout45','sticker-studio-v13.22-release.js?v=phase3-dev3-layout45','sticker-render-compat-v13.23.1.js?v=phase3-dev3-layout45','v13.25-phase3-era-foundation.js?v=phase3-dev3-layout45','v13.25-phase3-era-immediate-refresh-fix.js?v=phase3-dev3-layout45','v13.25-phase3-journal-creative-page-v1.js?v=phase3-dev3-layout45','v13.25-phase3-journal-creative-page-refinements.js?v=phase3-dev3-layout45','v13.25-phase3-journal-row-final.js?v=phase3-dev3-layout45','v13.25-phase3-journal-row-spacing-final.js?v=phase3-dev3-layout45','v13.25-phase3-journal-reader-refinements.js?v=phase3-dev3-layout45','photo-studio-reopen-snapshot-hotfix-v13.24.js?v=phase3-dev3-layout45','photo-studio-state-integrity-hotfix-v13.24.js?v=phase3-dev3-layout45']
 for token in checks:
     if token not in text:
         raise SystemExit(f'Missing expected preview token: {token}')
