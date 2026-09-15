@@ -52,6 +52,7 @@ jobs:
           test -f preview/v13.25-phase3-journal-creative-page-v1.js
           test -f preview/v13.25-phase3-journal-creative-page-refinements.js
           test -f preview/v13.25-phase3-journal-sticker-interaction-polish.js
+          test -f preview/v13.25-phase3-journal-sticker-surface-v2.js
           test -f preview/v13.25-phase3-wear-log-layout2.js
           test -f preview/v13.25-phase3-wear-log-detail-polish.js
           test -f preview/v13.25-phase3-wear-log-interaction-fixes.js
@@ -64,11 +65,12 @@ jobs:
           test -f preview/v13.25-phase3-journal-reader-refinements.js
           test -f preview/photo-studio-reopen-snapshot-hotfix-v13.24.js
           test -f preview/photo-studio-state-integrity-hotfix-v13.24.js
-          grep -q 'audrey-preview-build" content="v13.25-phase3-dev3-layout47' preview/index.html
-          grep -q 'v13.25-phase3-journal-creative-page-refinements.js?v=phase3-dev3-layout47' preview/index.html
-          grep -q 'v13.25-phase3-journal-sticker-interaction-polish.js?v=phase3-dev3-layout47' preview/index.html
-          grep -q 'v13.25-phase3-journal-row-final.js?v=phase3-dev3-layout47' preview/index.html
-          grep -q 'v13.25-phase3-journal-reader-refinements.js?v=phase3-dev3-layout47' preview/index.html
+          grep -q 'audrey-preview-build" content="v13.25-phase3-dev3-layout48' preview/index.html
+          grep -q 'v13.25-phase3-journal-creative-page-refinements.js?v=phase3-dev3-layout48' preview/index.html
+          grep -q 'v13.25-phase3-journal-sticker-interaction-polish.js?v=phase3-dev3-layout48' preview/index.html
+          grep -q 'v13.25-phase3-journal-sticker-surface-v2.js?v=phase3-dev3-layout48' preview/index.html
+          grep -q 'v13.25-phase3-journal-row-final.js?v=phase3-dev3-layout48' preview/index.html
+          grep -q 'v13.25-phase3-journal-reader-refinements.js?v=phase3-dev3-layout48' preview/index.html
 
       - name: Publish preview repository
         shell: bash
@@ -81,7 +83,7 @@ jobs:
           if git diff --cached --quiet; then
             echo 'Preview repository already current.'
           else
-            git commit -m 'Deploy v13.25 Phase 3 Journal sticker polish layout47'
+            git commit -m 'Deploy v13.25 Phase 3 Journal sticker transform surface layout48'
             git push origin HEAD:main
           fi
 
