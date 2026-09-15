@@ -1,16 +1,15 @@
 /* Audrey Closet v13.25 Phase 3 — Journal Sticker Surface v2
- * Layout49 architectural sticker editor.
- *
- * One fixed-coordinate transform surface owns live sticker editing:
- * - Journal content stays fixed underneath
- * - gesture frames use compositor transforms only
- * - Journal percentages/state are committed only on Done/close
- * - one read-only renderer owns stickers after editing closes
+ * Layout50 polish:
+ * - v2 owns both live editing and read-only sticker presentation
+ * - static stickers render immediately after Done and on Journal open
+ * - sticker assets are preloaded to avoid visible draw-in
+ * - resize preserves sticker aspect ratio
+ * - selection handles render outside the artwork without clipping
  */
 (function(){
   'use strict';
 
-  const VERSION='2.1';
+  const VERSION='2.2';
   const STYLE_ID='v1325JournalStickerSurfaceV2Styles';
   const VIRTUAL_W=1000;
   const MIN_SIZE=90;
@@ -21,6 +20,7 @@
   let raf=0;
   let pendingPoint=null;
   let listenersAbort=null;
+  let readerWrapped=false;
 
   function reader(){return document.querySelector('#v1325JournalReaderDialog');}
   function readerPage(){return document.querySelector('#v1325JournalReaderPage');}
@@ -32,29 +32,48 @@
   function packs(){return Array.isArray(window.AUDREY_STICKER_PACKS_V1?.packs)?window.AUDREY_STICKER_PACKS_V1.packs:[];}
   function stickerDef(packId,id){return packs().find(p=>String(p.id)===String(packId))?.stickers?.find(s=>String(s.id)===String(id))||null;}
 
+  function preloadStickerAssets(){
+    packs().forEach(pack=>(pack.stickers||[]).forEach(sticker=>{
+      if(sticker?.type==='image'&&sticker.src){const img=new Image();img.decoding='async';img.src=sticker.src;}
+    }));
+  }
+
   function installStyles(){
     document.getElementById(STYLE_ID)?.remove();
     const s=document.createElement('style');s.id=STYLE_ID;s.textContent=`
-      #v1325JournalReaderDialog.v1325-surface-editing .v1325-refine-sticker-layer,
-      #v1325JournalReaderDialog.v1325-surface-editing .v1325-reader-sticker-layer{visibility:hidden!important;pointer-events:none!important}
+      /* v2 is the only visible Journal sticker renderer. */
+      #v1325JournalReaderDialog .v1325-refine-sticker-layer,
+      #v1325JournalReaderDialog .v1325-reader-sticker-layer{display:none!important;visibility:hidden!important;pointer-events:none!important}
+
       #v1325JournalReaderDialog.v1325-surface-editing .v1325-refine-tray{display:block!important;bottom:112px!important}
       #v1325JournalReaderDialog.v1325-surface-editing .v1325-reader-scroll{padding-bottom:250px!important}
       #v1325JournalReaderDialog.v1325-surface-editing #v1325ReaderBackBtn,
       #v1325JournalReaderDialog.v1325-surface-editing #v1325ReaderEditBtn{opacity:.38!important;pointer-events:none!important;filter:grayscale(.25)!important}
       #v1325JournalReaderDialog.v1325-surface-editing .v1325-refine-footer-stickers{background:var(--olive,#66715a)!important;color:#fff!important;border-color:var(--olive-dark,#4e5945)!important}
+      #v1325JournalReaderDialog.v1325-surface-editing [data-outline]{opacity:1!important;pointer-events:auto!important}
 
       #v1325JournalReaderPage{position:relative!important}
-      #v1325JournalReaderPage .v1325-sticker-surface-viewport{position:absolute;inset:0;z-index:35;overflow:visible;pointer-events:none;contain:layout style paint}
+      #v1325JournalReaderPage .v1325-sticker-static-layer,
+      #v1325JournalReaderPage .v1325-sticker-surface-viewport{position:absolute;inset:0;z-index:24;overflow:visible;pointer-events:none}
+      #v1325JournalReaderPage .v1325-sticker-static-layer{contain:layout style;z-index:23}
+      #v1325JournalReaderDialog.v1325-surface-editing #v1325JournalReaderPage .v1325-sticker-static-layer{visibility:hidden!important}
+      #v1325JournalReaderPage .v1325-sticker-surface-viewport{z-index:35;contain:layout style paint}
       #v1325JournalReaderDialog.v1325-surface-editing #v1325JournalReaderPage .v1325-sticker-surface-viewport{pointer-events:auto}
       #v1325JournalReaderPage .v1325-sticker-surface{position:absolute;left:0;top:0;transform-origin:0 0;pointer-events:none;will-change:transform;contain:layout style paint}
       #v1325JournalReaderDialog.v1325-surface-editing #v1325JournalReaderPage .v1325-sticker-surface{pointer-events:auto}
 
-      #v1325JournalReaderPage .v1325-surface-sticker{position:absolute;left:0;top:0;display:grid;place-items:center;box-sizing:border-box;transform-origin:center center;touch-action:none;user-select:none;-webkit-user-select:none;pointer-events:auto;backface-visibility:hidden;-webkit-backface-visibility:hidden;contain:layout style paint;container-type:size}
+      #v1325JournalReaderPage .v1325-static-sticker{position:absolute;display:grid;place-items:center;box-sizing:border-box;transform-origin:center;pointer-events:none;container-type:size}
+      #v1325JournalReaderPage .v1325-static-sticker img{display:block;width:100%;height:100%;object-fit:contain;pointer-events:none}
+      #v1325JournalReaderPage .v1325-static-sticker .v1325-static-glyph{display:grid;place-items:center;width:100%;height:100%;font-size:min(72cqw,72cqh);line-height:1}
+      #v1325JournalReaderPage .v1325-static-sticker.outlined img{filter:drop-shadow(2px 0 0 #fff) drop-shadow(-2px 0 0 #fff) drop-shadow(0 2px 0 #fff) drop-shadow(0 -2px 0 #fff)}
+      #v1325JournalReaderPage .v1325-static-sticker.outlined .v1325-static-glyph{text-shadow:-2px 0 #fff,2px 0 #fff,0 -2px #fff,0 2px #fff,-1px -1px #fff,1px 1px #fff,-1px 1px #fff,1px -1px #fff}
+
+      #v1325JournalReaderPage .v1325-surface-sticker{position:absolute;left:0;top:0;display:grid;place-items:center;box-sizing:border-box;transform-origin:center center;touch-action:none;user-select:none;-webkit-user-select:none;pointer-events:auto;backface-visibility:hidden;-webkit-backface-visibility:hidden;contain:layout style;overflow:visible!important;container-type:size}
       #v1325JournalReaderPage .v1325-surface-sticker img{display:block;width:100%;height:100%;object-fit:contain;pointer-events:none;-webkit-user-drag:none}
       #v1325JournalReaderPage .v1325-surface-sticker .v1325-surface-glyph{display:grid;place-items:center;width:100%;height:100%;font-size:min(72cqw,72cqh);line-height:1;pointer-events:none}
       #v1325JournalReaderPage .v1325-surface-sticker.outlined img{filter:drop-shadow(3px 0 0 #fff) drop-shadow(-3px 0 0 #fff) drop-shadow(0 3px 0 #fff) drop-shadow(0 -3px 0 #fff)}
       #v1325JournalReaderPage .v1325-surface-sticker.outlined .v1325-surface-glyph{text-shadow:-3px 0 #fff,3px 0 #fff,0 -3px #fff,0 3px #fff,-2px -2px #fff,2px 2px #fff,-2px 2px #fff,2px -2px #fff}
-      #v1325JournalReaderPage .v1325-surface-sticker.selected:before{content:'';position:absolute;inset:1px;border:1.5px dashed rgba(90,72,56,.66);border-radius:6px;pointer-events:none;box-sizing:border-box}
+      #v1325JournalReaderPage .v1325-surface-sticker.selected:before{content:'';position:absolute;inset:-10px;border:1.5px dashed rgba(90,72,56,.66);border-radius:8px;pointer-events:none;box-sizing:border-box}
       #v1325JournalReaderPage .v1325-surface-sticker.gesture-active{will-change:transform;z-index:999!important}
       #v1325JournalReaderPage .v1325-surface-sticker.gesture-active img{filter:none!important}
       #v1325JournalReaderPage .v1325-surface-sticker.gesture-active:before{display:none}
@@ -62,7 +81,6 @@
       #v1325JournalReaderPage .v1325-surface-handle{position:absolute;padding:0;border:1px solid rgba(85,66,52,.28);border-radius:50%;background:#fffaf0;color:#664f3f;box-shadow:0 2px 7px rgba(50,39,31,.18);font-family:system-ui;font-weight:800;text-align:center;z-index:8;touch-action:none;box-sizing:border-box}
 
       #v1325JournalReaderDialog.v1325-surface-editing .v1325-refine-help{white-space:normal!important;line-height:1.25!important}
-      #v1325JournalReaderDialog.v1325-surface-editing [data-outline]{opacity:1!important;pointer-events:auto!important}
 
       @media(max-width:560px){
         #v1325JournalReaderDialog.v1325-surface-editing .v1325-refine-tray{bottom:120px!important}
@@ -71,9 +89,10 @@
     `;document.head.appendChild(s);
   }
 
-  function contentMarkup(model){
+  function contentMarkup(model,mode='surface'){
     const d=stickerDef(model.packId,model.stickerId),src=model.src||(d?.type==='image'?d.src:'')||'',glyph=model.glyph||d?.glyph||'✨';
-    return src?`<img src="${esc(src)}" alt="${esc(model.label||d?.label||'Sticker')}" draggable="false">`:`<span class="v1325-surface-glyph">${esc(glyph)}</span>`;
+    const cls=mode==='static'?'v1325-static-glyph':'v1325-surface-glyph';
+    return src?`<img src="${esc(src)}" alt="${esc(model.label||d?.label||'Sticker')}" draggable="false" decoding="async">`:`<span class="${cls}">${esc(glyph)}</span>`;
   }
 
   function objectToModel(obj,vh){
@@ -98,9 +117,7 @@
 
   function sizeHandles(node){
     if(!session||!node)return;
-    /* The whole virtual surface is scaled to the phone. Counter-scale controls so
-       they remain a finger-friendly ~30px on screen regardless of page width. */
-    const visual=30,unit=visual/Math.max(.12,session.scale),font=14/Math.max(.12,session.scale),offset=8/Math.max(.12,session.scale);
+    const visual=31,unit=visual/Math.max(.12,session.scale),font=14/Math.max(.12,session.scale),offset=3/Math.max(.12,session.scale);
     node.querySelectorAll('.v1325-surface-handle').forEach(h=>{h.style.width=unit+'px';h.style.height=unit+'px';h.style.minWidth=unit+'px';h.style.fontSize=font+'px';h.style.lineHeight=unit+'px';});
     const del=node.querySelector('.v1325-surface-delete'),rez=node.querySelector('.v1325-surface-resize'),rot=node.querySelector('.v1325-surface-rotate');
     if(del){del.style.right=-offset+'px';del.style.top=-offset+'px';}
@@ -123,6 +140,17 @@
     return n;
   }
 
+  function makeStaticNode(obj){
+    const n=document.createElement('div');n.className='v1325-static-sticker'+(obj.outline?' outlined':'');
+    n.style.left=clamp(+obj.x||0,0,96)+'%';n.style.top=clamp(+obj.y||0,0,96)+'%';n.style.width=clamp(+obj.w||16,4,60)+'%';n.style.height=clamp(+obj.h||15,2,60)+'%';n.style.zIndex=String(+obj.z||30);n.style.transform=`rotate(${+obj.rotation||0}deg)`;n.innerHTML=contentMarkup(obj,'static');return n;
+  }
+
+  function renderStatic(e=entry()){
+    const rp=readerPage(),p=creative(e);if(!rp||!p)return;
+    let layer=rp.querySelector(':scope > .v1325-sticker-static-layer');if(!layer){layer=document.createElement('div');layer.className='v1325-sticker-static-layer';rp.appendChild(layer);}
+    const frag=document.createDocumentFragment();p.objects.filter(o=>o&&o.kind==='sticker').forEach(o=>frag.appendChild(makeStaticNode(o)));layer.replaceChildren(frag);
+  }
+
   function selectedModel(){return session?.selectedId?session.models.get(session.selectedId)||null:null;}
   function select(id){if(!session)return;session.selectedId=id||'';session.surface.querySelectorAll('.v1325-surface-sticker.selected').forEach(n=>n.classList.remove('selected'));if(id)session.surface.querySelector(`[data-surface-sticker-id="${CSS.escape(id)}"]`)?.classList.add('selected');syncBorderButton();}
 
@@ -143,7 +171,7 @@
     p.objects.filter(o=>o&&o.kind==='sticker').forEach(o=>{const m=objectToModel(o,base.vh);models.set(m.id,m);base.surface.appendChild(makeNode(m));});
     r.classList.remove('v1325-refine-decorating','v1325-gesture-session');r.classList.add('v1325-surface-editing');
     const b=r.querySelector('.v1325-refine-footer-stickers');if(b){b.classList.add('active');b.textContent='✓ Done';}
-    const help=r.querySelector('.v1325-refine-help');if(help)help.textContent='Tap below to add • drag to move • ↻ rotate • ↘ resize';
+    const help=r.querySelector('.v1325-refine-help');if(help)help.textContent='Tap below to add • drag to move • ↻ rotate • ↘ resize proportionally';
     bindSessionEvents();syncBorderButton();
   }
 
@@ -157,25 +185,17 @@
       modelToObject(m,session.vh,o);next.push(o);
     }
     p.objects=[...nonStickers,...next];session.e.updated=Date.now();
+    renderStatic(session.e);
     try{Promise.resolve(saveState()).catch(()=>{});}catch{}
   }
 
-  function hideLegacyReadLayer(){
-    const r=reader();if(!r)return;
-    r.querySelectorAll('.v1325-reader-sticker-layer').forEach(n=>{n.style.display='none';n.setAttribute('aria-hidden','true');});
-  }
-
   function closeEditor({commit=true}={}){
-    const r=reader();if(!session){r?.classList.remove('v1325-surface-editing');return;}
-    cancelGesture();if(commit)commitSession();
+    const r=reader();if(!session){r?.classList.remove('v1325-surface-editing');renderStatic();return;}
+    cancelGesture();const e=session.e;if(commit)commitSession();
     session.viewport?.remove();session=null;listenersAbort?.abort();listenersAbort=null;
     r?.classList.remove('v1325-surface-editing');
     const b=r?.querySelector('.v1325-refine-footer-stickers');if(b){b.classList.remove('active');b.textContent='✦ Add Stickers';}
-    /* There are two historic read renderers in this dev stack. Keep only the
-       refinement renderer visible; calling the older creative-page refresh here
-       was the cause of the duplicate smaller sticker set after Done. */
-    hideLegacyReadLayer();
-    requestAnimationFrame(()=>{try{window.AudreyJournalCreativeRefinements?.refresh?.();}catch{} hideLegacyReadLayer();});
+    renderStatic(e);
   }
 
   function syncBorderButton(){
@@ -187,7 +207,6 @@
   function addSticker(packId,stickerId){
     if(!session)return;const d=stickerDef(packId,stickerId);if(!d)return;
     const active=[...session.models.values()].filter(m=>!m.deleted);if(active.length>=MAX_STICKERS){if(typeof toast==='function')toast(`Journal pages can hold up to ${MAX_STICKERS} stickers`);return;}
-    /* Start large enough to manipulate comfortably on an iPhone. */
     const w=d.sizeClass==='medium'?255:220,h=w,c=active.length;
     const m={id:uid(),packId,stickerId,label:d.label||stickerId,glyph:d.glyph||'✨',src:d.type==='image'?d.src:'',x:clamp(520+(c%3)*45,30,VIRTUAL_W-w-30),y:clamp(170+(c%4)*58,30,session.vh-h-30),w,h,rotation:0,outline:!!session.defaultOutline,z:50+c,deleted:false};
     session.models.set(m.id,m);session.surface.appendChild(makeNode(m));session.dirty=true;select(m.id);
@@ -207,22 +226,33 @@
     if(!session)return;const id=node.dataset.surfaceStickerId,m=session.models.get(id);if(!m)return;
     ev.preventDefault();ev.stopImmediatePropagation();select(id);
     const p=pointToVirtual(ev),cx=m.x+m.w/2,cy=m.y+m.h/2;
-    gesture={mode,node,m,pointerId:ev.pointerId,startX:p.x,startY:p.y,lastX:p.x,lastY:p.y,start:{x:m.x,y:m.y,w:m.w,h:m.h,rotation:m.rotation||0},cx,cy};
+    gesture={mode,node,m,pointerId:ev.pointerId,startX:p.x,startY:p.y,lastX:p.x,lastY:p.y,start:{x:m.x,y:m.y,w:m.w,h:m.h,rotation:m.rotation||0},cx,cy,startDistance:Math.max(1,Math.hypot(p.x-cx,p.y-cy))};
     node.classList.add('gesture-active');try{node.setPointerCapture(ev.pointerId);}catch{}
   }
 
   function queueGesture(ev){if(!gesture||ev.pointerId!==gesture.pointerId)return;ev.preventDefault();ev.stopImmediatePropagation();pendingPoint=pointToVirtual(ev);if(!raf)raf=requestAnimationFrame(paintGesture);}
-  function paintGesture(){raf=0;if(!gesture||!pendingPoint)return;const g=gesture,p=pendingPoint;g.lastX=p.x;g.lastY=p.y;const dx=p.x-g.startX,dy=p.y-g.startY;
+  function paintGesture(){
+    raf=0;if(!gesture||!pendingPoint)return;const g=gesture,p=pendingPoint;g.lastX=p.x;g.lastY=p.y;const dx=p.x-g.startX,dy=p.y-g.startY;
     if(g.mode==='move')g.node.style.transform=`translate3d(${g.start.x+dx}px,${g.start.y+dy}px,0) rotate(${g.start.rotation}deg)`;
-    else if(g.mode==='resize'){const nw=clamp(g.start.w+dx,MIN_SIZE,VIRTUAL_W*.60),nh=clamp(g.start.h+dy,MIN_SIZE,session.vh*.60),sx=nw/g.start.w,sy=nh/g.start.h;g.node.style.transform=`translate3d(${g.start.x}px,${g.start.y}px,0) rotate(${g.start.rotation}deg) scale3d(${sx},${sy},1)`;g.previewW=nw;g.previewH=nh;}
-    else if(g.mode==='rotate'){const a0=Math.atan2(g.startY-g.cy,g.startX-g.cx),a1=Math.atan2(p.y-g.cy,p.x-g.cx),deg=g.start.rotation+(a1-a0)*180/Math.PI;g.node.style.transform=`translate3d(${g.start.x}px,${g.start.y}px,0) rotate(${deg}deg)`;g.previewRotation=deg;}
+    else if(g.mode==='resize'){
+      const scale=clamp(Math.hypot(p.x-g.cx,p.y-g.cy)/g.startDistance,Math.max(MIN_SIZE/g.start.w,MIN_SIZE/g.start.h),3.2);
+      const nw=g.start.w*scale,nh=g.start.h*scale,nx=g.cx-nw/2,ny=g.cy-nh/2;
+      g.node.style.transform=`translate3d(${nx}px,${ny}px,0) rotate(${g.start.rotation}deg) scale3d(${scale},${scale},1)`;
+      g.previewScale=scale;g.previewX=nx;g.previewY=ny;
+    }else if(g.mode==='rotate'){
+      const a0=Math.atan2(g.startY-g.cy,g.startX-g.cx),a1=Math.atan2(p.y-g.cy,p.x-g.cx),deg=g.start.rotation+(a1-a0)*180/Math.PI;
+      g.node.style.transform=`translate3d(${g.start.x}px,${g.start.y}px,0) rotate(${deg}deg)`;g.previewRotation=deg;
+    }
   }
 
-  function finishGesture(ev){if(!gesture||ev.pointerId!==gesture.pointerId)return;ev.preventDefault();ev.stopImmediatePropagation();pendingPoint=pointToVirtual(ev);if(raf){cancelAnimationFrame(raf);raf=0;}paintGesture();const g=gesture,dx=g.lastX-g.startX,dy=g.lastY-g.startY;
+  function finishGesture(ev){
+    if(!gesture||ev.pointerId!==gesture.pointerId)return;ev.preventDefault();ev.stopImmediatePropagation();pendingPoint=pointToVirtual(ev);if(raf){cancelAnimationFrame(raf);raf=0;}paintGesture();const g=gesture,dx=g.lastX-g.startX,dy=g.lastY-g.startY;
     if(g.mode==='move'){g.m.x=clamp(g.start.x+dx,0,VIRTUAL_W-g.m.w);g.m.y=clamp(g.start.y+dy,0,session.vh-g.m.h);}
-    else if(g.mode==='resize'){g.m.w=g.previewW||g.start.w;g.m.h=g.previewH||g.start.h;g.m.x=clamp(g.start.x,0,VIRTUAL_W-g.m.w);g.m.y=clamp(g.start.y,0,session.vh-g.m.h);}
-    else if(g.mode==='rotate')g.m.rotation=Math.round((Number.isFinite(g.previewRotation)?g.previewRotation:g.start.rotation)*10)/10;
-    applyModelNode(g.node,g.m);g.node.classList.remove('gesture-active');session.dirty=true;try{g.node.releasePointerCapture(ev.pointerId);}catch{}gesture=null;pendingPoint=null;
+    else if(g.mode==='resize'){
+      const scale=g.previewScale||1;g.m.w=clamp(g.start.w*scale,MIN_SIZE,VIRTUAL_W*.60);g.m.h=clamp(g.start.h*scale,MIN_SIZE,session.vh*.60);
+      g.m.x=clamp(g.cx-g.m.w/2,0,VIRTUAL_W-g.m.w);g.m.y=clamp(g.cy-g.m.h/2,0,session.vh-g.m.h);
+    }else if(g.mode==='rotate')g.m.rotation=Math.round((Number.isFinite(g.previewRotation)?g.previewRotation:g.start.rotation)*10)/10;
+    applyModelNode(g.node,g.m);sizeHandles(g.node);g.node.classList.remove('gesture-active');session.dirty=true;try{g.node.releasePointerCapture(ev.pointerId);}catch{}gesture=null;pendingPoint=null;
   }
 
   function cancelGesture(){if(raf)cancelAnimationFrame(raf);raf=0;pendingPoint=null;if(gesture){applyModelNode(gesture.node,gesture.m);gesture.node.classList.remove('gesture-active');gesture=null;}}
@@ -239,6 +269,11 @@
     window.addEventListener('pointermove',queueGesture,{capture:true,passive:false,signal:sig});window.addEventListener('pointerup',finishGesture,{capture:true,signal:sig});window.addEventListener('pointercancel',finishGesture,{capture:true,signal:sig});
   }
 
+  function wrapReader(){
+    if(readerWrapped)return;const api=window.AudreyJournalExperienceDev3;if(!api?.openReader)return;
+    const open0=api.openReader.bind(api);api.openReader=function(id){const out=open0(id);if(session)closeEditor({commit:true});renderStatic();requestAnimationFrame(()=>renderStatic());return out;};readerWrapped=true;
+  }
+
   document.addEventListener('click',ev=>{
     const r=reader(),addBtn=ev.target.closest?.('.v1325-refine-footer-stickers');
     if(addBtn){ev.preventDefault();ev.stopImmediatePropagation();if(session)closeEditor({commit:true});else openEditor();return;}
@@ -249,8 +284,10 @@
     const outline=ev.target.closest?.('[data-outline]');if(outline){ev.preventDefault();ev.stopImmediatePropagation();toggleBorder();return;}
   },true);
 
-  document.addEventListener('click',ev=>{if(ev.target.closest?.('#v1325JournalViewBtn')){if(session)closeEditor({commit:true});requestAnimationFrame(()=>reader()?.classList.remove('v1325-surface-editing'));}},true);
+  document.addEventListener('click',ev=>{
+    if(ev.target.closest?.('#v1325JournalViewBtn')){if(session)closeEditor({commit:true});requestAnimationFrame(()=>{reader()?.classList.remove('v1325-surface-editing');renderStatic();});}
+  },true);
 
-  installStyles();
-  window.AudreyJournalStickerSurfaceV2={version:VERSION,open:openEditor,done:()=>closeEditor({commit:true}),reset:()=>closeEditor({commit:true}),isOpen:()=>!!session};
+  installStyles();preloadStickerAssets();wrapReader();setTimeout(()=>{preloadStickerAssets();wrapReader();renderStatic();},160);
+  window.AudreyJournalStickerSurfaceV2={version:VERSION,open:openEditor,done:()=>closeEditor({commit:true}),reset:()=>closeEditor({commit:true}),render:renderStatic,isOpen:()=>!!session};
 })();
