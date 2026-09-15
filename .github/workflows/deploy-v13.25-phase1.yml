@@ -58,10 +58,10 @@ jobs:
           test -f preview/v13.25-phase3-journal-reader-refinements.js
           test -f preview/photo-studio-reopen-snapshot-hotfix-v13.24.js
           test -f preview/photo-studio-state-integrity-hotfix-v13.24.js
-          grep -q 'audrey-preview-build" content="v13.25-phase3-dev3-layout39' preview/index.html
-          grep -q 'v13.25-phase3-journal-row-final.js?v=phase3-dev3-layout39' preview/index.html
-          grep -q 'v13.25-phase3-journal-row-spacing-final.js?v=phase3-dev3-layout39' preview/index.html
-          grep -q 'v13.25-phase3-journal-reader-refinements.js?v=phase3-dev3-layout39' preview/index.html
+          grep -q 'audrey-preview-build" content="v13.25-phase3-dev3-layout40' preview/index.html
+          grep -q 'v13.25-phase3-journal-row-final.js?v=phase3-dev3-layout40' preview/index.html
+          grep -q 'v13.25-phase3-journal-row-spacing-final.js?v=phase3-dev3-layout40' preview/index.html
+          grep -q 'v13.25-phase3-journal-reader-refinements.js?v=phase3-dev3-layout40' preview/index.html
 
       - name: Publish preview repository
         shell: bash
@@ -74,7 +74,7 @@ jobs:
           if git diff --cached --quiet; then
             echo 'Preview repository already current.'
           else
-            git commit -m 'Deploy v13.25 Phase 3 bottom-aligned Journal titles layout39'
+            git commit -m 'Deploy v13.25 Phase 3 centered Journal titles layout40'
             git push origin HEAD:main
           fi
 
