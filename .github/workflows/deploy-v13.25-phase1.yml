@@ -63,16 +63,16 @@ jobs:
           test -f preview/v13.25-phase3-journal-reader-refinements.js
           test -f preview/photo-studio-reopen-snapshot-hotfix-v13.24.js
           test -f preview/photo-studio-state-integrity-hotfix-v13.24.js
-          grep -q 'audrey-preview-build" content="v13.25-phase3-dev3-layout44' preview/index.html
-          grep -q 'sticker-studio-v13.22-release.js?v=phase3-dev3-layout44' preview/index.html
-          grep -q 'sticker-render-compat-v13.23.1.js?v=phase3-dev3-layout44' preview/index.html
-          grep -q 'v13.25-phase3-era-foundation.js?v=phase3-dev3-layout44' preview/index.html
-          grep -q 'v13.25-phase3-era-immediate-refresh-fix.js?v=phase3-dev3-layout44' preview/index.html
-          grep -q 'v13.25-phase3-journal-creative-page-v1.js?v=phase3-dev3-layout44' preview/index.html
-          grep -q 'v13.25-phase3-journal-creative-page-refinements.js?v=phase3-dev3-layout44' preview/index.html
-          grep -q 'v13.25-phase3-journal-row-final.js?v=phase3-dev3-layout44' preview/index.html
-          grep -q 'v13.25-phase3-journal-row-spacing-final.js?v=phase3-dev3-layout44' preview/index.html
-          grep -q 'v13.25-phase3-journal-reader-refinements.js?v=phase3-dev3-layout44' preview/index.html
+          grep -q 'audrey-preview-build" content="v13.25-phase3-dev3-layout45' preview/index.html
+          grep -q 'sticker-studio-v13.22-release.js?v=phase3-dev3-layout45' preview/index.html
+          grep -q 'sticker-render-compat-v13.23.1.js?v=phase3-dev3-layout45' preview/index.html
+          grep -q 'v13.25-phase3-era-foundation.js?v=phase3-dev3-layout45' preview/index.html
+          grep -q 'v13.25-phase3-era-immediate-refresh-fix.js?v=phase3-dev3-layout45' preview/index.html
+          grep -q 'v13.25-phase3-journal-creative-page-v1.js?v=phase3-dev3-layout45' preview/index.html
+          grep -q 'v13.25-phase3-journal-creative-page-refinements.js?v=phase3-dev3-layout45' preview/index.html
+          grep -q 'v13.25-phase3-journal-row-final.js?v=phase3-dev3-layout45' preview/index.html
+          grep -q 'v13.25-phase3-journal-row-spacing-final.js?v=phase3-dev3-layout45' preview/index.html
+          grep -q 'v13.25-phase3-journal-reader-refinements.js?v=phase3-dev3-layout45' preview/index.html
 
       - name: Publish preview repository
         shell: bash
@@ -85,7 +85,7 @@ jobs:
           if git diff --cached --quiet; then
             echo 'Preview repository already current.'
           else
-            git commit -m 'Deploy v13.25 Phase 3 Journal Creative Page refinement layout44'
+            git commit -m 'Deploy v13.25 Phase 3 Journal sticker bottom tray layout45'
             git push origin HEAD:main
           fi
 
