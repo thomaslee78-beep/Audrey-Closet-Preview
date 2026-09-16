@@ -66,14 +66,15 @@ jobs:
           test -f preview/v13.25-phase3-journal-reader-refinements.js
           test -f preview/photo-studio-reopen-snapshot-hotfix-v13.24.js
           test -f preview/photo-studio-state-integrity-hotfix-v13.24.js
-          grep -q 'audrey-preview-build" content="v13.25-phase3-dev3-layout54' preview/index.html
-          grep -q 'v13.25-phase3-journal-creative-page-refinements.js?v=phase3-dev3-layout54' preview/index.html
-          grep -q 'v13.25-phase3-journal-sticker-interaction-polish.js?v=phase3-dev3-layout54' preview/index.html
-          grep -q 'v13.25-phase3-journal-sticker-surface-v2.js?v=phase3-dev3-layout54' preview/index.html
-          grep -q 'v13.25-phase3-journal-done-exit-fix.js?v=phase3-dev3-layout54' preview/index.html
-          grep -q 'v13.25-phase3-wear-log-interaction-fixes.js?v=phase3-dev3-layout54' preview/index.html
-          grep -q 'v13.25-phase3-journal-row-final.js?v=phase3-dev3-layout54' preview/index.html
-          grep -q 'v13.25-phase3-journal-reader-refinements.js?v=phase3-dev3-layout54' preview/index.html
+          grep -q 'audrey-preview-build" content="v13.25-phase3-dev3-layout55' preview/index.html
+          grep -q 'v13.25-phase3-journal-creative-page-refinements.js?v=phase3-dev3-layout55' preview/index.html
+          grep -q 'v13.25-phase3-journal-sticker-interaction-polish.js?v=phase3-dev3-layout55' preview/index.html
+          grep -q 'v13.25-phase3-journal-sticker-surface-v2.js?v=phase3-dev3-layout55' preview/index.html
+          grep -q 'v13.25-phase3-journal-done-exit-fix.js?v=phase3-dev3-layout55' preview/index.html
+          grep -q 'v13.25-phase3-wear-log-interaction-fixes.js?v=phase3-dev3-layout55' preview/index.html
+          grep -q 'v13.25-phase3-journal-layout-hardening.js?v=phase3-dev3-layout55' preview/index.html
+          grep -q 'v13.25-phase3-journal-row-final.js?v=phase3-dev3-layout55' preview/index.html
+          grep -q 'v13.25-phase3-journal-reader-refinements.js?v=phase3-dev3-layout55' preview/index.html
 
       - name: Publish preview repository
         shell: bash
@@ -81,12 +82,12 @@ jobs:
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
-          git config user.email '4189823+github-actions[bot]@users.noreply.github.com'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
           if git diff --cached --quiet; then
             echo 'Preview repository already current.'
           else
-            git commit -m 'Deploy v13.25 Phase 3 Journal Done-exit layout54'
+            git commit -m 'Deploy v13.25 Phase 3 Journal viewport hardening layout55'
             git push origin HEAD:main
           fi
 
