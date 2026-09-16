@@ -1,9 +1,10 @@
 /* Audrey Closet v13.25 Phase 3 — Wear Log interaction fixes
- * Layout27 targeted fixes layered after wear-log-layout2.
+ * Layout53 targeted fixes layered after wear-log-layout2.
  * - single centered Chapter/Era/Color classifier row
  * - centered color palette popover
  * - edit-state locks for View Journal + bottom actions
- * - Save Journal exits editing after confirmed save
+ * - Done now saves Journal edits before exiting edit mode
+ * - Save Journal remains an explicit fallback and exits after confirmed save
  * - Journal View X returns to the existing Wear Log DOM without rerender flicker
  * - Journal browse rows are rebuilt in the correct order after detail closes
  * - duplicate Edit Journal controls are removed
@@ -11,9 +12,11 @@
 (function(){
   'use strict';
 
-  const VERSION='1.2';
+  const VERSION='1.3';
   const STYLE_ID='v1325WearLogInteractionFixStyles';
   let syncing=false;
+  let doneSavePending=false;
+  let allowEditToggleOnce=false;
 
   function installStyles(){
     document.getElementById(STYLE_ID)?.remove();
@@ -29,6 +32,7 @@
       #journalDetailDialog.v1325-journal-editing .journal-detail-actions{opacity:.42!important;filter:saturate(.55)!important}
       #journalDetailDialog.v1325-journal-editing .journal-detail-actions button{pointer-events:none!important}
       #journalDetailDialog.v1325-journal-editing .v1325-journal-feature-row{display:none!important}
+      #journalDetailDialog #v1325JournalEditToggle.v1325-done-saving{opacity:.68!important;pointer-events:none!important;min-width:72px!important}
       @media(max-width:520px){
         #journalDetailDialog .v1325-day-classifiers{gap:5px!important}
         #journalDetailDialog .v1325-day-classifier-label{font-size:.79rem!important}
@@ -58,7 +62,8 @@
     if(!d)return;
     const edits=[...d.querySelectorAll('.v1325-journal-edit-toggle')];let keep=d.querySelector('#v1325JournalEditToggle')||edits[0]||null;
     edits.forEach(btn=>{if(btn!==keep)btn.remove();});if(!keep)return;if(!keep.id)keep.id='v1325JournalEditToggle';
-    const title=d.querySelector('.v1325-journal-context-title');if(title&&keep.parentNode!==title)title.appendChild(keep);keep.textContent=isEditing(d)?'Done':'Edit Journal';
+    const title=d.querySelector('.v1325-journal-context-title');if(title&&keep.parentNode!==title)title.appendChild(keep);
+    if(!doneSavePending)keep.textContent=isEditing(d)?'Done':'Edit Journal';
   }
 
   function lockFooter(d,editing){
@@ -69,10 +74,6 @@
 
   function syncEditState(d=dialog()){if(!d)return;const editing=isEditing(d);dedupeEditControls(d);lockFooter(d,editing);}
 
-  /* Row composition has a strict dependency order. TitleLog recreates the compact
-     row DOM, DetailToolbar adds the rating/favorite controls, then RowPolish2
-     relocates/alines those controls. Previously we ran TitleLog followed only by
-     RowPolish2, so closing Wear Log erased the stars/heart until a full reload. */
   function rebuildBrowseRows(){
     try{window.AudreyJournalTitleLog?.refresh?.();}catch{}
     try{window.AudreyJournalDetailToolbar?.refresh?.();}catch{}
@@ -80,9 +81,13 @@
     try{window.AudreyJournalLayoutHardening?.refresh?.();}catch{}
   }
 
-  function refreshBrowseRows(){
-    rebuildBrowseRows();
-    requestAnimationFrame(rebuildBrowseRows);
+  function refreshBrowseRows(){rebuildBrowseRows();requestAnimationFrame(rebuildBrowseRows);}
+
+  function exitEditUsingExistingToggle(d){
+    const edit=d?.querySelector('#v1325JournalEditToggle');
+    if(edit){allowEditToggleOnce=true;edit.click();setTimeout(()=>syncEditState(d),0);return;}
+    const sheet=d?.querySelector('.v1325-journal-sheet');sheet?.classList.remove('editing');
+    const editor=d?.querySelector('#v1325JournalEditor');editor?.setAttribute('contenteditable','false');syncEditState(d);
   }
 
   function waitForSaveThenExit(d){
@@ -92,10 +97,38 @@
       const feedback=d.querySelector('#v1325JournalSaveFeedback'),save=d.querySelector('#v1325SaveJournalBtn');
       const saved=/saved/i.test(feedback?.textContent||'')||/saved/i.test(save?.textContent||'');
       const failed=/could not save|try again/i.test(feedback?.textContent||'');
-      if(saved){const edit=d.querySelector('#v1325JournalEditToggle');if(edit){edit.click();setTimeout(()=>syncEditState(d),0);}else{const sheet=d.querySelector('.v1325-journal-sheet');sheet?.classList.remove('editing');const editor=d.querySelector('#v1325JournalEditor');editor?.setAttribute('contenteditable','false');syncEditState(d);}return;}
+      if(saved){exitEditUsingExistingToggle(d);return;}
       if(failed||Date.now()-start>2200)return;setTimeout(poll,60);
     };
     setTimeout(poll,40);
+  }
+
+  async function saveFromDone(d){
+    if(doneSavePending||!d||!isEditing(d))return;
+    const edit=d.querySelector('#v1325JournalEditToggle');
+    const feedback=d.querySelector('#v1325JournalSaveFeedback');
+    doneSavePending=true;
+    if(feedback){feedback.textContent='';feedback.classList.remove('show','error');}
+    if(edit){edit.textContent='Saving…';edit.disabled=true;edit.classList.add('v1325-done-saving');}
+    try{
+      const save=window.AudreyContextualJournal?.save;
+      if(typeof save!=='function')throw new Error('Journal save function is unavailable');
+      await save();
+      const failed=/could not save|try again/i.test(feedback?.textContent||'');
+      const saved=/saved/i.test(feedback?.textContent||'')||/saved/i.test(d.querySelector('#v1325SaveJournalBtn')?.textContent||'');
+      if(failed||!saved){
+        if(!failed&&feedback){feedback.textContent='Could not confirm save — please try again.';feedback.classList.add('show','error');}
+        return;
+      }
+      exitEditUsingExistingToggle(d);
+    }catch(err){
+      console.error('[v13.25] Done save failed',err);
+      if(feedback){feedback.textContent='Could not save — please try again.';feedback.classList.add('show','error');}
+    }finally{
+      doneSavePending=false;
+      if(edit){edit.disabled=false;edit.classList.remove('v1325-done-saving');}
+      setTimeout(()=>syncAll(),0);
+    }
   }
 
   function returnReaderToWearLog(event){
@@ -134,7 +167,13 @@
 
   document.addEventListener('click',event=>{
     const d=dialog();
-    if(event.target.closest?.('#v1325JournalEditToggle')){setTimeout(syncAll,0);setTimeout(syncAll,80);return;}
+    if(event.target.closest?.('#v1325JournalEditToggle')){
+      if(allowEditToggleOnce){allowEditToggleOnce=false;setTimeout(syncAll,0);setTimeout(syncAll,80);return;}
+      if(d&&isEditing(d)){
+        event.preventDefault();event.stopImmediatePropagation();saveFromDone(d);return;
+      }
+      setTimeout(syncAll,0);setTimeout(syncAll,80);return;
+    }
     if(event.target.closest?.('#v1325SaveJournalBtn')){if(d)waitForSaveThenExit(d);return;}
   },true);
 
