@@ -1,16 +1,19 @@
 /* Audrey Closet v13.25 Phase 3 — Journal layout hardening
- * Layout55 stability overlay for all three Journal surfaces.
+ * Layout56 stability overlay for all three Journal surfaces.
  * Prevents horizontal drift, makes the layered Wear Log open atomic so older
  * presentation passes cannot visibly repaint after first display, keeps Journal
- * View clothing thumbnails a consistent horizontally-scrollable size, and
- * explicitly re-centers the app viewport after edit/view transitions.
+ * View clothing thumbnails a consistent horizontally-scrollable size, explicitly
+ * re-centers the app viewport after edit/view transitions, always opens Journal
+ * View at the top, and contains vertical scrolling inside the Journal sheet.
  */
 (function(){
   'use strict';
 
-  const VERSION='1.4';
+  const VERSION='1.5';
   const STYLE_ID='v1325JournalLayoutHardeningStyles';
   let syncing=false;
+  let readerTouchY=null;
+  let readerTouchX=null;
 
   function installStyles(){
     document.getElementById(STYLE_ID)?.remove();
@@ -47,9 +50,12 @@
       #journalDetailDialog #journalDetailFavoriteBtn:active{outline:none!important;-webkit-tap-highlight-color:transparent!important}
       #journalDetailDialog #journalDetailFavoriteBtn:focus-visible{outline:none!important;box-shadow:0 0 0 2px rgba(161,83,82,.16),0 3px 10px rgba(61,48,39,.08)!important}
 
-      #v1325JournalReaderDialog{overflow:hidden!important;overscroll-behavior-x:none!important}
-      #v1325JournalReaderDialog .v1325-reader-scroll{width:100%!important;max-width:100%!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior-x:none!important;touch-action:pan-y!important;box-sizing:border-box!important}
-      #v1325JournalReaderDialog .v1325-reader-page{width:100%!important;max-width:680px!important;min-width:0!important;margin-left:auto!important;margin-right:auto!important;box-sizing:border-box!important;overflow-x:hidden!important}
+      /* Journal View is a self-contained vertical scroller. The modal and page
+         do not participate in document scrolling, and boundary rubber-banding
+         is suppressed so the app background cannot peek through below it. */
+      #v1325JournalReaderDialog{overflow:hidden!important;overscroll-behavior:none!important;touch-action:none!important}
+      #v1325JournalReaderDialog .v1325-reader-scroll{width:100%!important;max-width:100%!important;height:100%!important;min-height:100%!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:none!important;touch-action:pan-y!important;box-sizing:border-box!important;background:#f8efdf!important;-webkit-overflow-scrolling:touch!important}
+      #v1325JournalReaderDialog .v1325-reader-page{width:100%!important;max-width:680px!important;min-width:0!important;min-height:100%!important;margin-left:auto!important;margin-right:auto!important;box-sizing:border-box!important;overflow-x:hidden!important}
       #v1325JournalReaderDialog .v1325-crafted-body,#v1325JournalReaderDialog .v1325-crafted-right,#v1325JournalReaderDialog .v1325-crafted-writing-top,#v1325JournalReaderDialog .v1325-crafted-writing-bottom{min-width:0!important;max-width:100%!important;box-sizing:border-box!important}
 
       /* Full-width keepsake strip. The strip may scroll horizontally, but the
@@ -64,7 +70,7 @@
       #v1325JournalReaderDialog .v1325-crafted-look-label{display:block!important;width:100%!important;margin:3px 0 0!important;padding:0!important;text-align:center!important;transform:none!important}
 
       @media(max-width:560px){
-        #v1325JournalReaderDialog .v1325-reader-page{width:100%!important;max-width:100%!important}
+        #v1325JournalReaderDialog .v1325-reader-page{width:100%!important;max-width:100%!important;min-height:100%!important}
         #v1325JournalReaderDialog .v1325-crafted-lookbar{margin-left:-8px!important;margin-right:-8px!important;padding-left:8px!important;padding-right:8px!important}
         #v1325JournalReaderDialog .v1325-crafted-look .v1325-reader-look{gap:6px!important;padding-left:2px!important;padding-right:2px!important}
         #v1325JournalReaderDialog .v1325-crafted-look .v1325-reader-look-card{flex-basis:108px!important;width:108px!important;min-width:108px!important;max-width:108px!important}
@@ -89,6 +95,15 @@
     if(app&&app.scrollLeft!==0)app.scrollLeft=0;
     if(screen&&screen.scrollLeft!==0)screen.scrollLeft=0;
     if(window.scrollX!==0){const y=window.scrollY;try{window.scrollTo(0,y);}catch{}}
+  }
+
+  function resetReaderTop(){
+    const dialog=document.querySelector('#v1325JournalReaderDialog');
+    const scroll=dialog?.querySelector('.v1325-reader-scroll');
+    if(!dialog?.open||!scroll)return;
+    if(scroll.scrollTop!==0)scroll.scrollTop=0;
+    if(scroll.scrollLeft!==0)scroll.scrollLeft=0;
+    if(dialog.scrollTop!==0)dialog.scrollTop=0;
   }
 
   function markBrowseHosts(){document.querySelectorAll('.journal-row[data-journal-id]').forEach(row=>{const parent=row.parentElement;if(parent)parent.classList.add('v1325-journal-browse-host');});}
@@ -152,6 +167,34 @@
     setTimeout(sync,120);
   }
 
+  function settleReaderOpen(){
+    resetReaderTop();sync();
+    requestAnimationFrame(()=>{resetReaderTop();sync();});
+    setTimeout(resetReaderTop,40);
+    setTimeout(resetReaderTop,140);
+    setTimeout(resetReaderTop,260);
+  }
+
+  function bindReaderBoundaryLock(){
+    const scroll=document.querySelector('#v1325JournalReaderDialog .v1325-reader-scroll');
+    if(!scroll||scroll.dataset.v1325BoundaryLock==='1')return;
+    scroll.dataset.v1325BoundaryLock='1';
+    scroll.addEventListener('touchstart',event=>{
+      const touch=event.touches?.[0];readerTouchY=touch?.clientY??null;readerTouchX=touch?.clientX??null;
+    },{passive:true});
+    scroll.addEventListener('touchmove',event=>{
+      const touch=event.touches?.[0];if(!touch||readerTouchY==null||readerTouchX==null)return;
+      const dy=touch.clientY-readerTouchY,dx=touch.clientX-readerTouchX;
+      readerTouchY=touch.clientY;readerTouchX=touch.clientX;
+      if(Math.abs(dx)>Math.abs(dy))return;
+      const atTop=scroll.scrollTop<=0;
+      const atBottom=scroll.scrollTop+scroll.clientHeight>=scroll.scrollHeight-1;
+      if((atTop&&dy>0)||(atBottom&&dy<0))event.preventDefault();
+    },{passive:false});
+    scroll.addEventListener('touchend',()=>{readerTouchY=null;readerTouchX=null;},{passive:true});
+    scroll.addEventListener('touchcancel',()=>{readerTouchY=null;readerTouchX=null;},{passive:true});
+  }
+
   function bindCloseNormalization(){
     const detail=document.querySelector('#journalDetailDialog');
     if(detail&&detail.dataset.v1325ViewportCloseBound!=='1'){
@@ -161,6 +204,7 @@
     if(reader&&reader.dataset.v1325ViewportCloseBound!=='1'){
       reader.dataset.v1325ViewportCloseBound='1';reader.addEventListener('close',settleViewport);
     }
+    bindReaderBoundaryLock();
   }
 
   function wrapRenderJournal(){
@@ -182,18 +226,26 @@
 
   function wrapReader(){
     const api=window.AudreyJournalExperienceDev3;if(!api?.openReader||api.__journalHardeningWrapped)return;
-    const open0=api.openReader.bind(api);api.openReader=function(id){const out=open0(id);requestAnimationFrame(sync);setTimeout(sync,60);bindCloseNormalization();return out;};api.__journalHardeningWrapped=true;
+    const open0=api.openReader.bind(api);
+    api.openReader=function(id){
+      const out=open0(id);
+      bindCloseNormalization();
+      settleReaderOpen();
+      return out;
+    };
+    api.__journalHardeningWrapped=true;
   }
 
   document.addEventListener('scroll',event=>{const target=event.target;if(target?.matches?.('.journal-detail-scroll,.v1325-reader-scroll,.v1325-journal-browse-host')&&target.scrollLeft!==0)target.scrollLeft=0;},true);
 
   document.addEventListener('click',event=>{
-    if(event.target.closest?.('#v1325JournalEditToggle,#v1325SaveJournalBtn,#v1325JournalViewBtn,#v1325ReaderCloseBtn,.v1325-reader-close'))settleViewport();
+    if(event.target.closest?.('#v1325JournalEditToggle,#v1325SaveJournalBtn,#v1325ReaderCloseBtn,.v1325-reader-close'))settleViewport();
+    if(event.target.closest?.('#v1325JournalViewBtn'))settleReaderOpen();
   },true);
 
   window.addEventListener('resize',settleViewport,{passive:true});
   window.addEventListener('pageshow',settleViewport,{passive:true});
 
   installStyles();wrapRenderJournal();wrapOpenDetail();wrapReader();bindCloseNormalization();requestAnimationFrame(sync);setTimeout(sync,150);
-  window.AudreyJournalLayoutHardening={version:VERSION,refresh:sync,atomicOpen:true,normalizeViewport:settleViewport};
+  window.AudreyJournalLayoutHardening={version:VERSION,refresh:sync,atomicOpen:true,normalizeViewport:settleViewport,resetReaderTop:settleReaderOpen};
 })();
