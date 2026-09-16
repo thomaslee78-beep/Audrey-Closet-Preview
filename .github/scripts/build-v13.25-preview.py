@@ -11,7 +11,7 @@ if count != 1:
     raise SystemExit('Journal detail footer not found')
 
 style = '''  <style id="v1325PreviewJournalFooterStyles">\n    #journalDetailDialog .journal-detail-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);grid-template-areas:"edit board" "cancel delete";gap:10px 12px;align-items:center}\n    #journalDetailDialog #editJournalDetailBtn{grid-area:edit;width:100%;min-width:0}\n    #journalDetailDialog .journal-open-board-btn{grid-area:board;width:100%;min-width:0;white-space:nowrap}\n    #journalDetailDialog #cancelJournalDetailBtn{grid-area:cancel;width:100%;min-width:0}\n    #journalDetailDialog #deleteJournalDetailBtn{grid-area:delete;width:100%;min-width:0;justify-self:stretch;text-align:center}\n  </style>\n'''
-text = text.replace('</head>', style + '  <meta name="audrey-preview-build" content="v13.25-phase3-dev3-layout56">\n</head>', 1)
+text = text.replace('</head>', style + '  <meta name="audrey-preview-build" content="v13.25-phase4-context1">\n</head>', 1)
 
 swpat = re.compile(r'\n\s*<script>\s*if\s*\(\s*[\'\"]serviceWorker[\'\"]\s+in\s+navigator\s*\)\s*\{.*?navigator\.serviceWorker\.register\(.*?</script>\s*', re.S)
 text, n = swpat.subn('\n', text, count=1)
@@ -22,15 +22,15 @@ cleanup = '''  <script id="previewServiceWorkerCleanup">\n    if ('serviceWorker
 
 names=[
 'sticker-studio-v13.22-release.js','sticker-render-compat-v13.23.1.js',
-'v13.25-phase1-journal-board.js','v13.25-phase2-closet-log.js','v13.25-phase3-contextual-journal.js','v13.25-phase3-era-foundation.js','v13.25-phase3-era-immediate-refresh-fix.js','v13.25-phase3-dev3-journal-experience.js','v13.25-phase3-dev3-functional-fixes.js','v13.25-phase3-dev3-journal-layout.js','v13.25-phase3-dev3-reader-polish-fix.js','v13.25-phase3-journal-title-log.js','v13.25-phase3-journal-detail-toolbar.js','v13.25-phase3-journal-row-polish2.js','v13.25-phase3-wear-log-detail-polish.js','v13.25-phase3-wear-log-layout2.js','v13.25-phase3-wear-log-interaction-fixes.js','v13.25-phase3-journal-editor-layout.js','v13.25-phase3-journal-editor-refinements.js','v13.25-phase3-journal-layout-hardening.js','v13.25-phase3-journal-row-final.js','v13.25-phase3-journal-row-spacing-final.js','v13.25-phase3-journal-reader-refinements.js','v13.25-phase3-journal-creative-page-v1.js','v13.25-phase3-journal-creative-page-refinements.js','v13.25-phase3-journal-sticker-interaction-polish.js','v13.25-phase3-journal-sticker-surface-v2.js','v13.25-phase3-journal-done-exit-fix.js','v13.25-item-studio-context-fix.js','photo-studio-reopen-snapshot-hotfix-v13.24.js','photo-studio-state-integrity-hotfix-v13.24.js']
+'v13.25-phase1-journal-board.js','v13.25-phase2-closet-log.js','v13.25-phase3-contextual-journal.js','v13.25-phase3-era-foundation.js','v13.25-phase3-era-immediate-refresh-fix.js','v13.25-phase3-dev3-journal-experience.js','v13.25-phase3-dev3-functional-fixes.js','v13.25-phase3-dev3-journal-layout.js','v13.25-phase3-dev3-reader-polish-fix.js','v13.25-phase3-journal-title-log.js','v13.25-phase3-journal-detail-toolbar.js','v13.25-phase3-journal-row-polish2.js','v13.25-phase3-wear-log-detail-polish.js','v13.25-phase3-wear-log-layout2.js','v13.25-phase3-wear-log-interaction-fixes.js','v13.25-phase3-journal-editor-layout.js','v13.25-phase3-journal-editor-refinements.js','v13.25-phase3-journal-layout-hardening.js','v13.25-phase3-journal-row-final.js','v13.25-phase3-journal-row-spacing-final.js','v13.25-phase3-journal-reader-refinements.js','v13.25-phase3-journal-creative-page-v1.js','v13.25-phase3-journal-creative-page-refinements.js','v13.25-phase3-journal-sticker-interaction-polish.js','v13.25-phase3-journal-sticker-surface-v2.js','v13.25-phase3-journal-done-exit-fix.js','v13.25-phase4-context-enrichment.js','v13.25-item-studio-context-fix.js','photo-studio-reopen-snapshot-hotfix-v13.24.js','photo-studio-state-integrity-hotfix-v13.24.js']
 for name in names:
     text = re.sub(r'\s*<script src="\./' + re.escape(name) + r'(?:\?[^\"]*)?"></script>\s*', '\n', text)
 
-markers='\n'.join('  <script src="./'+name+'?v=phase3-dev3-layout56"></script>' for name in names)
+markers='\n'.join('  <script src="./'+name+'?v=phase4-context1"></script>' for name in names)
 text = text.replace('</body>', cleanup + markers + '\n</body>', 1)
 path.write_text(text, encoding='utf-8')
 
-checks=['Add to Outfit Board','audrey-preview-build" content="v13.25-phase3-dev3-layout56','v13.25-phase3-journal-creative-page-refinements.js?v=phase3-dev3-layout56','v13.25-phase3-journal-sticker-interaction-polish.js?v=phase3-dev3-layout56','v13.25-phase3-journal-sticker-surface-v2.js?v=phase3-dev3-layout56','v13.25-phase3-journal-done-exit-fix.js?v=phase3-dev3-layout56','v13.25-phase3-wear-log-interaction-fixes.js?v=phase3-dev3-layout56','v13.25-phase3-journal-layout-hardening.js?v=phase3-dev3-layout56','v13.25-phase3-journal-row-final.js?v=phase3-dev3-layout56','v13.25-phase3-journal-reader-refinements.js?v=phase3-dev3-layout56']
+checks=['Add to Outfit Board','audrey-preview-build" content="v13.25-phase4-context1','v13.25-phase3-journal-layout-hardening.js?v=phase4-context1','v13.25-phase3-journal-sticker-surface-v2.js?v=phase4-context1','v13.25-phase3-journal-done-exit-fix.js?v=phase4-context1','v13.25-phase4-context-enrichment.js?v=phase4-context1','v13.25-phase3-journal-row-final.js?v=phase4-context1','v13.25-phase3-journal-reader-refinements.js?v=phase4-context1']
 for token in checks:
     if token not in text:
         raise SystemExit(f'Missing expected preview token: {token}')
