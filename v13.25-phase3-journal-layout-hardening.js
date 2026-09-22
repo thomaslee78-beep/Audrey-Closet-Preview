@@ -1,5 +1,5 @@
 /* Audrey Closet v13.25 Phase 3 — Journal layout hardening
- * Layout56 stability overlay for all three Journal surfaces.
+ * Layout57 stability overlay for all three Journal surfaces.
  * Prevents horizontal drift, makes the layered Wear Log open atomic so older
  * presentation passes cannot visibly repaint after first display, keeps Journal
  * View clothing thumbnails a consistent horizontally-scrollable size, explicitly
@@ -9,7 +9,7 @@
 (function(){
   'use strict';
 
-  const VERSION='1.5';
+  const VERSION='1.6';
   const STYLE_ID='v1325JournalLayoutHardeningStyles';
   let syncing=false;
   let readerTouchY=null;
@@ -39,6 +39,8 @@
       .v1325-journal-browse-host .v1325-simple-log{width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;overflow:hidden!important}
       .v1325-journal-browse-host .v1325-simple-date,.v1325-journal-browse-host .v1325-simple-items,.v1325-journal-browse-host .v1325-simple-copy{min-width:0!important;box-sizing:border-box!important}
 
+      body.journal-detail-open{left:0!important;right:0!important;width:100%!important;max-width:100vw!important;overflow-x:hidden!important}
+      body.journal-detail-open #app{width:100%!important;max-width:100vw!important;overflow-x:hidden!important;overflow-x:clip!important}
       #journalDetailDialog{overflow-x:hidden!important;overscroll-behavior-x:none!important;outline:none!important}
       #journalDetailDialog .journal-detail-scroll{width:100%!important;max-width:100%!important;min-width:0!important;overflow-x:hidden!important;overflow-x:clip!important;overscroll-behavior-x:none!important;box-sizing:border-box!important}
       #journalDetailDialog .journal-detail-scroll>*{max-width:100%;box-sizing:border-box}
@@ -70,6 +72,13 @@
       #v1325JournalReaderDialog .v1325-crafted-look-label{display:block!important;width:100%!important;margin:3px 0 0!important;padding:0!important;text-align:center!important;transform:none!important}
 
       @media(max-width:560px){
+        /* iOS Safari can pan/zoom the visual viewport when an editable control is
+           below 16px. Keep every Journal edit target at 16px so leaving the
+           keyboard cannot strand the fixed Wear Log or browse page off-center. */
+        #journalDetailDialog .v1325-journal-sheet.editing input,
+        #journalDetailDialog .v1325-journal-sheet.editing select,
+        #journalDetailDialog .v1325-journal-sheet.editing textarea,
+        #journalDetailDialog .v1325-journal-sheet.editing [contenteditable="true"]{font-size:16px!important}
         #v1325JournalReaderDialog .v1325-reader-page{width:100%!important;max-width:100%!important;min-height:100%!important}
         #v1325JournalReaderDialog .v1325-crafted-lookbar{margin-left:-8px!important;margin-right:-8px!important;padding-left:8px!important;padding-right:8px!important}
         #v1325JournalReaderDialog .v1325-crafted-look .v1325-reader-look{gap:6px!important;padding-left:2px!important;padding-right:2px!important}
@@ -160,11 +169,35 @@
     sync();normalizeDetailFocus(dialog);
   }
 
+  function blurJournalEditor(){
+    const active=document.activeElement;
+    if(!active)return;
+    const detail=document.querySelector('#journalDetailDialog');
+    if(detail?.contains(active)&&(active.matches?.('input,select,textarea,[contenteditable="true"]')||active.isContentEditable)){
+      try{active.blur();}catch{}
+    }
+  }
+
   function settleViewport(){
     sync();
     requestAnimationFrame(sync);
     setTimeout(sync,35);
     setTimeout(sync,120);
+    setTimeout(sync,280);
+    setTimeout(sync,520);
+  }
+
+  function settleAfterJournalEdit(){
+    /* Dismiss the iOS keyboard before the editor DOM is rearranged. Safari can
+       otherwise retain a visual-viewport pan after the body-fixed modal returns
+       to read mode. Re-center again as the keyboard/visual viewport settles. */
+    blurJournalEditor();
+    sync();
+    requestAnimationFrame(sync);
+    setTimeout(sync,60);
+    setTimeout(sync,180);
+    setTimeout(sync,360);
+    setTimeout(sync,620);
   }
 
   function settleReaderOpen(){
@@ -239,13 +272,24 @@
   document.addEventListener('scroll',event=>{const target=event.target;if(target?.matches?.('.journal-detail-scroll,.v1325-reader-scroll,.v1325-journal-browse-host')&&target.scrollLeft!==0)target.scrollLeft=0;},true);
 
   document.addEventListener('click',event=>{
-    if(event.target.closest?.('#v1325JournalEditToggle,#v1325SaveJournalBtn,#v1325ReaderCloseBtn,.v1325-reader-close'))settleViewport();
+    const edit=event.target.closest?.('#v1325JournalEditToggle');
+    const sheet=document.querySelector('#journalDetailDialog .v1325-journal-sheet');
+    if(edit&&sheet?.classList.contains('editing'))settleAfterJournalEdit();
+    else if(edit||event.target.closest?.('#v1325SaveJournalBtn,#v1325ReaderCloseBtn,.v1325-reader-close'))settleViewport();
     if(event.target.closest?.('#v1325JournalViewBtn'))settleReaderOpen();
+  },true);
+
+  document.addEventListener('focusout',event=>{
+    if(event.target?.closest?.('#journalDetailDialog .v1325-journal-sheet.editing'))settleViewport();
   },true);
 
   window.addEventListener('resize',settleViewport,{passive:true});
   window.addEventListener('pageshow',settleViewport,{passive:true});
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize',()=>{if(journalSurfaceActive())settleViewport();},{passive:true});
+    window.visualViewport.addEventListener('scroll',()=>{if(journalSurfaceActive())normalizePageX();},{passive:true});
+  }
 
   installStyles();wrapRenderJournal();wrapOpenDetail();wrapReader();bindCloseNormalization();requestAnimationFrame(sync);setTimeout(sync,150);
-  window.AudreyJournalLayoutHardening={version:VERSION,refresh:sync,atomicOpen:true,normalizeViewport:settleViewport,resetReaderTop:settleReaderOpen};
+  window.AudreyJournalLayoutHardening={version:VERSION,refresh:sync,atomicOpen:true,normalizeViewport:settleViewport,settleAfterEdit:settleAfterJournalEdit,resetReaderTop:settleReaderOpen};
 })();
