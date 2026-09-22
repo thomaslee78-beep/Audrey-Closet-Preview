@@ -1,5 +1,5 @@
 /* Audrey Closet v13.25 Phase 3 — Journal layout hardening
- * Layout58 stability overlay for all three Journal surfaces.
+ * Layout59 stability overlay for all three Journal surfaces.
  * Prevents horizontal drift, makes the layered Wear Log open atomic so older
  * presentation passes cannot visibly repaint after first display, keeps Journal
  * View clothing thumbnails a consistent horizontally-scrollable size, explicitly
@@ -9,7 +9,7 @@
 (function(){
   'use strict';
 
-  const VERSION='1.7';
+  const VERSION='1.8';
   const STYLE_ID='v1325JournalLayoutHardeningStyles';
   let syncing=false;
   let readerTouchY=null;
@@ -42,10 +42,15 @@
 
       body.journal-detail-open{left:0!important;right:0!important;width:100%!important;max-width:100vw!important;overflow-x:hidden!important}
       body.journal-detail-open #app{width:100%!important;max-width:100vw!important;overflow-x:hidden!important;overflow-x:clip!important}
-      #journalDetailDialog{overflow-x:hidden!important;overscroll-behavior-x:none!important;outline:none!important}
+      #journalDetailDialog{width:min(720px,calc(100vw - 16px))!important;max-width:calc(100vw - 16px)!important;margin-left:auto!important;margin-right:auto!important;overflow-x:hidden!important;overscroll-behavior-x:none!important;outline:none!important}
       #journalDetailDialog .journal-detail-scroll{width:100%!important;max-width:100%!important;min-width:0!important;overflow-x:hidden!important;overflow-x:clip!important;overscroll-behavior-x:none!important;box-sizing:border-box!important}
       #journalDetailDialog .journal-detail-scroll>*{max-width:100%;box-sizing:border-box}
       #journalDetailDialog .v1325-journal-sheet{max-width:calc(100% + 28px)!important;box-sizing:border-box!important}
+      /* Editing must not use the edge-to-edge negative-margin sheet. Safari's
+         focus-to-reveal algorithm can horizontally pan that oversized element
+         when Journal Title receives focus. Keep read mode edge-to-edge, but
+         make the editable surface a true 100%-wide child of the scroll area. */
+      #journalDetailDialog .v1325-journal-sheet.editing{width:100%!important;max-width:100%!important;margin-left:0!important;margin-right:0!important;transform:none!important}
       #journalDetailDialog .v1325-look-strip-wrap,#journalDetailDialog .v1325-day-classifiers,#journalDetailDialog .v1325-journal-primary-view{max-width:100%!important;box-sizing:border-box!important}
       #journalDetailDialog .v1325-journal-title-field{width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;overflow-x:hidden!important}
       #journalDetailDialog .v1325-journal-title-input{display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;margin-left:0!important;margin-right:0!important;transform:none!important}
@@ -210,7 +215,9 @@
     const targetTop=titleFocusScrollTop;
     const restore=()=>{
       normalizePageX();
+      if(d.scrollLeft!==0)d.scrollLeft=0;
       if(scroll.scrollLeft!==0)scroll.scrollLeft=0;
+      const app=document.getElementById('app');if(app&&app.scrollLeft!==0)app.scrollLeft=0;
       if(targetTop!=null&&Math.abs(scroll.scrollTop-targetTop)>1)scroll.scrollTop=targetTop;
     };
     restore();
@@ -218,6 +225,7 @@
     setTimeout(restore,40);
     setTimeout(restore,120);
     setTimeout(restore,260);
+    setTimeout(restore,480);
   }
 
   function settleReaderOpen(){
