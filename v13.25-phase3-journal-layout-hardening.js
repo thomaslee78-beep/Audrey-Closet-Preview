@@ -1,5 +1,5 @@
 /* Audrey Closet v13.25 Phase 3 — Journal layout hardening
- * Layout57 stability overlay for all three Journal surfaces.
+ * Layout58 stability overlay for all three Journal surfaces.
  * Prevents horizontal drift, makes the layered Wear Log open atomic so older
  * presentation passes cannot visibly repaint after first display, keeps Journal
  * View clothing thumbnails a consistent horizontally-scrollable size, explicitly
@@ -9,11 +9,12 @@
 (function(){
   'use strict';
 
-  const VERSION='1.6';
+  const VERSION='1.7';
   const STYLE_ID='v1325JournalLayoutHardeningStyles';
   let syncing=false;
   let readerTouchY=null;
   let readerTouchX=null;
+  let titleFocusScrollTop=null;
 
   function installStyles(){
     document.getElementById(STYLE_ID)?.remove();
@@ -46,6 +47,8 @@
       #journalDetailDialog .journal-detail-scroll>*{max-width:100%;box-sizing:border-box}
       #journalDetailDialog .v1325-journal-sheet{max-width:calc(100% + 28px)!important;box-sizing:border-box!important}
       #journalDetailDialog .v1325-look-strip-wrap,#journalDetailDialog .v1325-day-classifiers,#journalDetailDialog .v1325-journal-primary-view{max-width:100%!important;box-sizing:border-box!important}
+      #journalDetailDialog .v1325-journal-title-field{width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;overflow-x:hidden!important}
+      #journalDetailDialog .v1325-journal-title-input{display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;margin-left:0!important;margin-right:0!important;transform:none!important}
 
       #journalDetailDialog #journalDetailFavoriteBtn,
       #journalDetailDialog #journalDetailFavoriteBtn:focus,
@@ -200,6 +203,23 @@
     setTimeout(sync,620);
   }
 
+  function settleTitleFocus(){
+    const d=document.querySelector('#journalDetailDialog');
+    const scroll=d?.querySelector('.journal-detail-scroll');
+    if(!d?.open||!scroll)return;
+    const targetTop=titleFocusScrollTop;
+    const restore=()=>{
+      normalizePageX();
+      if(scroll.scrollLeft!==0)scroll.scrollLeft=0;
+      if(targetTop!=null&&Math.abs(scroll.scrollTop-targetTop)>1)scroll.scrollTop=targetTop;
+    };
+    restore();
+    requestAnimationFrame(restore);
+    setTimeout(restore,40);
+    setTimeout(restore,120);
+    setTimeout(restore,260);
+  }
+
   function settleReaderOpen(){
     resetReaderTop();sync();
     requestAnimationFrame(()=>{resetReaderTop();sync();});
@@ -279,8 +299,20 @@
     if(event.target.closest?.('#v1325JournalViewBtn'))settleReaderOpen();
   },true);
 
+  document.addEventListener('pointerdown',event=>{
+    if(event.target?.closest?.('#v1325JournalTitle')){
+      const scroll=document.querySelector('#journalDetailDialog .journal-detail-scroll');
+      titleFocusScrollTop=scroll?.scrollTop??null;
+    }
+  },true);
+
+  document.addEventListener('focusin',event=>{
+    if(event.target?.matches?.('#v1325JournalTitle'))settleTitleFocus();
+  },true);
+
   document.addEventListener('focusout',event=>{
     if(event.target?.closest?.('#journalDetailDialog .v1325-journal-sheet.editing'))settleViewport();
+    if(event.target?.matches?.('#v1325JournalTitle'))titleFocusScrollTop=null;
   },true);
 
   window.addEventListener('resize',settleViewport,{passive:true});
@@ -291,5 +323,5 @@
   }
 
   installStyles();wrapRenderJournal();wrapOpenDetail();wrapReader();bindCloseNormalization();requestAnimationFrame(sync);setTimeout(sync,150);
-  window.AudreyJournalLayoutHardening={version:VERSION,refresh:sync,atomicOpen:true,normalizeViewport:settleViewport,settleAfterEdit:settleAfterJournalEdit,resetReaderTop:settleReaderOpen};
+  window.AudreyJournalLayoutHardening={version:VERSION,refresh:sync,atomicOpen:true,normalizeViewport:settleViewport,settleAfterEdit:settleAfterJournalEdit,settleTitleFocus,resetReaderTop:settleReaderOpen};
 })();
