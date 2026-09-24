@@ -1,5 +1,5 @@
 /* Audrey Closet v13.25 Phase 3 — Journal layout hardening
- * Layout59 stability overlay for all three Journal surfaces.
+ * Layout60 stability overlay for all three Journal surfaces.
  * Prevents horizontal drift, makes the layered Wear Log open atomic so older
  * presentation passes cannot visibly repaint after first display, keeps Journal
  * View clothing thumbnails a consistent horizontally-scrollable size, explicitly
@@ -9,15 +9,18 @@
 (function(){
   'use strict';
 
-  const VERSION='1.8';
+  const VERSION='1.9';
   const STYLE_ID='v1325JournalLayoutHardeningStyles';
   let syncing=false;
   let readerTouchY=null;
   let readerTouchX=null;
   let titleFocusScrollTop=null;
+  let detailCloseBound=false;
 
   function installStyles(){
-    document.getElementById(STYLE_ID)?.remove();
+    // Never tear down and recreate containment CSS during keyboard resize/focus.
+    // Removing it briefly allows Safari to pan the fixed body and dialog.
+    if(document.getElementById(STYLE_ID))return;
     const style=document.createElement('style');
     style.id=STYLE_ID;
     style.textContent=`
@@ -40,17 +43,21 @@
       .v1325-journal-browse-host .v1325-simple-log{width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;overflow:hidden!important}
       .v1325-journal-browse-host .v1325-simple-date,.v1325-journal-browse-host .v1325-simple-items,.v1325-journal-browse-host .v1325-simple-copy{min-width:0!important;box-sizing:border-box!important}
 
+      html:has(body.journal-detail-open){overflow-x:hidden!important;overscroll-behavior-x:none!important}
       body.journal-detail-open{left:0!important;right:0!important;width:100%!important;max-width:100vw!important;overflow-x:hidden!important}
       body.journal-detail-open #app{width:100%!important;max-width:100vw!important;overflow-x:hidden!important;overflow-x:clip!important}
-      #journalDetailDialog{width:min(720px,calc(100vw - 16px))!important;max-width:calc(100vw - 16px)!important;margin-left:auto!important;margin-right:auto!important;overflow-x:hidden!important;overscroll-behavior-x:none!important;outline:none!important}
+      #journalDetailDialog{width:min(720px,calc(100vw - 16px))!important;max-width:calc(100vw - 16px)!important;box-sizing:border-box!important;margin-left:auto!important;margin-right:auto!important;overflow-x:hidden!important;overscroll-behavior-x:none!important;outline:none!important}
+      #journalDetailDialog[open]{left:0!important;right:0!important;margin-inline:auto!important}
       #journalDetailDialog .journal-detail-scroll{width:100%!important;max-width:100%!important;min-width:0!important;overflow-x:hidden!important;overflow-x:clip!important;overscroll-behavior-x:none!important;box-sizing:border-box!important}
       #journalDetailDialog .journal-detail-scroll>*{max-width:100%;box-sizing:border-box}
-      #journalDetailDialog .v1325-journal-sheet{max-width:calc(100% + 28px)!important;box-sizing:border-box!important}
-      /* Editing must not use the edge-to-edge negative-margin sheet. Safari's
-         focus-to-reveal algorithm can horizontally pan that oversized element
-         when Journal Title receives focus. Keep read mode edge-to-edge, but
-         make the editable surface a true 100%-wide child of the scroll area. */
-      #journalDetailDialog .v1325-journal-sheet.editing{width:100%!important;max-width:100%!important;margin-left:0!important;margin-right:0!important;transform:none!important}
+      /* Layout60: eliminate overflow at its source in BOTH read and edit
+         modes. The old wear-log layer sets width:calc(100% + 28px) and negative
+         margins. Reinstating that width on Done can re-pan the visual viewport,
+         then leave Journal overview off center after X. */
+      #journalDetailDialog .v1325-journal-sheet,
+      #journalDetailDialog .v1325-journal-sheet.editing{width:100%!important;max-width:100%!important;min-width:0!important;margin-left:0!important;margin-right:0!important;transform:none!important;box-sizing:border-box!important}
+      #journalDetailDialog .v1325-journal-context-head,
+      #journalDetailDialog .v1325-journal-write{min-width:0!important;max-width:100%!important;box-sizing:border-box!important}
       #journalDetailDialog .v1325-look-strip-wrap,#journalDetailDialog .v1325-day-classifiers,#journalDetailDialog .v1325-journal-primary-view{max-width:100%!important;box-sizing:border-box!important}
       #journalDetailDialog .v1325-journal-title-field{width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;overflow-x:hidden!important}
       #journalDetailDialog .v1325-journal-title-input{display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;margin-left:0!important;margin-right:0!important;transform:none!important}
@@ -111,7 +118,7 @@
     if(body&&body.scrollLeft!==0)body.scrollLeft=0;
     if(app&&app.scrollLeft!==0)app.scrollLeft=0;
     if(screen&&screen.scrollLeft!==0)screen.scrollLeft=0;
-    if(window.scrollX!==0){const y=window.scrollY;try{window.scrollTo(0,y);}catch{}}
+    if(window.scrollX!==0){const y=window.scrollY;try{window.scrollTo({left:0,top:y,behavior:'instant'});}catch{}}
   }
 
   function resetReaderTop(){
@@ -212,20 +219,15 @@
     const d=document.querySelector('#journalDetailDialog');
     const scroll=d?.querySelector('.journal-detail-scroll');
     if(!d?.open||!scroll)return;
-    const targetTop=titleFocusScrollTop;
+    /* Do not fight Safari by forcing scrollTop while its keyboard opens.
+       Let the inner detail scroll naturally to the focused title; only the
+       page/dialog's horizontal position is constrained. */
     const restore=()=>{
       normalizePageX();
-      if(d.scrollLeft!==0)d.scrollLeft=0;
-      if(scroll.scrollLeft!==0)scroll.scrollLeft=0;
-      const app=document.getElementById('app');if(app&&app.scrollLeft!==0)app.scrollLeft=0;
-      if(targetTop!=null&&Math.abs(scroll.scrollTop-targetTop)>1)scroll.scrollTop=targetTop;
+      if(d.scrollLeft)d.scrollLeft=0;
+      if(scroll.scrollLeft)scroll.scrollLeft=0;
     };
-    restore();
-    requestAnimationFrame(restore);
-    setTimeout(restore,40);
-    setTimeout(restore,120);
-    setTimeout(restore,260);
-    setTimeout(restore,480);
+    restore();requestAnimationFrame(restore);setTimeout(restore,80);setTimeout(restore,250);
   }
 
   function settleReaderOpen(){
@@ -259,7 +261,11 @@
   function bindCloseNormalization(){
     const detail=document.querySelector('#journalDetailDialog');
     if(detail&&detail.dataset.v1325ViewportCloseBound!=='1'){
-      detail.dataset.v1325ViewportCloseBound='1';detail.addEventListener('close',settleViewport);
+      detail.dataset.v1325ViewportCloseBound='1';detail.addEventListener('close',()=>{
+        /* The base close handler releases a position:fixed body and restores Y.
+           Normalize only after that release, without changing saved Y. */
+        settleViewport();setTimeout(normalizePageX,30);setTimeout(normalizePageX,300);
+      });
     }
     const reader=document.querySelector('#v1325JournalReaderDialog');
     if(reader&&reader.dataset.v1325ViewportCloseBound!=='1'){
@@ -307,27 +313,21 @@
     if(event.target.closest?.('#v1325JournalViewBtn'))settleReaderOpen();
   },true);
 
-  document.addEventListener('pointerdown',event=>{
-    if(event.target?.closest?.('#v1325JournalTitle')){
-      const scroll=document.querySelector('#journalDetailDialog .journal-detail-scroll');
-      titleFocusScrollTop=scroll?.scrollTop??null;
-    }
-  },true);
-
-  document.addEventListener('focusin',event=>{
+   document.addEventListener('focusin',event=>{
     if(event.target?.matches?.('#v1325JournalTitle'))settleTitleFocus();
   },true);
 
   document.addEventListener('focusout',event=>{
     if(event.target?.closest?.('#journalDetailDialog .v1325-journal-sheet.editing'))settleViewport();
-    if(event.target?.matches?.('#v1325JournalTitle'))titleFocusScrollTop=null;
+    if(event.target?.matches?.('#v1325JournalTitle'))normalizePageX();
   },true);
 
   window.addEventListener('resize',settleViewport,{passive:true});
   window.addEventListener('pageshow',settleViewport,{passive:true});
   if(window.visualViewport){
     window.visualViewport.addEventListener('resize',()=>{if(journalSurfaceActive())settleViewport();},{passive:true});
-    window.visualViewport.addEventListener('scroll',()=>{if(journalSurfaceActive())normalizePageX();},{passive:true});
+    /* The visual viewport is allowed to move vertically for the keyboard;
+       repeatedly window.scrollTo during visualViewport scroll is counterproductive. */
   }
 
   installStyles();wrapRenderJournal();wrapOpenDetail();wrapReader();bindCloseNormalization();requestAnimationFrame(sync);setTimeout(sync,150);
