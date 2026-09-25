@@ -1,11 +1,11 @@
 /* Audrey Closet v13.25 Phase 3 — Wear Log detail layout pass 2
- * v1.3 keeps a single Chapter selector, compacts/edit-orders context fields,
+ * v1.4 keeps a single Chapter selector, compacts/edit-orders context fields,
  * makes Save Journal exit edit mode, and lets the journal surface use the card width.
  */
 (function(){
   'use strict';
 
-  const VERSION='1.3';
+  const VERSION='1.4';
   const STYLE_ID='v1325WearLogLayout2Styles';
   let syncing=false;
 
@@ -57,8 +57,8 @@
       #journalDetailDialog #v1325JournalWeather{order:3;grid-column:1}
       #journalDetailDialog .v1325-journal-temp-row{order:4;grid-column:2;display:grid!important;grid-template-columns:minmax(0,1fr) 58px!important;gap:5px!important}
 
-      /* Use the available card width instead of nesting another narrow bordered card. */
-      #journalDetailDialog .v1325-journal-sheet{margin-left:-14px!important;margin-right:-14px!important;border-left:0!important;border-right:0!important;border-radius:0!important;box-shadow:none!important;width:calc(100% + 28px)!important;background:linear-gradient(180deg,rgba(255,253,248,.82),rgba(250,245,234,.72))!important}
+      /* A real in-flow card in both read and edit modes. The old oversized\n         calc(100% + 28px) / negative-margin sheet caused Safari's focus-to-\n         reveal behavior to pan the app horizontally after Done. */
+      #journalDetailDialog .v1325-journal-sheet{display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;margin:0!important;box-sizing:border-box!important;border:1px solid rgba(108,81,66,.18)!important;border-radius:15px!important;box-shadow:none!important;background:linear-gradient(180deg,rgba(255,253,248,.82),rgba(250,245,234,.72))!important}
       #journalDetailDialog .v1325-journal-context-head{padding-left:16px!important;padding-right:16px!important}
       #journalDetailDialog .v1325-journal-write{padding-left:16px!important;padding-right:16px!important}
       #journalDetailDialog .v1325-journal-editor{min-height:190px!important}
@@ -82,7 +82,7 @@
         #journalDetailDialog .v1325-journal-temp-row{grid-template-columns:minmax(0,1fr) 52px!important;gap:4px!important}
         #journalDetailDialog .v1325-journal-feature-row{justify-content:stretch}
         #journalDetailDialog #v1325JournalViewBtn{width:100%!important;min-height:40px!important;font-size:.73rem!important}
-        #journalDetailDialog .v1325-journal-sheet{margin-left:-12px!important;margin-right:-12px!important;width:calc(100% + 24px)!important}
+        #journalDetailDialog .v1325-journal-sheet{width:100%!important;max-width:100%!important;margin:0!important;border-radius:13px!important}
         #journalDetailDialog .v1325-journal-context-head,#journalDetailDialog .v1325-journal-write{padding-left:12px!important;padding-right:12px!important}
         #journalDetailDialog .v1325-journal-editor{min-height:210px!important}
       }

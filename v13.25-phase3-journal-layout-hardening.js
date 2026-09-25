@@ -1,5 +1,5 @@
 /* Audrey Closet v13.25 Phase 3 — Journal layout hardening
- * Layout60 stability overlay for all three Journal surfaces.
+ * Layout61 stability overlay for all three Journal surfaces.
  * Prevents horizontal drift, makes the layered Wear Log open atomic so older
  * presentation passes cannot visibly repaint after first display, keeps Journal
  * View clothing thumbnails a consistent horizontally-scrollable size, explicitly
@@ -9,7 +9,7 @@
 (function(){
   'use strict';
 
-  const VERSION='1.9';
+  const VERSION='2.0';
   const STYLE_ID='v1325JournalLayoutHardeningStyles';
   let syncing=false;
   let readerTouchY=null;
@@ -44,8 +44,8 @@
       .v1325-journal-browse-host .v1325-simple-date,.v1325-journal-browse-host .v1325-simple-items,.v1325-journal-browse-host .v1325-simple-copy{min-width:0!important;box-sizing:border-box!important}
 
       html:has(body.journal-detail-open){overflow-x:hidden!important;overscroll-behavior-x:none!important}
-      body.journal-detail-open{left:0!important;right:0!important;width:100%!important;max-width:100vw!important;overflow-x:hidden!important}
-      body.journal-detail-open #app{width:100%!important;max-width:100vw!important;overflow-x:hidden!important;overflow-x:clip!important}
+      /* Native showModal already isolates interaction. A position:fixed body plus\n         an inline negative top is unstable during iOS keyboard focus and leaves\n         the entire app horizontally panned after dialog close. Keep body in flow. */\n      body.journal-detail-open{position:static!important;top:auto!important;left:auto!important;right:auto!important;width:100%!important;max-width:100%!important;overflow-x:hidden!important;overscroll-behavior:none!important}
+      body.journal-detail-open #app,#app:has(>.screen[data-screen="journal"].active){width:100%!important;max-width:850px!important;min-width:0!important;margin-left:auto!important;margin-right:auto!important;box-sizing:border-box!important;overflow-x:hidden!important;overflow-x:clip!important}
       #journalDetailDialog{width:min(720px,calc(100vw - 16px))!important;max-width:calc(100vw - 16px)!important;box-sizing:border-box!important;margin-left:auto!important;margin-right:auto!important;overflow-x:hidden!important;overscroll-behavior-x:none!important;outline:none!important}
       #journalDetailDialog[open]{left:0!important;right:0!important;margin-inline:auto!important}
       #journalDetailDialog .journal-detail-scroll{width:100%!important;max-width:100%!important;min-width:0!important;overflow-x:hidden!important;overflow-x:clip!important;overscroll-behavior-x:none!important;box-sizing:border-box!important}
@@ -55,9 +55,11 @@
          margins. Reinstating that width on Done can re-pan the visual viewport,
          then leave Journal overview off center after X. */
       #journalDetailDialog .v1325-journal-sheet,
-      #journalDetailDialog .v1325-journal-sheet.editing{width:100%!important;max-width:100%!important;min-width:0!important;margin-left:0!important;margin-right:0!important;transform:none!important;box-sizing:border-box!important}
-      #journalDetailDialog .v1325-journal-context-head,
-      #journalDetailDialog .v1325-journal-write{min-width:0!important;max-width:100%!important;box-sizing:border-box!important}
+      #journalDetailDialog .v1325-journal-sheet.editing{display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;margin:0!important;transform:none!important;box-sizing:border-box!important;border:1px solid rgba(108,81,66,.18)!important;border-radius:15px!important;overflow:hidden!important}
+      #journalDetailDialog .journal-detail-notes-block,#journalDetailDialog .journal-notes-body,#journalDetailDialog .v1325-journal-context-head,
+      #journalDetailDialog .v1325-journal-write{width:100%!important;min-width:0!important;max-width:100%!important;box-sizing:border-box!important}
+      #journalDetailDialog .v1325-journal-sheet.editing .v1325-journal-title-input,
+      #journalDetailDialog .v1325-journal-sheet.editing .v1325-journal-editor{border:1px solid rgba(108,81,66,.25)!important;border-radius:11px!important;background-color:#fffdf8!important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.45)!important}
       #journalDetailDialog .v1325-look-strip-wrap,#journalDetailDialog .v1325-day-classifiers,#journalDetailDialog .v1325-journal-primary-view{max-width:100%!important;box-sizing:border-box!important}
       #journalDetailDialog .v1325-journal-title-field{width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;overflow-x:hidden!important}
       #journalDetailDialog .v1325-journal-title-input{display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;margin-left:0!important;margin-right:0!important;transform:none!important}
