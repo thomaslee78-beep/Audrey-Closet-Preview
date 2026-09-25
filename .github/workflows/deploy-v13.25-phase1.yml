@@ -46,13 +46,13 @@ jobs:
           test -f preview/index.html
           test -f preview/app.js
           test -f preview/v13.25-phase4-context-enrichment.js
-          grep -q 'audrey-preview-build" content="v13.25-phase4-layout60' preview/index.html
-          grep -q 'v13.25-phase4-context-enrichment.js?v=phase4-layout60' preview/index.html
-          grep -q 'v13.25-phase3-journal-layout-hardening.js?v=phase4-layout60' preview/index.html
-          grep -q 'v13.25-phase3-journal-sticker-surface-v2.js?v=phase4-layout60' preview/index.html
-          grep -q 'v13.25-phase3-journal-done-exit-fix.js?v=phase4-layout60' preview/index.html
-          grep -q 'v13.25-phase3-journal-row-final.js?v=phase4-layout60' preview/index.html
-          grep -q 'v13.25-phase3-journal-reader-refinements.js?v=phase4-layout60' preview/index.html
+          grep -q 'audrey-preview-build" content="v13.25-phase4-layout61' preview/index.html
+          grep -q 'v13.25-phase4-context-enrichment.js?v=phase4-layout61' preview/index.html
+          grep -q 'v13.25-phase3-journal-layout-hardening.js?v=phase4-layout61' preview/index.html
+          grep -q 'v13.25-phase3-journal-sticker-surface-v2.js?v=phase4-layout61' preview/index.html
+          grep -q 'v13.25-phase3-journal-done-exit-fix.js?v=phase4-layout61' preview/index.html
+          grep -q 'v13.25-phase3-journal-row-final.js?v=phase4-layout61' preview/index.html
+          grep -q 'v13.25-phase3-journal-reader-refinements.js?v=phase4-layout61' preview/index.html
 
       - name: Publish preview repository
         shell: bash
@@ -65,7 +65,7 @@ jobs:
           if git diff --cached --quiet; then
             echo 'Preview repository already current.'
           else
-            git commit -m 'Deploy v13.25 Phase 4 Journal structural containment layout60'
+            git commit -m 'Deploy v13.25 Phase 4 Journal centered sheet layout61'
             git push origin HEAD:main
           fi
 
