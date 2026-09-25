@@ -133,7 +133,7 @@ body.item-dialog-open{position:fixed;left:0;right:0;width:100%;overflow:hidden;o
 @media(max-width:390px){.wear-picker{grid-template-columns:repeat(2,1fr)}.journal-thumbs{max-width:120px}.journal-thumbs img{width:52px;height:52px}.journal-row-copy small{max-width:120px}}
 
 /* v13.1 — journal detail containment, detail rating, and future planning */
-body.journal-detail-open{position:fixed;left:0;right:0;width:100%;overflow:hidden;overscroll-behavior:none}
+body.journal-detail-open{position:static;top:auto;left:auto;right:auto;width:100%;max-width:100%;overflow-x:clip;overscroll-behavior-x:none}
 #journalDetailDialog::backdrop{background:rgba(45,38,31,.46);touch-action:none;overscroll-behavior:none}
 #journalDetailDialog{overflow:hidden;padding:0;max-height:94vh;max-height:94dvh;overscroll-behavior:contain;touch-action:none}
 #journalDetailDialog .journal-detail-scroll{max-height:calc(94dvh - 72px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;padding:17px 17px 24px;scroll-padding-bottom:88px}

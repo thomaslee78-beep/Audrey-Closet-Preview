@@ -1,5 +1,5 @@
 /* Audrey Closet v13.25 Phase 3 — Journal layout hardening
- * Layout61 stability overlay for all three Journal surfaces.
+ * Layout62 stability overlay for all three Journal surfaces.
  * Prevents horizontal drift, makes the layered Wear Log open atomic so older
  * presentation passes cannot visibly repaint after first display, keeps Journal
  * View clothing thumbnails a consistent horizontally-scrollable size, explicitly
@@ -9,13 +9,11 @@
 (function(){
   'use strict';
 
-  const VERSION='2.0';
+  const VERSION='2.1';
   const STYLE_ID='v1325JournalLayoutHardeningStyles';
   let syncing=false;
   let readerTouchY=null;
   let readerTouchX=null;
-  let titleFocusScrollTop=null;
-  let detailCloseBound=false;
 
   function installStyles(){
     // Never tear down and recreate containment CSS during keyboard resize/focus.
@@ -44,7 +42,10 @@
       .v1325-journal-browse-host .v1325-simple-date,.v1325-journal-browse-host .v1325-simple-items,.v1325-journal-browse-host .v1325-simple-copy{min-width:0!important;box-sizing:border-box!important}
 
       html:has(body.journal-detail-open){overflow-x:hidden!important;overscroll-behavior-x:none!important}
-      /* Native showModal already isolates interaction. A position:fixed body plus\n         an inline negative top is unstable during iOS keyboard focus and leaves\n         the entire app horizontally panned after dialog close. Keep body in flow. */\n      body.journal-detail-open{position:static!important;top:auto!important;left:auto!important;right:auto!important;width:100%!important;max-width:100%!important;overflow-x:hidden!important;overscroll-behavior:none!important}
+      /* Native showModal isolates interaction. Keep the body in normal flow:
+         Safari can retain a horizontally panned visual viewport after releasing
+         position:fixed body while the Journal Title keyboard is visible. */
+      body.journal-detail-open{position:static!important;top:auto!important;left:auto!important;right:auto!important;width:100%!important;max-width:100%!important;overflow-x:clip!important;overscroll-behavior-x:none!important}
       body.journal-detail-open #app,#app:has(>.screen[data-screen="journal"].active){width:100%!important;max-width:850px!important;min-width:0!important;margin-left:auto!important;margin-right:auto!important;box-sizing:border-box!important;overflow-x:hidden!important;overflow-x:clip!important}
       #journalDetailDialog{width:min(720px,calc(100vw - 16px))!important;max-width:calc(100vw - 16px)!important;box-sizing:border-box!important;margin-left:auto!important;margin-right:auto!important;overflow-x:hidden!important;overscroll-behavior-x:none!important;outline:none!important}
       #journalDetailDialog[open]{left:0!important;right:0!important;margin-inline:auto!important}

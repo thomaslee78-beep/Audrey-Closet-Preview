@@ -2199,15 +2199,39 @@ function renderWearInsightsVisibility(){
   const content=$('#wearInsightsContent'),toggle=$('#wearInsightsToggle');if(!content||!toggle)return;
   content.classList.toggle('hidden',!wearInsightsExpanded);toggle.setAttribute('aria-expanded',wearInsightsExpanded?'true':'false');const icon=toggle.querySelector('.wear-insights-toggle-icon');if(icon)icon.textContent=wearInsightsExpanded?'−':'＋';
 }
+/* The native modal owns scrolling. Avoid position:fixed + negative body top:
+   on iOS Safari, opening the title keyboard can pan the visual viewport and
+   releasing that fixed body leaves the Journal overview horizontally displaced. */
 function lockPageForJournalDetail(){
   if(document.body.classList.contains('journal-detail-open'))return;
-  journalDetailScrollY=window.scrollY||0;document.body.style.top=`-${journalDetailScrollY}px`;document.body.classList.add('journal-detail-open');
+  journalDetailScrollY=window.scrollY||0;
+  document.body.classList.add('journal-detail-open');
 }
 function unlockPageForJournalDetail(){
   if(!document.body.classList.contains('journal-detail-open'))return;
-  document.body.classList.remove('journal-detail-open');document.body.style.top='';window.scrollTo(0,journalDetailScrollY||0);
+  document.body.classList.remove('journal-detail-open');
+  // Clear the legacy inline top in case a previous modal implementation set it.
+  document.body.style.top='';
+  const y=journalDetailScrollY||0;
+  const restore=()=>{
+    document.documentElement.scrollLeft=0;
+    document.body.scrollLeft=0;
+    const app=document.getElementById('app');if(app)app.scrollLeft=0;
+    window.scrollTo(0,y);
+  };
+  restore();
+  requestAnimationFrame(restore);
+  setTimeout(restore,120);
+  setTimeout(restore,380);
 }
-function closeJournalDetail(){const d=$('#journalDetailDialog');if(d.open)d.close();unlockPageForJournalDetail();viewingJournalId=null}
+function closeJournalDetail(){
+  const d=$('#journalDetailDialog');
+  const active=document.activeElement;
+  if(active&&d?.contains(active)&&typeof active.blur==='function')active.blur();
+  if(d.open)d.close();
+  unlockPageForJournalDetail();
+  viewingJournalId=null;
+}
 const JOURNAL_RATING_TEXT={1:'Would change it',2:'Not quite right',3:'Pretty good',4:'Felt great',5:'Loved it'};
 function legacyJournalRating(feel){const map={'Would change it':1,'Just okay':3,'Felt good':4,'Loved it':5};return map[feel]||0}
 function journalRatingValue(j){const n=Number(j?.rating||0);return n>=1&&n<=5?n:legacyJournalRating(j?.feel)}
