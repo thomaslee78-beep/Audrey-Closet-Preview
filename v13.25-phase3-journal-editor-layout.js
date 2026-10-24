@@ -6,7 +6,7 @@
 (function(){
   'use strict';
 
-  const VERSION='1.0';
+  const VERSION='1.1';
   const STYLE_ID='v1325JournalEditorLayoutStyles';
   let syncing=false;
 
@@ -40,7 +40,9 @@
         min-height:38px!important;
         padding:8px 10px!important;
         border-radius:10px!important;
-        font-size:.96rem!important;
+        /* iOS Safari auto-zooms focused inputs below 16px. Keep this explicit
+           because this selector is more specific than the generic mobile guard. */
+        font-size:16px!important;
       }
 
       /* About the Day is supporting information, visually grouped and collapsible. */

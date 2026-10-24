@@ -1,5 +1,5 @@
 /* Audrey Closet v13.25 Phase 3 — Journal layout hardening
- * Layout62 stability overlay for all three Journal surfaces.
+ * Layout63 stability overlay for all three Journal surfaces.
  * Prevents horizontal drift, makes the layered Wear Log open atomic so older
  * presentation passes cannot visibly repaint after first display, keeps Journal
  * View clothing thumbnails a consistent horizontally-scrollable size, explicitly
@@ -9,7 +9,7 @@
 (function(){
   'use strict';
 
-  const VERSION='2.1';
+  const VERSION='2.2';
   const STYLE_ID='v1325JournalLayoutHardeningStyles';
   let syncing=false;
   let readerTouchY=null;
@@ -97,6 +97,9 @@
         #journalDetailDialog .v1325-journal-sheet.editing select,
         #journalDetailDialog .v1325-journal-sheet.editing textarea,
         #journalDetailDialog .v1325-journal-sheet.editing [contenteditable="true"]{font-size:16px!important}
+        /* Title has a higher-specificity editor rule in the hierarchy module,
+           so enforce the no-auto-zoom threshold at matching specificity too. */
+        #journalDetailDialog .v1325-journal-sheet.editing .v1325-journal-title-input{font-size:16px!important;line-height:1.25!important}
         #v1325JournalReaderDialog .v1325-reader-page{width:100%!important;max-width:100%!important;min-height:100%!important}
         #v1325JournalReaderDialog .v1325-crafted-lookbar{margin-left:-8px!important;margin-right:-8px!important;padding-left:8px!important;padding-right:8px!important}
         #v1325JournalReaderDialog .v1325-crafted-look .v1325-reader-look{gap:6px!important;padding-left:2px!important;padding-right:2px!important}
